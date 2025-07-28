@@ -1,6 +1,10 @@
 from django.urls import path
-from django.http import HttpResponse  # ← ضروري لتعمل HttpResponse
+from .views import home, header, footer, register_view, login_view
 
 urlpatterns = [
-    path('', lambda request: HttpResponse("هذا هو تطبيق core")),
+    path('', home, name='home'),
+    path('header/', header, name='header'),
+    path('footer/', footer, name='footer'),
+    path('register/', register_view, name='register'),
+    path('login/', login_view, name='login'),
 ]
