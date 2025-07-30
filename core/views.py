@@ -1,3 +1,5 @@
+# /Users/hlm../store_project/core/views.py
+
 from django.shortcuts import render, redirect
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login, authenticate
@@ -48,3 +50,11 @@ def login_view(request):
 # ✅ صفحة تواصل معنا
 def contact(request):
     return render(request, 'core/contact.html')
+
+# ✅ صفحة سياسة الخصوصية
+def privacy_view(request):
+    return render(request, 'core/privacy.html')
+
+# ✅ صفحة الشروط والأحكام
+def terms_view(request):
+    return render(request, 'core/terms.html')
