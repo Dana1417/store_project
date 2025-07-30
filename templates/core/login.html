@@ -59,11 +59,15 @@
   </style>
 </head>
 <body>
+
+  {% include "header.html" %}
+
   <div class="login-container">
     <h2>تسجيل الدخول</h2>
     <form method="post">
       {% csrf_token %}
       {{ form.non_field_errors }}
+
       <label for="id_username">اسم المستخدم:</label>
       {{ form.username }}
 
@@ -73,5 +77,8 @@
       <button type="submit">دخول</button>
     </form>
   </div>
+
+  {% include "footer.html" %}
+
 </body>
 </html>
