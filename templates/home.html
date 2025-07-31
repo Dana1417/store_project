@@ -2,148 +2,156 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>الرئيسية - متجرنا</title>
 
   <style>
     body {
+      font-family: 'Tahoma', sans-serif;
       margin: 0;
-      font-family: Arial, sans-serif;
+      padding: 0;
       background-color: #fffaf0;
+    }
+
+    .hero-container {
       display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
-
-    header, footer {
-      background: linear-gradient(to right, #ffe0b2, #ffb74d);
-      padding: 15px 20px;
-      text-align: center;
-      font-weight: bold;
-    }
-
-    main {
-      flex: 1;
-      padding: 40px 20px;
-      text-align: center;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      padding: 50px 20px;
+      background-color: #fffaf0;
     }
 
     .slider {
-      max-width: 700px;
-      margin: 0 auto 40px;
+      flex: 1;
+      max-width: 400px;
       overflow: hidden;
-      border-radius: 15px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      border-radius: 20px;
+      margin: 10px;
+      position: relative;
     }
 
     .slides {
       display: flex;
-      width: 300%;
-      animation: slide 12s infinite;
+      transition: transform 1s ease;
     }
 
     .slides img {
-      width: 100%;
-      height: 400px;
+      width: 400px;
+      height: 300px;
       object-fit: cover;
-    }
-
-    @keyframes slide {
-      0%   { transform: translateX(0%); }
-      33%  { transform: translateX(-100%); }
-      66%  { transform: translateX(-200%); }
-      100% { transform: translateX(0%); }
-    }
-
-    .products {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 20px;
-    }
-
-    .product {
-      border: 1px solid #ddd;
       border-radius: 10px;
-      padding: 15px;
-      width: 250px;
-      background: #fff;
-      transition: transform 0.3s;
     }
 
-    .product:hover {
-      transform: scale(1.05);
+    .hero-text {
+      flex: 1;
+      max-width: 500px;
+      padding: 20px;
+      text-align: right;
     }
 
-    .product img {
-      width: 100%;
-      height: 200px;
-      object-fit: cover;
-      border-radius: 5px;
+    .hero-text h1 {
+      font-size: 28px;
+      color: #e67e22;
+      line-height: 1.6;
     }
 
-    .product h3 {
+    .hero-text h1 mark {
+      background: none;
+      color: #e67e22;
+      border-bottom: 4px solid #f1c40f;
+    }
+
+    .hero-text ul {
+      list-style: none;
+      padding: 0;
+      margin-top: 20px;
+    }
+
+    .hero-text ul li {
       margin: 10px 0;
+      font-size: 18px;
       color: #333;
     }
 
-    .product p {
-      color: #fb8c00;
-      font-weight: bold;
+    .hero-text ul li::before {
+      content: "✔️ ";
+      color: green;
     }
 
-    footer {
-      text-align: center;
-      font-size: 14px;
+    .btn-primary {
+      display: inline-block;
+      margin-top: 20px;
+      background-color: #f39c12;
+      color: white;
+      text-decoration: none;
+      padding: 12px 25px;
+      border-radius: 30px;
+      font-size: 16px;
+      transition: 0.3s;
+    }
+
+    .btn-primary:hover {
+      background-color: #e67e22;
+    }
+
+    @media (max-width: 768px) {
+      .hero-container {
+        flex-direction: column;
+        text-align: center;
+      }
+      .hero-text {
+        max-width: 100%;
+      }
     }
   </style>
 </head>
+
 <body>
 
-  <!-- الهيدر -->
-  <div id="header-container"></div>
+  {% include 'header.html' %}
 
-  <!-- المحتوى -->
-  <main>
-    <h1 style="color: #ef6c00;">مرحبًا بكم في متجرنا!</h1>
-    <p style="color: #555; font-size: 18px;">اكتشف أفضل العروض والمنتجات الحديثة</p>
-
-    <!-- ✅ سلايدر الصور -->
+  <!-- ✅ المقطع الرئيسي -->
+  <section class="hero-container">
+    <!-- ✅ سلايدر صور -->
     <div class="slider">
-      <div class="slides">
-        <img src="{% static 'images/student1.png' %}" alt="طالب/طالبة 1">
-        <img src="{% static 'images/student2.png' %}" alt="طالب/طالبة 2">
-        <img src="{% static 'images/student3.png' %}" alt="طالب/طالبة 3">
+      <div class="slides" id="slides">
+        <img src="{% static 'images/student1.png' %}" alt="طالب">
+        <img src="{% static 'images/teacher.png' %}" alt="معلم">
+        <img src="{% static 'images/student1.png' %}" alt="طالب">
+        <img src="{% static 'images/teacher.png' %}" alt="معلم">
       </div>
     </div>
 
-    <!-- ✅ المنتجات -->
-    <div class="products">
-      {% for product in products %}
-        <div class="product">
-          <img src="{{ product.image.url }}" alt="{{ product.name }}">
-          <h3>{{ product.name }}</h3>
-          <p>{{ product.price }} ريال</p>
-        </div>
-      {% empty %}
-        <p>لا توجد منتجات متاحة حاليًا.</p>
-      {% endfor %}
+    <!-- ✅ النص الجانبي -->
+    <div class="hero-text">
+      <h1>
+        درس أبنائك مع <mark>أفضل المدرسين</mark><br>الخصوصيين في السعودية
+      </h1>
+      <ul>
+        <li>خطة تعليمية مخصصة ومصممة على احتياج الطالب</li>
+        <li>دروس خصوصية عن بعد وفردية (1-1)</li>
+        <li>باقات شهرية مرنة وأسعار مناسبة</li>
+        <li>ندرس جميع المراحل من الروضة وحتى الجامعة</li>
+      </ul>
+      <a href="{% url 'register' %}" class="btn-primary">سجل الآن</a>
     </div>
-  </main>
+  </section>
 
-  <!-- الفوتر -->
-  <div id="footer-container"></div>
+  {% include 'footer.html' %}
 
-  <!-- تحميل الهيدر والفوتر -->
+  <!-- ✅ JavaScript لتحريك الصور تلقائيًا -->
   <script>
-    fetch('/header/').then(r => r.text()).then(d => {
-      document.getElementById('header-container').innerHTML = d;
-    });
+    const slides = document.getElementById('slides');
+    const images = slides.querySelectorAll('img');
+    let index = 0;
 
-    fetch('/footer/').then(r => r.text()).then(d => {
-      document.getElementById('footer-container').innerHTML = d;
-    });
+    setInterval(() => {
+      index = (index + 1) % images.length;
+      slides.style.transform = `translateX(-${index * 400}px)`;
+    }, 3000); // ← كل 3 ثوانٍ يتحرك
   </script>
+
 </body>
 </html>

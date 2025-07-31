@@ -1,8 +1,9 @@
-# /Users/hlm../store_project/core/views.py
-
 from django.shortcuts import render, redirect
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth import login, authenticate
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib import messages
+
+from .forms import CustomUserCreationForm  # ✅ استيراد النموذج المخصص
 from store.models import Product  # ← استيراد المنتجات من قاعدة البيانات
 
 # ✅ الصفحة الرئيسية
@@ -21,13 +22,14 @@ def footer(request):
 # ✅ صفحة إنشاء حساب
 def register_view(request):
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
             login(request, user)
-            return redirect('home')
+            messages.success(request, "🎉 تم إنشاء الحساب بنجاح، مرحبًا بك!")
+            return redirect('home')  # ← يمكنك تغييره لاحقًا لصفحة "شكرًا" إن أردت
     else:
-        form = UserCreationForm()
+        form = CustomUserCreationForm()
     return render(request, 'core/register.html', {'form': form})
 
 # ✅ صفحة تسجيل الدخول

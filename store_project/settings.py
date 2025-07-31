@@ -1,16 +1,24 @@
 from pathlib import Path
 import os
+from dotenv import load_dotenv
+
+# 🔐 تحميل المتغيرات من ملف .env
+load_dotenv()
 
 # 📁 المسار الرئيسي للمشروع
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # 🔐 إعدادات الأمان
-SECRET_KEY = 'django-insecure-ak4jifds7)fnqygkogylaybbfn!(@47-!j!aozy54+2q##!89$'
-DEBUG = True
-ALLOWED_HOSTS = []  # ← أضف ['yourdomain.com'] في حالة الإنتاج
+SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-key")
+DEBUG = os.getenv("DEBUG", "True") == "True"
+
+ALLOWED_HOSTS = (
+    os.getenv("ALLOWED_HOSTS", "").split(",") if not DEBUG else []
+)
 
 # 📦 التطبيقات المثبتة
 INSTALLED_APPS = [
+    # تطبيقات Django الافتراضية
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -18,17 +26,17 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    # ✅ التطبيقات الخاصة بالمشروع
+    # ✅ تطبيقات المشروع
     'core',
     'store',
     'orders',
 ]
 
-# 🧩 الوسطاء (Middleware)
+# 🧩 الوسيطات (Middlewares)
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.locale.LocaleMiddleware',  # لدعم الترجمة
+    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -36,14 +44,14 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# 🛣️ ملف الروابط الرئيسي
-ROOT_URLCONF = 'store_project.urls'
+# 🛣️ ملف المسارات الرئيسي
+ROOT_URLCONF = 'store_project.urls'  # ← تأكد من اسم مشروعك هنا
 
-# 🧠 إعدادات القوالب (Templates)
+# 📁 إعدادات القوالب
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],  # مجلد القوالب العام
+        'DIRS': [BASE_DIR / 'templates'],  # ← مجلد templates العام
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -56,24 +64,13 @@ TEMPLATES = [
     },
 ]
 
-# 🔁 WSGI
-WSGI_APPLICATION = 'store_project.wsgi.application'
-
-# 🗄️ إعدادات قاعدة البيانات
+# 🧠 قاعدة البيانات (SQLite)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
-# 🔐 التحقق من كلمات المرور
-AUTH_PASSWORD_VALIDATORS = [
-    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
-]
 
 # 🌍 اللغة والتوقيت
 LANGUAGE_CODE = 'ar'
@@ -82,19 +79,22 @@ USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
-# 🌐 ملفات الترجمة (اختياري)
-LOCALE_PATHS = [
-    BASE_DIR / 'locale',
-]
-
-# 📁 إعدادات الملفات الثابتة (Static files)
+# 📦 ملفات static
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [BASE_DIR / 'static']       # ملفات التطوير
-STATIC_ROOT = BASE_DIR / 'staticfiles'         # لتجميع الملفات
+STATICFILES_DIRS = [BASE_DIR / 'static']
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# 📸 إعدادات ملفات الميديا (الصور والفيديو)
+# 🖼️ ملفات media
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# 🔑 إعداد المفتاح الافتراضي للنماذج
+# 📧 إعدادات البريد (Gmail)
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
+
+# 🆔 الحقل الافتراضي
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
