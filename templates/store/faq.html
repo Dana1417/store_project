@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>الأسئلة الشائعة</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- ✅ تضمين الهيدر -->
+  <div id="header"></div>
+
+  <!-- ✅ قسم الأسئلة الشائعة -->
+  <div class="faq-section">
+    <h2>مازلت تتساءل حتى الآن؟!</h2>
+
+    <div class="faq-item">
+      <div class="faq-question">ما هي طريقة الدراسة في فهيم؟</div>
+      <div class="faq-answer">الدراسة تكون عبر حصص تفاعلية مع معلمين مختصين.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">كيف يمكنني التحقق من كفاءة وجودة المعلمين لديكم؟</div>
+      <div class="faq-answer">جميع المعلمين يتم تقييمهم ومراجعتهم بشكل مستمر.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">كيف يمكنني الدفع في فهيم؟</div>
+      <div class="faq-answer">عن طريق مدى، فيزا، أو تحويل بنكي.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">هل يمكنني العثور على الحصة مسجلة؟</div>
+      <div class="faq-answer">نعم، إذا كانت خاصية التسجيل مفعّلة في الحصة.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">كيف يتم الدراسة بعد حجز الحصة؟</div>
+      <div class="faq-answer">يصلك رابط الدخول على بريدك أو الجوال قبل الموعد.</div>
+    </div>
+  </div>
+
+  <!-- ✅ تضمين الفوتر -->
+  <div id="footer"></div>
+
+  <script>
+    // تضمين الهيدر والفوتر
+    fetch("header.html")
+      .then(response => response.text())
+      .then(data => document.getElementById("header").innerHTML = data);
+
+    fetch("footer.html")
+      .then(response => response.text())
+      .then(data => document.getElementById("footer").innerHTML = data);
+
+    // وظائف الأسئلة
+    document.addEventListener("DOMContentLoaded", () => {
+      document.querySelectorAll('.faq-question').forEach(item => {
+        item.addEventListener('click', () => {
+          item.parentElement.classList.toggle('open');
+        });
+      });
+    });
+  </script>
+
+  <style>
+    body {
+      font-family: 'Tahoma', sans-serif;
+      background-color: #fffaf0;
+      margin: 0;
+      padding: 0;
+    }
+
+    .faq-section {
+      max-width: 800px;
+      margin: auto;
+      padding: 40px 20px;
+    }
+
+    h2 {
+      text-align: center;
+      color: #ff8c00;
+      font-size: 28px;
+      margin-bottom: 30px;
+    }
+
+    .faq-item {
+      background-color: white;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .faq-question {
+      padding: 15px 20px;
+      cursor: pointer;
+      position: relative;
+      font-weight: bold;
+    }
+
+    .faq-question::after {
+      content: "▾";
+      position: absolute;
+      left: 20px;
+      font-size: 16px;
+      transition: transform 0.3s;
+    }
+
+    .faq-item.open .faq-question::after {
+      transform: rotate(180deg);
+    }
+
+    .faq-answer {
+      padding: 0 20px 15px;
+      display: none;
+      color: #333;
+      line-height: 1.6;
+    }
+
+    .faq-item.open .faq-answer {
+      display: block;
+    }
+  </style>
+</body>
+</html>

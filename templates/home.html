@@ -3,12 +3,12 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>الرئيسية - متجرنا</title>
-
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
   <style>
     body {
-      font-family: 'Tahoma', sans-serif;
+      font-family: 'Tajawal', sans-serif;
       margin: 0;
       padding: 0;
       background-color: #fffaf0;
@@ -25,23 +25,36 @@
 
     .slider {
       flex: 1;
-      max-width: 400px;
+      max-width: 420px;
       overflow: hidden;
       border-radius: 20px;
       margin: 10px;
-      position: relative;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
     }
 
     .slides {
       display: flex;
-      transition: transform 1s ease;
+      width: 400%;
+      animation: slide 16s infinite linear;
     }
 
     .slides img {
-      width: 400px;
-      height: 300px;
+      width: 100%;
+      height: 320px;
       object-fit: cover;
-      border-radius: 10px;
+      border-radius: 20px;
+    }
+
+    @keyframes slide {
+      0%   { transform: translateX(0%);   }
+      20%  { transform: translateX(0%);   }
+      25%  { transform: translateX(-100%);}
+      45%  { transform: translateX(-100%);}
+      50%  { transform: translateX(-200%);}
+      70%  { transform: translateX(-200%);}
+      75%  { transform: translateX(-300%);}
+      95%  { transform: translateX(-300%);}
+      100% { transform: translateX(0%);   }
     }
 
     .hero-text {
@@ -89,11 +102,12 @@
       padding: 12px 25px;
       border-radius: 30px;
       font-size: 16px;
-      transition: 0.3s;
+      transition: background-color 0.3s ease, transform 0.2s ease;
     }
 
     .btn-primary:hover {
       background-color: #e67e22;
+      transform: scale(1.05);
     }
 
     @media (max-width: 768px) {
@@ -105,18 +119,67 @@
         max-width: 100%;
       }
     }
+
+    /* ✅ تنسيقات قسم الأسئلة الشائعة */
+    .faq-section {
+      max-width: 800px;
+      margin: 60px auto;
+      padding: 40px 20px;
+    }
+
+    .faq-section h2 {
+      text-align: center;
+      color: #ff8c00;
+      font-size: 28px;
+      margin-bottom: 30px;
+    }
+
+    .faq-item {
+      background-color: white;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .faq-question {
+      padding: 15px 20px;
+      cursor: pointer;
+      position: relative;
+      font-weight: bold;
+    }
+
+    .faq-question::after {
+      content: "▾";
+      position: absolute;
+      left: 20px;
+      font-size: 16px;
+      transition: transform 0.3s;
+    }
+
+    .faq-item.open .faq-question::after {
+      transform: rotate(180deg);
+    }
+
+    .faq-answer {
+      padding: 0 20px 15px;
+      display: none;
+      color: #333;
+      line-height: 1.6;
+    }
+
+    .faq-item.open .faq-answer {
+      display: block;
+    }
   </style>
 </head>
-
 <body>
 
   {% include 'header.html' %}
 
-  <!-- ✅ المقطع الرئيسي -->
+  <!-- ✅ قسم الترحيب -->
   <section class="hero-container">
-    <!-- ✅ سلايدر صور -->
     <div class="slider">
-      <div class="slides" id="slides">
+      <div class="slides">
         <img src="{% static 'images/student1.png' %}" alt="طالب">
         <img src="{% static 'images/teacher.png' %}" alt="معلم">
         <img src="{% static 'images/student1.png' %}" alt="طالب">
@@ -124,7 +187,6 @@
       </div>
     </div>
 
-    <!-- ✅ النص الجانبي -->
     <div class="hero-text">
       <h1>
         درس أبنائك مع <mark>أفضل المدرسين</mark><br>الخصوصيين في السعودية
@@ -139,19 +201,47 @@
     </div>
   </section>
 
-  {% include 'footer.html' %}
+  <!-- ✅ قسم الأسئلة الشائعة -->
+  <section class="faq-section">
+    <h2>مازلت تتساءل حتى الآن؟!</h2>
 
-  <!-- ✅ JavaScript لتحريك الصور تلقائيًا -->
+    <div class="faq-item">
+      <div class="faq-question">ما هي طريقة الدراسة في فهيم؟</div>
+      <div class="faq-answer">الدراسة تكون عبر حصص تفاعلية مع معلمين مختصين.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">كيف يمكنني التحقق من كفاءة وجودة المعلمين لديكم؟</div>
+      <div class="faq-answer">جميع المعلمين يتم تقييمهم ومراجعتهم بشكل مستمر.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">كيف يمكنني الدفع في فهيم؟</div>
+      <div class="faq-answer">عن طريق مدى، فيزا، أو تحويل بنكي.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">هل يمكنني العثور على الحصة مسجلة؟</div>
+      <div class="faq-answer">نعم، إذا كانت خاصية التسجيل مفعّلة في الحصة.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">كيف يتم الدراسة بعد حجز الحصة؟</div>
+      <div class="faq-answer">سوف يصلك رابط الدخول قبل وقت الحصة عبر الإيميل أو الجوال.</div>
+    </div>
+  </section>
+
+  <!-- ✅ جافاسكربت لتفعيل الأسئلة -->
   <script>
-    const slides = document.getElementById('slides');
-    const images = slides.querySelectorAll('img');
-    let index = 0;
-
-    setInterval(() => {
-      index = (index + 1) % images.length;
-      slides.style.transform = `translateX(-${index * 400}px)`;
-    }, 3000); // ← كل 3 ثوانٍ يتحرك
+    document.addEventListener("DOMContentLoaded", function () {
+      document.querySelectorAll(".faq-question").forEach((el) => {
+        el.addEventListener("click", () => {
+          el.parentElement.classList.toggle("open");
+        });
+      });
+    });
   </script>
 
+  {% include 'footer.html' %}
 </body>
 </html>
