@@ -1,6 +1,9 @@
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
 
 # 🔐 تحميل المتغيرات من ملف .env
 load_dotenv()
@@ -30,6 +33,10 @@ INSTALLED_APPS = [
     'core',
     'store',
     'orders',
+
+    # 🖼️ تطبيقات Cloudinary
+    'cloudinary',
+    'cloudinary_storage',
 ]
 
 # 🧩 الوسيطات (Middlewares)
@@ -51,7 +58,7 @@ ROOT_URLCONF = 'store_project.urls'  # ← تأكد من اسم مشروعك ه�
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],  # ← مجلد templates العام
+        'DIRS': [BASE_DIR / 'templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -64,7 +71,7 @@ TEMPLATES = [
     },
 ]
 
-# 🧠 قاعدة البيانات (SQLite)
+# 🧠 قاعدة البيانات
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -79,14 +86,19 @@ USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
-# 📦 ملفات static
+# 📦 إعدادات static
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# 🖼️ ملفات media
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+# 🖼️ إعدادات media عبر Cloudinary
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.getenv("CLOUDINARY_CLOUD_NAME"),
+    'API_KEY': os.getenv("CLOUDINARY_API_KEY"),
+    'API_SECRET': os.getenv("CLOUDINARY_API_SECRET"),
+}
+MEDIA_URL = '/media/'  # لا تستخدم MEDIA_ROOT مع Cloudinary
 
 # 📧 إعدادات البريد (Gmail)
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

@@ -46,14 +46,10 @@
     }
 
     @keyframes slide {
-      0% { transform: translateX(0%); }
-      20% { transform: translateX(0%); }
-      25% { transform: translateX(-100%); }
-      45% { transform: translateX(-100%); }
-      50% { transform: translateX(-200%); }
-      70% { transform: translateX(-200%); }
-      75% { transform: translateX(-300%); }
-      95% { transform: translateX(-300%); }
+      0%, 20% { transform: translateX(0%); }
+      25%, 45% { transform: translateX(-100%); }
+      50%, 70% { transform: translateX(-200%); }
+      75%, 95% { transform: translateX(-300%); }
       100% { transform: translateX(0%); }
     }
 
@@ -89,7 +85,7 @@
     }
 
     .hero-text ul li::before {
-      content: "✔️ ";
+      content: "\2714\FE0F ";
       color: green;
     }
 
@@ -103,6 +99,7 @@
       border-radius: 30px;
       font-size: 16px;
       transition: background-color 0.3s ease, transform 0.2s ease;
+      cursor: pointer;
     }
 
     .btn-primary:hover {
@@ -131,7 +128,7 @@
     }
 
     .faq-question::after {
-      content: "▾";
+      content: "\25BE";
       position: absolute;
       left: 20px;
       transition: transform 0.3s;
@@ -151,7 +148,6 @@
       display: block;
     }
 
-    /* ✅ نموذج الحجز */
     #booking-form {
       max-width: 600px;
       margin: 60px auto;
@@ -159,6 +155,7 @@
       padding: 30px;
       border-radius: 15px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      display: none;
     }
 
     #booking-form input,
@@ -202,7 +199,6 @@
 
   {% include 'header.html' %}
 
-  <!-- ✅ قسم الترحيب -->
   <section class="hero-container">
     <div class="slider">
       <div class="slides">
@@ -223,41 +219,34 @@
         <li>باقات شهرية مرنة وأسعار مناسبة</li>
         <li>ندرس جميع المراحل من الروضة وحتى الجامعة</li>
       </ul>
-      <a href="#booking-form" class="btn-primary">قم بالحجز الآن</a>
+      <button class="btn-primary" onclick="showBookingForm()">قم بالحجز الآن</button>
     </div>
   </section>
 
-  <!-- ✅ قسم الأسئلة الشائعة -->
   <section class="faq-section">
     <h2>مازلت تتساءل حتى الآن؟!</h2>
-
     <div class="faq-item">
       <div class="faq-question">ما هي طريقة الدراسة في فهيم؟</div>
       <div class="faq-answer">الدراسة تكون عبر حصص تفاعلية مع معلمين مختصين.</div>
     </div>
-
     <div class="faq-item">
       <div class="faq-question">كيف يمكنني التحقق من كفاءة وجودة المعلمين لديكم؟</div>
       <div class="faq-answer">جميع المعلمين يتم تقييمهم ومراجعتهم بشكل مستمر.</div>
     </div>
-
     <div class="faq-item">
       <div class="faq-question">كيف يمكنني الدفع في فهيم؟</div>
       <div class="faq-answer">عن طريق مدى، فيزا، أو تحويل بنكي.</div>
     </div>
-
     <div class="faq-item">
       <div class="faq-question">هل يمكنني العثور على الحصة مسجلة؟</div>
       <div class="faq-answer">نعم، إذا كانت خاصية التسجيل مفعّلة في الحصة.</div>
     </div>
-
     <div class="faq-item">
       <div class="faq-question">كيف يتم الدراسة بعد حجز الحصة؟</div>
       <div class="faq-answer">سوف يصلك رابط الدخول قبل وقت الحصة عبر الإيميل أو الجوال.</div>
     </div>
   </section>
 
-  <!-- ✅ نموذج الحجز -->
   <section id="booking-form">
     <h2 style="text-align: center; color: #e67e22;">نموذج الحجز</h2>
     <form method="post" action="{% url 'book_lesson' %}">
@@ -283,7 +272,6 @@
       <label><input type="checkbox" name="subjects" value="لغة إنجليزية"> لغة إنجليزية</label>
       <label><input type="checkbox" name="subjects" value="حاسب"> حاسب</label>
 
-      <!-- Google reCAPTCHA -->
       <div class="g-recaptcha" data-sitekey="ضع_مفتاح_site_key_هنا"></div>
 
       <button type="submit">إرسال الطلب</button>
@@ -291,7 +279,6 @@
   </section>
 
   <script>
-    // تفعيل الأسئلة الشائعة
     document.addEventListener("DOMContentLoaded", function () {
       document.querySelectorAll(".faq-question").forEach(el => {
         el.addEventListener("click", () => {
@@ -299,6 +286,12 @@
         });
       });
     });
+
+    function showBookingForm() {
+      const form = document.getElementById("booking-form");
+      form.style.display = "block";
+      form.scrollIntoView({ behavior: "smooth" });
+    }
   </script>
 
   {% include 'footer.html' %}

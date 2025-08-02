@@ -1,0 +1,110 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>نموذج الحجز - فهيم</title>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+  <style>
+    body {
+      font-family: 'Tajawal', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #fffaf0;
+    }
+
+    .booking-form-container {
+      max-width: 600px;
+      margin: 80px auto;
+      background: #fff;
+      padding: 30px;
+      border-radius: 15px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .booking-form-container h2 {
+      text-align: center;
+      color: #e67e22;
+      margin-bottom: 20px;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 15px;
+    }
+
+    input[type="text"],
+    input[type="tel"],
+    select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+
+    input[type="checkbox"] {
+      margin-right: 8px;
+    }
+
+    button {
+      background-color: #f39c12;
+      color: white;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 30px;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 25px;
+      width: 100%;
+    }
+
+    .g-recaptcha {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+
+  {% include 'header.html' %}
+
+  <div class="booking-form-container">
+    <h2>نموذج الحجز</h2>
+
+    <form method="post" action="{% url 'book_lesson' %}">
+      {% csrf_token %}
+
+      <label>الاسم الكامل:</label>
+      <input type="text" name="name" required>
+
+      <label>رقم الجوال:</label>
+      <input type="tel" name="phone" required>
+
+      <label>المرحلة الدراسية:</label>
+      <select name="grade" required>
+        <option value="">اختر المرحلة</option>
+        <option value="ابتدائي">ابتدائي</option>
+        <option value="متوسط">متوسط</option>
+        <option value="ثانوي">ثانوي</option>
+        <option value="جامعي">جامعي</option>
+      </select>
+
+      <label>المواد الدراسية:</label>
+      <label><input type="checkbox" name="subjects" value="رياضيات"> رياضيات</label>
+      <label><input type="checkbox" name="subjects" value="علوم"> علوم</label>
+      <label><input type="checkbox" name="subjects" value="لغة إنجليزية"> لغة إنجليزية</label>
+      <label><input type="checkbox" name="subjects" value="حاسب"> حاسب</label>
+
+      <!-- ✅ reCAPTCHA -->
+      <div class="g-recaptcha" data-sitekey="ضع_هنا_site_key_الخاص_بك"></div>
+
+      <button type="submit">إرسال الطلب</button>
+    </form>
+  </div>
+
+  {% include 'footer.html' %}
+</body>
+</html>
