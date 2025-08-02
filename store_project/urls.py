@@ -7,9 +7,9 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 
     # ✅ ربط التطبيقات
-    path('', include('core.urls')),         # الرئيسية، تواصل معنا، الخ...
-    path('store/', include('store.urls')),  # المنتجات
-    path('orders/', include('orders.urls')), # الطلبات
+    path('', include('core.urls')),        # الرئيسية، تواصل معنا، الخ...
+    path('', include('store.urls')),       # ✅ المنتجات مباشرة على /products/
+    path('orders/', include('orders.urls'))  # الطلبات
 ]
 
 # ✅ عرض ملفات media أثناء التطوير فقط

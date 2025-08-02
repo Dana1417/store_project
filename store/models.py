@@ -1,4 +1,5 @@
 from django.db import models
+from cloudinary.models import CloudinaryField
 
 class Category(models.Model):
     name = models.CharField(max_length=100, verbose_name="اسم التصنيف")
@@ -15,9 +16,7 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="السعر")
     category = models.ForeignKey(Category, on_delete=models.CASCADE, verbose_name="التصنيف")
     available = models.BooleanField(default=True, verbose_name="متوفر؟")
-    
-    image = models.ImageField(upload_to='products/', blank=True, null=True, verbose_name="صورة المنتج")  # ✅ الحقل المضاف
-
+    image = CloudinaryField(blank=True, null=True, verbose_name="صورة المنتج")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="تاريخ الإضافة")
 
     class Meta:

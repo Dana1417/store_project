@@ -1,5 +1,3 @@
-# core/urls.py
-
 from django.urls import path
 from .views import (
     home,
@@ -7,20 +5,22 @@ from .views import (
     footer,
     register_view,
     login_view,
+    logout_view,     # ✅ أضف هذا
     contact,
     privacy_view,
     terms_view,
-    book_lesson,  # ✅ عرض ومعالجة نموذج الحجز
+    book_lesson,
 )
 
 urlpatterns = [
-    path('', home, name='home'),                          # 🏠 الصفحة الرئيسية
-    path('header/', header, name='header'),               # 🔼 الهيدر
-    path('footer/', footer, name='footer'),               # 🔽 الفوتر
-    path('register/', register_view, name='register'),    # 📝 إنشاء حساب
-    path('login/', login_view, name='login'),             # 🔐 تسجيل دخول
-    path('contact/', contact, name='contact'),            # 📞 تواصل معنا
-    path('privacy/', privacy_view, name='privacy'),       # 🔒 سياسة الخصوصية
-    path('terms/', terms_view, name='terms'),             # 📜 الشروط والأحكام
-    path('book/', book_lesson, name='book_lesson'),       # ✅ نموذج "احجز الآن"
+    path('', home, name='home'),
+    path('header/', header, name='header'),
+    path('footer/', footer, name='footer'),
+    path('register/', register_view, name='register'),
+    path('login/', login_view, name='login'),
+    path('logout/', logout_view, name='logout'),  # ✅ تسجيل الخروج
+    path('contact/', contact, name='contact'),
+    path('privacy/', privacy_view, name='privacy'),
+    path('terms/', terms_view, name='terms'),
+    path('book/', book_lesson, name='book_lesson'),
 ]

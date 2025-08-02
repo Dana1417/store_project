@@ -1,10 +1,13 @@
+{% load static %}
 <header style="background: linear-gradient(to right, #f5f5dc, #ffa726); padding: 15px 20px; color: #333;">
   <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
     
-    <!-- الشعار واسم المشروع -->
+    <!-- ✅ الشعار واسم المشروع من Cloudinary -->
     <div style="display: flex; align-items: center; gap: 10px;">
-      <img src="/media/products/logo.png" alt="شعار واعي" style="height: 40px; border-radius: 8px;">
-      <span style="font-size: 24px; font-weight: bold;">واعي 🎓</span>
+      <img src="https://res.cloudinary.com/dlql12ycp/image/upload/v1754102032/logo_dexumq.png" 
+           alt="شعار واعي" 
+           style="height: 40px; border-radius: 8px; object-fit: contain;">
+      <span style="font-size: 24px; font-weight: bold; color: #333;">واعي <span style="font-size: 20px;">🎓</span></span>
     </div>
 
     <!-- زر القائمة للجوال -->
@@ -17,8 +20,14 @@
       <a href="/" style="text-decoration: none; color: #333; font-weight: bold;">الرئيسية</a>
       <a href="/products/" style="text-decoration: none; color: #333; font-weight: bold;">المنتجات</a>
       <a href="/contact/" style="text-decoration: none; color: #333; font-weight: bold;">تواصل معنا</a>
-      <a href="/login/" style="text-decoration: none; color: #333; font-weight: bold;">تسجيل دخول</a>
-      <a href="/register/" style="text-decoration: none; color: #333; font-weight: bold;">إنشاء حساب</a>
+
+      {% if user.is_authenticated %}
+        <span style="font-weight: bold; color: #2e7d32;">👋 مرحبًا، {{ user.username }}</span>
+        <a href="/logout/" style="text-decoration: none; color: #d32f2f; font-weight: bold;">تسجيل خروج</a>
+      {% else %}
+        <a href="/login/" style="text-decoration: none; color: #333; font-weight: bold;">تسجيل دخول</a>
+        <a href="/register/" style="text-decoration: none; color: #333; font-weight: bold;">إنشاء حساب</a>
+      {% endif %}
     </nav>
   </div>
 
