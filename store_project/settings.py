@@ -14,6 +14,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # 🔐 إعدادات الأمان
 SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-key")
 DEBUG = os.getenv("DEBUG", "True") == "True"
+
+# ✅ يعمل دائمًا مهما كانت قيمة DEBUG
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(",")
 
 # 📦 التطبيقات المثبتة
@@ -67,7 +69,7 @@ TEMPLATES = [
     },
 ]
 
-# 🧠 إعدادات قاعدة البيانات (PostgreSQL في الإنتاج، SQLite في التطوير)
+# 🧠 إعدادات قاعدة البيانات
 if DEBUG:
     DATABASES = {
         'default': {
@@ -94,12 +96,12 @@ USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
-# 📦 إعدادات الملفات الثابتة (static)
+# 📦 إعدادات static
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# 🖼️ إعدادات Cloudinary (للصور والوسائط)
+# 🖼️ Cloudinary إعدادات
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': os.getenv("CLOUDINARY_CLOUD_NAME"),
@@ -108,7 +110,7 @@ CLOUDINARY_STORAGE = {
 }
 MEDIA_URL = '/media/'
 
-# 📧 إعدادات البريد الإلكتروني باستخدام Gmail
+# 📧 إعدادات البريد
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
@@ -116,5 +118,5 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
 
-# 🆔 إعداد الحقل الافتراضي
+# 🆔 الحقل الافتراضي
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
