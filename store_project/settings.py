@@ -5,23 +5,19 @@ import cloudinary
 import cloudinary.uploader
 import cloudinary.api
 
-# 🔐 تحميل المتغيرات من ملف .env
+# ✅ تحميل المتغيرات من .env
 load_dotenv()
 
-# 📁 المسار الرئيسي للمشروع
+# 📁 المسار الرئيسي
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # 🔐 إعدادات الأمان
 SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-key")
 DEBUG = os.getenv("DEBUG", "True") == "True"
-
-ALLOWED_HOSTS = (
-    os.getenv("ALLOWED_HOSTS", "").split(",") if not DEBUG else []
-)
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(",") if not DEBUG else []
 
 # 📦 التطبيقات المثبتة
 INSTALLED_APPS = [
-    # تطبيقات Django الافتراضية
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -29,17 +25,17 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    # ✅ تطبيقات المشروع
+    # تطبيقات المشروع
     'core',
     'store',
     'orders',
 
-    # 🖼️ تطبيقات Cloudinary
+    # Cloudinary
     'cloudinary',
     'cloudinary_storage',
 ]
 
-# 🧩 الوسيطات (Middlewares)
+# 🧩 الوسيطات
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -52,7 +48,7 @@ MIDDLEWARE = [
 ]
 
 # 🛣️ ملف المسارات الرئيسي
-ROOT_URLCONF = 'store_project.urls'  # ← تأكد من اسم مشروعك هنا
+ROOT_URLCONF = 'store_project.urls'
 
 # 📁 إعدادات القوالب
 TEMPLATES = [
@@ -71,13 +67,25 @@ TEMPLATES = [
     },
 ]
 
-# 🧠 قاعدة البيانات
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+# 🧠 إعدادات قواعد البيانات (SQLite للتطوير / PostgreSQL للإنتاج)
+if DEBUG:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'HOST': os.getenv("DB_HOST"),
+            'PORT': os.getenv("DB_PORT"),
+            'NAME': os.getenv("DB_NAME"),
+            'USER': os.getenv("DB_USER"),
+            'PASSWORD': os.getenv("DB_PASSWORD"),
+        }
+    }
 
 # 🌍 اللغة والتوقيت
 LANGUAGE_CODE = 'ar'
@@ -86,21 +94,21 @@ USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
-# 📦 إعدادات static
+# 📦 الملفات الثابتة
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# 🖼️ إعدادات media عبر Cloudinary
+# 🖼️ إعدادات media (Cloudinary)
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': os.getenv("CLOUDINARY_CLOUD_NAME"),
     'API_KEY': os.getenv("CLOUDINARY_API_KEY"),
     'API_SECRET': os.getenv("CLOUDINARY_API_SECRET"),
 }
-MEDIA_URL = '/media/'  # لا تستخدم MEDIA_ROOT مع Cloudinary
+MEDIA_URL = '/media/'
 
-# 📧 إعدادات البريد (Gmail)
+# 📧 البريد
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
@@ -108,5 +116,5 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
 
-# 🆔 الحقل الافتراضي
+# 🆔 الحقول الافتراضية
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
