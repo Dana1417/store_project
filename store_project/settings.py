@@ -8,13 +8,13 @@ import cloudinary.api
 # ✅ تحميل المتغيرات من .env
 load_dotenv()
 
-# 📁 المسار الرئيسي
+# 📁 المسار الرئيسي للمشروع
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # 🔐 إعدادات الأمان
 SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-key")
 DEBUG = os.getenv("DEBUG", "True") == "True"
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(",") if not DEBUG else []
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(",")
 
 # 📦 التطبيقات المثبتة
 INSTALLED_APPS = [
@@ -67,7 +67,7 @@ TEMPLATES = [
     },
 ]
 
-# 🧠 إعدادات قواعد البيانات (SQLite للتطوير / PostgreSQL للإنتاج)
+# 🧠 إعدادات قاعدة البيانات (PostgreSQL في الإنتاج، SQLite في التطوير)
 if DEBUG:
     DATABASES = {
         'default': {
@@ -94,12 +94,12 @@ USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
-# 📦 الملفات الثابتة
+# 📦 إعدادات الملفات الثابتة (static)
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# 🖼️ إعدادات media (Cloudinary)
+# 🖼️ إعدادات Cloudinary (للصور والوسائط)
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': os.getenv("CLOUDINARY_CLOUD_NAME"),
@@ -108,7 +108,7 @@ CLOUDINARY_STORAGE = {
 }
 MEDIA_URL = '/media/'
 
-# 📧 البريد
+# 📧 إعدادات البريد الإلكتروني باستخدام Gmail
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
@@ -116,5 +116,5 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
 
-# 🆔 الحقول الافتراضية
+# 🆔 إعداد الحقل الافتراضي
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
