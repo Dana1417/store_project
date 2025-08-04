@@ -5,14 +5,23 @@ import cloudinary
 import cloudinary.uploader
 import cloudinary.api
 
+# تحميل المتغيرات من ملف .env
 load_dotenv()
 
+# المسار الرئيسي للمشروع
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# إعدادات الأمان
 SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-key")
 DEBUG = os.getenv("DEBUG", "True") == "True"
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "").split(",")
 
+# إصلاح مشكلة CSRF في الإنتاج
+CSRF_TRUSTED_ORIGINS = [
+    "https://store-project-s3xp.onrender.com"
+]
+
+# التطبيقات
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -20,13 +29,18 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # تطبيقات المشروع
     'core',
     'store',
     'orders',
+
+    # Cloudinary
     'cloudinary',
     'cloudinary_storage',
 ]
 
+# الوسطاء
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -38,8 +52,10 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+# الروابط
 ROOT_URLCONF = 'store_project.urls'
 
+# القوالب
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -56,6 +72,7 @@ TEMPLATES = [
     },
 ]
 
+# قاعدة البيانات
 if DEBUG:
     DATABASES = {
         'default': {
@@ -75,16 +92,19 @@ else:
         }
     }
 
+# اللغة والتوقيت
 LANGUAGE_CODE = 'ar'
 TIME_ZONE = 'Asia/Riyadh'
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
+# الملفات الثابتة
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
+# الملفات الإعلامية (Cloudinary)
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': os.getenv("CLOUDINARY_CLOUD_NAME"),
@@ -93,6 +113,7 @@ CLOUDINARY_STORAGE = {
 }
 MEDIA_URL = '/media/'
 
+# البريد الإلكتروني
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
@@ -100,4 +121,5 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
 
+# المفتاح الافتراضي
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
