@@ -79,6 +79,15 @@
       background-color: #e67e22;
     }
 
+    .not-available {
+      display: inline-block;
+      background-color: #ff4d4d;
+      color: white;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
     @media (max-width: 768px) {
       .product-list {
         flex-direction: column;
@@ -97,19 +106,3 @@
     <div class="product-list">
       {% for product in products %}
         <div class="product-card">
-          {% if product.image %}
-            <img src="{{ product.image.url }}" alt="{{ product.name }}">
-          {% endif %}
-          <h3>{{ product.name }}</h3>
-          <p>{{ product.price }} ريال</p>
-          <a href="{% url 'product_detail' product.pk %}">عرض التفاصيل</a>
-        </div>
-      {% empty %}
-        <p>لا توجد منتجات حالياً.</p>
-      {% endfor %}
-    </div>
-  </section>
-
-  {% include 'footer.html' %}
-</body>
-</html>
