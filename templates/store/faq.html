@@ -21,60 +21,45 @@
     h2 {
       text-align: center;
       color: #ff8c00;
-      font-size: 30px;
-      margin-bottom: 40px;
-      font-weight: bold;
+      font-size: 28px;
+      margin-bottom: 30px;
     }
 
     .faq-item {
       background-color: white;
       border-radius: 10px;
-      margin-bottom: 15px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-      overflow: hidden;
-      transition: transform 0.2s ease-in-out;
-    }
-
-    .faq-item:hover {
-      transform: scale(1.01);
+      margin-bottom: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     }
 
     .faq-question {
-      padding: 18px 20px;
+      padding: 15px 20px;
       cursor: pointer;
       position: relative;
       font-weight: bold;
-      color: #333;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
     }
 
-    .faq-icon {
-      font-size: 18px;
-      transition: transform 0.3s ease;
-      color: #ff8c00;
+    .faq-question::after {
+      content: "▾";
+      position: absolute;
+      left: 20px;
+      font-size: 16px;
+      transition: transform 0.3s;
     }
 
-    .faq-item.open .faq-icon {
+    .faq-item.open .faq-question::after {
       transform: rotate(180deg);
     }
 
     .faq-answer {
       padding: 0 20px 15px;
       display: none;
-      color: #555;
+      color: #333;
       line-height: 1.6;
-      animation: fadeIn 0.3s ease;
     }
 
     .faq-item.open .faq-answer {
       display: block;
-    }
-
-    @keyframes fadeIn {
-      from {opacity: 0;}
-      to {opacity: 1;}
     }
   </style>
 </head>
@@ -88,42 +73,27 @@
     <h2>مازلت تتساءل حتى الآن؟!</h2>
 
     <div class="faq-item">
-      <div class="faq-question">
-        ما هي طريقة الدراسة في واعي؟
-        <span class="faq-icon">▼</span>
-      </div>
+      <div class="faq-question">ما هي طريقة الدراسة في واعي؟</div>
       <div class="faq-answer">الدراسة تكون عبر حصص تفاعلية مع معلمين مختصين.</div>
     </div>
 
     <div class="faq-item">
-      <div class="faq-question">
-        كيف يمكنني التحقق من كفاءة وجودة المعلمين لديكم؟
-        <span class="faq-icon">▼</span>
-      </div>
+      <div class="faq-question">كيف يمكنني التحقق من كفاءة وجودة المعلمين لديكم؟</div>
       <div class="faq-answer">جميع المعلمين يتم تقييمهم ومراجعتهم بشكل مستمر.</div>
     </div>
 
     <div class="faq-item">
-      <div class="faq-question">
-        كيف يمكنني الدفع في واعي؟
-        <span class="faq-icon">▼</span>
-      </div>
+      <div class="faq-question">كيف يمكنني الدفع في واعي؟</div>
       <div class="faq-answer">عن طريق مدى، فيزا، أو تحويل بنكي.</div>
     </div>
 
     <div class="faq-item">
-      <div class="faq-question">
-        هل يمكنني العثور على الحصة مسجلة؟
-        <span class="faq-icon">▼</span>
-      </div>
+      <div class="faq-question">هل يمكنني العثور على الحصة مسجلة؟</div>
       <div class="faq-answer">نعم، إذا كانت خاصية التسجيل مفعّلة في الحصة.</div>
     </div>
 
     <div class="faq-item">
-      <div class="faq-question">
-        كيف يتم الدراسة بعد حجز الحصة؟
-        <span class="faq-icon">▼</span>
-      </div>
+      <div class="faq-question">كيف يتم الدراسة بعد حجز الحصة؟</div>
       <div class="faq-answer">يصلك رابط الدخول على بريدك أو الجوال قبل الموعد.</div>
     </div>
   </div>
@@ -141,7 +111,7 @@
       .then(response => response.text())
       .then(data => document.getElementById("footer").innerHTML = data);
 
-    // وظائف الأسئلة
+    // تفعيل فتح وغلق الأسئلة
     document.addEventListener("DOMContentLoaded", () => {
       document.querySelectorAll('.faq-question').forEach(item => {
         item.addEventListener('click', () => {
