@@ -14,3 +14,7 @@ def product_detail(request, pk):
     return render(request, 'store/product_detail.html', {
         'product': product
     })
+
+# ✅ عرض صفحة نموذج الحجز
+def booking_page(request):
+    return render(request, 'store/booking.html')

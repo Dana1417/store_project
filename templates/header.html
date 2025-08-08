@@ -2,12 +2,11 @@
 <header style="background: linear-gradient(to right, #f5f5dc, #ffa726); padding: 15px 20px; color: #333;">
   <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
 
-    <!-- الشعار -->
-    <div style="display: flex; align-items: center; gap: 10px;">
+    <!-- ✅ الشعار فقط بدون نص -->
+    <div style="display: flex; align-items: center;">
       <img src="https://res.cloudinary.com/dlql12ycp/image/upload/v1754102032/logo_dexumq.png" 
-           alt="شعار واعي" 
+           alt="شعار الموقع" 
            style="height: 40px; border-radius: 8px; object-fit: contain;">
-      <span style="font-size: 24px; font-weight: bold;">واعي 🎓</span>
     </div>
 
     <!-- زر القائمة للجوال -->
@@ -20,6 +19,12 @@
       <a href="/" style="text-decoration: none; color: #333; font-weight: bold;">الرئيسية</a>
       <a href="/products/" style="text-decoration: none; color: #333; font-weight: bold;">المنتجات</a>
       <a href="/contact/" style="text-decoration: none; color: #333; font-weight: bold;">تواصل معنا</a>
+
+      <!-- زر السلة -->
+      <a href="/cart/" 
+         style="text-decoration: none; background-color: #fb8c00; color: white; padding: 6px 14px; border-radius: 8px; font-weight: bold;">
+         🛒 السلة
+      </a>
 
       {% if user.is_authenticated %}
         <span style="font-weight: bold; color: #2e7d32;">👋 مرحبًا، {{ user.username }}</span>

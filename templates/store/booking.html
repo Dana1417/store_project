@@ -1,0 +1,124 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>نموذج الحجز</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Tajawal', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #fffaf0;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 60px auto;
+      padding: 40px;
+      background-color: #fff;
+      border-radius: 20px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+      color: #e67e22;
+      margin-bottom: 30px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+      color: #333;
+    }
+
+    input[type="text"],
+    input[type="tel"],
+    select {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    .checkbox-group {
+      margin-bottom: 20px;
+    }
+
+    .checkbox-group label {
+      display: block;
+      font-weight: normal;
+      margin-bottom: 10px;
+      cursor: pointer;
+    }
+
+    .checkbox-group input {
+      margin-left: 8px;
+    }
+
+    button {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      background-color: #e67e22;
+      color: #fff;
+      font-size: 16px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    button:hover {
+      background-color: #cf6e17;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ✅ استدعاء الهيدر -->
+  {% include "header.html" %}
+
+  <div class="container">
+    <h2>نموذج الحجز</h2>
+    <form method="post">
+      {% csrf_token %}
+      
+      <label for="name">الاسم الكامل:</label>
+      <input type="text" id="name" name="name" placeholder="مثال: محمد أحمد" required>
+
+      <label for="phone">رقم الجوال:</label>
+      <input type="tel" id="phone" name="phone" placeholder="مثال: 05xxxxxxxx" required>
+
+      <label for="stage">المرحلة الدراسية:</label>
+      <select id="stage" name="stage" required>
+        <option value="">اختر المرحلة</option>
+        <option value="ابتدائي">ابتدائي</option>
+        <option value="متوسط">متوسط</option>
+        <option value="ثانوي">ثانوي</option>
+        <option value="جامعي">جامعي</option>
+      </select>
+
+      <div class="checkbox-group">
+        <label>المواد الدراسية:</label>
+        <label><input type="checkbox" name="subjects" value="رياضيات"> رياضيات</label>
+        <label><input type="checkbox" name="subjects" value="علم"> علم</label>
+        <label><input type="checkbox" name="subjects" value="لغة إنجليزية"> لغة إنجليزية</label>
+        <label><input type="checkbox" name="subjects" value="حاسب"> حاسب</label>
+      </div>
+
+      <button type="submit">إرسال الطلب</button>
+    </form>
+  </div>
+
+  <!-- ✅ استدعاء الفوتر -->
+  {% include "footer.html" %}
+
+</body>
+</html>

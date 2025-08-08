@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div style="padding: 30px; max-width: 900px; margin: auto;">
+  <h2 style="text-align: center; margin-bottom: 30px;">🛒 سلة المشتريات</h2>
+
+  {% if cart_items %}
+    <table style="width: 100%; border-collapse: collapse; background-color: #fffaf0;">
+      <thead>
+        <tr style="background-color: #f8d49d;">
+          <th style="padding: 10px;">الصورة</th>
+          <th>اسم الدورة</th>
+          <th>السعر للوحدة</th>
+          <th>الكمية</th>
+          <th>السعر الإجمالي</th>
+          <th>إزالة</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in cart_items %}
+        <tr style="text-align: center; border-bottom: 1px solid #eee;">
+          <td>
+            <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" style="height: 60px; border-radius: 8px;">
+          </td>
+          <td>{{ item.product.name }}</td>
+          <td>{{ item.product.price }} ريال</td>
+          <td>{{ item.quantity }}</td>
+          <td>{{ item.total_price }} ريال</td>
+          <td>
+            <a href="{% url 'remove_from_cart' item.product.id %}" style="color: red;">🗑️</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div style="margin-top: 30px; text-align: center;">
+      <a href="/" style="padding: 10px 20px; background: #ffb347; color: white; border-radius: 8px; text-decoration: none;">⬅️ مواصلة التصفح</a>
+      <a href="#" style="padding: 10px 20px; background: #27ae60; color: white; border-radius: 8px; text-decoration: none; margin-right: 10px;">💳 إتمام الشراء</a>
+    </div>
+
+  {% else %}
+    <p style="text-align: center; color: #e67e22;">🚫 لا توجد عناصر في السلة.</p>
+    <div style="text-align: center;">
+      <a href="/" style="padding: 10px 20px; background: #ffb347; color: white; border-radius: 8px; text-decoration: none;">⬅️ ابدأ التصفح</a>
+    </div>
+  {% endif %}
+</div>
+
+{% endblock %}

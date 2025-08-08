@@ -7,9 +7,10 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 
     # ✅ ربط التطبيقات
-    path('', include('core.urls')),        # الرئيسية، تواصل معنا، الخ...
-    path('', include('store.urls')),       # ✅ المنتجات مباشرة على /products/
-    path('orders/', include('orders.urls'))  # الطلبات
+    path('', include('core.urls')),          # الصفحة الرئيسية وتواصل معنا وغيرها
+    path('', include('store.urls')),         # المنتجات على المسار الجذري
+    path('orders/', include('orders.urls')), # الطلبات
+    path('cart/', include('cart.urls')),     # 🛒 سلة المشتريات
 ]
 
 # ✅ عرض ملفات media أثناء التطوير فقط
