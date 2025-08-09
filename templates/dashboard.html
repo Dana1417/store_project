@@ -1,0 +1,53 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>لوحة الطالب</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+  <!-- ✅ استدعاء الهيدر -->
+  <div id="header"></div>
+
+  <main style="padding: 30px; max-width: 800px; margin: auto;">
+    <h2>مرحبًا بك، {{ user.first_name }}</h2>
+
+    <p><strong>البريد:</strong> {{ user.email }}</p>
+
+    {% if student %}
+      <p><strong>المرحلة الدراسية:</strong> {{ student.stage }}</p>
+
+      <hr>
+
+      <h3>الدورات المسجّل بها:</h3>
+      {% if student.courses.all %}
+        <ul>
+          {% for course in student.courses.all %}
+            <li>
+              {{ course.name }} -
+              <a href="{{ course.teams_link }}" target="_blank">انضم الآن</a>
+            </li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p>لا توجد دورات حالياً.</p>
+      {% endif %}
+    {% else %}
+      <p>لم يتم ربط حسابك بأي بيانات طالب بعد.</p>
+    {% endif %}
+    
+    <hr>
+    <a href="{% url 'logout' %}" class="btn btn-danger">تسجيل الخروج</a>
+  </main>
+
+  <!-- ✅ استدعاء الفوتر -->
+  <div id="footer"></div>
+
+  <!-- ✅ تضمين JS -->
+  <script src="{% static 'js/include-header-footer.js' %}"></script>
+
+</body>
+</html>

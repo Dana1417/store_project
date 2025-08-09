@@ -1,5 +1,6 @@
+{% load static %}
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
   <title>إنشاء حساب</title>
@@ -14,12 +15,11 @@
 
     .register-container {
       max-width: 400px;
-      margin: 100px auto;
+      margin: 140px auto 100px;  /* ✅ مسافة من الأعلى لتجنب التصاق الهيدر */
       background: #fff;
       border-radius: 12px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
       padding: 30px 20px;
-      direction: rtl;
     }
 
     h2 {
@@ -57,12 +57,21 @@
     button:hover {
       background-color: #e65c00;
     }
+
+    .error-message {
+      color: red;
+      font-size: 13px;
+      margin-top: -10px;
+      margin-bottom: 15px;
+    }
   </style>
 </head>
 <body>
 
+  <!-- ✅ الهيدر -->
   {% include "header.html" %}
 
+  <!-- ✅ نموذج التسجيل -->
   <div class="register-container">
     <h2>إنشاء حساب</h2>
     <form method="post">
@@ -73,7 +82,7 @@
         <label for="{{ field.id_for_label }}">{{ field.label }}</label>
         {{ field }}
         {% if field.errors %}
-          <div style="color: red;">{{ field.errors|join:", " }}</div>
+          <div class="error-message">{{ field.errors|join:", " }}</div>
         {% endif %}
       {% endfor %}
 
@@ -81,6 +90,7 @@
     </form>
   </div>
 
+  <!-- ✅ الفوتر -->
   {% include "footer.html" %}
 
 </body>

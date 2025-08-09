@@ -2,9 +2,10 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
+from django.urls import reverse
 
 from .forms import CustomUserCreationForm
-from store.models import Product
+from store.models import Product, Student
 
 
 # ✅ الصفحة الرئيسية - عرض المنتجات المتاحة
@@ -13,28 +14,49 @@ def home(request):
     return render(request, 'home.html', {'products': products})
 
 
+# ✅ تضمين الهيدر والفوتر
 def header(request):
     return render(request, 'header.html')
-
 
 def footer(request):
     return render(request, 'footer.html')
 
 
+# ✅ إنشاء حساب جديد + توجيه حسب الدور
 def register_view(request):
+    next_url = request.GET.get('next') or request.POST.get('next')
+
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
             login(request, user)
             messages.success(request, "🎉 تم إنشاء الحساب بنجاح، مرحبًا بك!")
-            return redirect('home')
+
+            # ⤴️ احترام next إن وُجد
+            if next_url:
+                return redirect(next_url)
+
+            # 👇 إنشاء سجل الطالب تلقائيًا إن كان الدور طالب
+            if user.role == 'student':
+                Student.objects.get_or_create(user=user, defaults={'stage': 'غير محدد'})
+                return redirect('student_dashboard')
+            elif user.role == 'teacher':
+                return redirect('teacher_dashboard')
+            else:
+                return redirect('home')
+        else:
+            messages.error(request, "تحقق من الحقول المدخلة.")
     else:
         form = CustomUserCreationForm()
+
     return render(request, 'core/register.html', {'form': form})
 
 
+# ✅ تسجيل الدخول + توجيه حسب الدور
 def login_view(request):
+    next_url = request.GET.get('next') or request.POST.get('next')
+
     if request.method == 'POST':
         form = AuthenticationForm(data=request.POST)
         if form.is_valid():
@@ -45,29 +67,46 @@ def login_view(request):
             )
             if user is not None:
                 login(request, user)
-                return redirect('home')
+                messages.success(request, "✅ تم تسجيل الدخول بنجاح!")
+
+                # ⤴️ احترام next إن وُجد
+                if next_url:
+                    return redirect(next_url)
+
+                if user.role == 'student':
+                    # نتأكد أن لديه سجل Student (في حال حساب قديم)
+                    Student.objects.get_or_create(user=user, defaults={'stage': 'غير محدد'})
+                    return redirect('student_dashboard')
+                elif user.role == 'teacher':
+                    return redirect('teacher_dashboard')
+                else:
+                    return redirect('home')
+        messages.error(request, "اسم المستخدم أو كلمة المرور غير صحيحة.")
     else:
         form = AuthenticationForm()
+
     return render(request, 'core/login.html', {'form': form})
 
 
+# ✅ تسجيل الخروج
 def logout_view(request):
     logout(request)
+    messages.info(request, "👋 تم تسجيل الخروج.")
     return redirect('home')
 
 
+# ✅ صفحات عامة
 def contact(request):
     return render(request, 'core/contact.html')
 
-
 def privacy_view(request):
     return render(request, 'core/privacy.html')
-
 
 def terms_view(request):
     return render(request, 'core/terms.html')
 
 
+# ✅ نموذج حجز درس (بسيط)
 def book_lesson(request):
     if request.method == "POST":
         name = request.POST.get("name")
@@ -75,6 +114,7 @@ def book_lesson(request):
         grade = request.POST.get("grade")
         subjects = request.POST.getlist("subjects")
 
+        # TODO: احفظ الطلب في قاعدة البيانات إن رغبت
         messages.success(request, "✅ تم إرسال طلب الحجز بنجاح! سنتواصل معك قريبًا.")
         return redirect('home')
 

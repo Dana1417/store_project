@@ -5,24 +5,29 @@ import cloudinary
 import cloudinary.uploader
 import cloudinary.api
 
-# 🔁 تحميل المتغيرات من ملف .env
+# ✅ تحميل المتغيرات من .env
 load_dotenv()
 
-# 📁 المسار الرئيسي للمشروع
+# 📁 المسار الرئيسي
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# 🔐 إعدادات الأمان
+# 🔐 الأمان
 SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-key")
 DEBUG = os.getenv("DEBUG", "True") == "True"
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
 
-# ✅ لتجنب خطأ DisallowedHost أثناء التطوير
+# ✅ CSRF في حال استخدام دومين خارجي (مثل Render)
 CSRF_TRUSTED_ORIGINS = [
     "https://store-project-s3xp.onrender.com"
 ]
 
-# 🥉 التطبيقات المثبتة
+# ✅ التطبيقات
 INSTALLED_APPS = [
+    'core',     # ← تأكد أن هذا أولاً
+    'store',
+    'orders',
+    'cart',
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -30,17 +35,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    # تطبيقات المشروع
-    'core',
-    'store',
-    'orders',
-
-    # Cloudinary
     'cloudinary',
     'cloudinary_storage',
 ]
 
-# 🧱 الوسيطات (Middleware)
+# ✅ الوسطاء
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -52,10 +51,10 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# 🗺️ روابط التوجيه
+# 🧭 التوجيه
 ROOT_URLCONF = 'store_project.urls'
 
-# 🖼️ إعدادات القوالب
+# 🖼️ القوالب
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -72,7 +71,7 @@ TEMPLATES = [
     },
 ]
 
-# 📅 قاعدة البيانات
+# 🛢️ قاعدة البيانات
 if DEBUG:
     DATABASES = {
         'default': {
@@ -104,14 +103,14 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# 📸 Cloudinary للملفات الإعلامية
+# 📁 الوسائط
+MEDIA_URL = '/media/'
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': os.getenv("CLOUDINARY_CLOUD_NAME"),
     'API_KEY': os.getenv("CLOUDINARY_API_KEY"),
     'API_SECRET': os.getenv("CLOUDINARY_API_SECRET"),
 }
-MEDIA_URL = '/media/'
 
 # 📧 البريد الإلكتروني
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -121,5 +120,8 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
 
-# ⚙️ المفتاح الافتراضي للأعمدة
+# 👤 نموذج المستخدم المخصص
+AUTH_USER_MODEL = 'core.CustomUser'
+
+# 🧩 المفتاح الافتراضي للأعمدة
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
