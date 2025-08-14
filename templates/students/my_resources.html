@@ -1,0 +1,26 @@
+{% include "header.html" %}
+<div class="wrapper" style="max-width:1100px;margin:0 auto;padding:30px 16px;" dir="rtl">
+  <h2 style="margin:0 0 16px 0;">الكتب والمراجع</h2>
+
+  {% if resources %}
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;">
+      {% for r in resources %}
+        <article style="background:#fff;border:1px solid #e7eef5;border-radius:16px;padding:16px;box-shadow:0 4px 16px rgba(0,0,0,.04);">
+          <h3 style="margin:0 0 6px 0;font-size:18px;">📖 {{ r.title }}</h3>
+          {% if r.course %}
+            <div style="color:#6b7280;margin-bottom:6px;">الدورة: {{ r.course.title }}</div>
+          {% endif %}
+          <a href="{{ r.file_url }}" target="_blank" rel="noopener"
+             style="display:inline-block;margin-top:6px;padding:8px 12px;border:1px solid #2563eb;border-radius:10px;color:#2563eb;text-decoration:none;">
+            فتح المرجع
+          </a>
+        </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div style="background:#fff;border:1px dashed #d1d5db;border-radius:12px;padding:20px;color:#6b7280;">
+      لا توجد مراجع متاحة حالياً.
+    </div>
+  {% endif %}
+</div>
+{% include "footer.html" %}

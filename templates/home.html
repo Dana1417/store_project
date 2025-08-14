@@ -13,37 +13,10 @@
       padding: 0;
       background-color: #fffaf0;
     }
-
-    .hero-container {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      align-items: center;
-      padding: 50px 20px;
-    }
-
-    .slider {
-      flex: 1;
-      max-width: 420px;
-      overflow: hidden;
-      border-radius: 20px;
-      margin: 10px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    }
-
-    .slides {
-      display: flex;
-      width: 400%;
-      animation: slide 16s infinite linear;
-    }
-
-    .slides img {
-      width: 100%;
-      height: 320px;
-      object-fit: cover;
-      border-radius: 20px;
-    }
-
+    .hero-container { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; padding: 50px 20px; }
+    .slider { flex: 1; max-width: 420px; overflow: hidden; border-radius: 20px; margin: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+    .slides { display: flex; width: 400%; animation: slide 16s infinite linear; }
+    .slides img { width: 100%; height: 320px; object-fit: cover; border-radius: 20px; }
     @keyframes slide {
       0%, 20% { transform: translateX(0%); }
       25%, 45% { transform: translateX(-100%); }
@@ -51,117 +24,28 @@
       75%, 95% { transform: translateX(-300%); }
       100% { transform: translateX(0%); }
     }
-
-    .hero-text {
-      flex: 1;
-      max-width: 500px;
-      padding: 20px;
-      text-align: right;
-    }
-
-    .hero-text h1 {
-      font-size: 28px;
-      color: #e67e22;
-      line-height: 1.6;
-    }
-
-    .hero-text h1 mark {
-      background: none;
-      color: #e67e22;
-      border-bottom: 4px solid #f1c40f;
-    }
-
-    .hero-text ul {
-      list-style: none;
-      padding: 0;
-      margin-top: 20px;
-    }
-
-    .hero-text ul li {
-      margin: 10px 0;
-      font-size: 18px;
-      color: #333;
-    }
-
-    .hero-text ul li::before {
-      content: "\2714\FE0F ";
-      color: green;
-    }
-
+    .hero-text { flex: 1; max-width: 500px; padding: 20px; text-align: right; }
+    .hero-text h1 { font-size: 28px; color: #e67e22; line-height: 1.6; }
+    .hero-text h1 mark { background: none; color: #e67e22; border-bottom: 4px solid #f1c40f; }
+    .hero-text ul { list-style: none; padding: 0; margin-top: 20px; }
+    .hero-text ul li { margin: 10px 0; font-size: 18px; color: #333; }
+    .hero-text ul li::before { content: "\2714\FE0F "; color: green; }
     .btn-primary {
-      display: inline-block;
-      margin-top: 20px;
-      background-color: #f39c12;
-      color: white;
-      text-decoration: none;
-      padding: 12px 25px;
-      border-radius: 30px;
-      font-size: 16px;
-      transition: background-color 0.3s ease, transform 0.2s ease;
-      cursor: pointer;
+      display: inline-block; margin-top: 20px; background-color: #f39c12; color: white; text-decoration: none;
+      padding: 12px 25px; border-radius: 30px; font-size: 16px; transition: background-color 0.3s ease, transform 0.2s ease; cursor: pointer;
     }
-
-    .btn-primary:hover {
-      background-color: #e67e22;
-      transform: scale(1.05);
-    }
-
-    .faq-section {
-      max-width: 800px;
-      margin: 60px auto;
-      padding: 40px 20px;
-    }
-
-    .faq-section h2 {
-      text-align: center;
-      color: #e67e22;
-      font-size: 24px;
-      margin-bottom: 20px;
-    }
-
-    .faq-item {
-      background-color: white;
-      border-radius: 10px;
-      margin-bottom: 10px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    }
-
-    .faq-question {
-      padding: 15px 20px;
-      cursor: pointer;
-      font-weight: bold;
-      position: relative;
-    }
-
-    .faq-question::after {
-      content: "\25BE";
-      position: absolute;
-      left: 20px;
-      transition: transform 0.3s;
-    }
-
-    .faq-item.open .faq-question::after {
-      transform: rotate(180deg);
-    }
-
-    .faq-answer {
-      padding: 0 20px 15px;
-      display: none;
-      color: #333;
-    }
-
-    .faq-item.open .faq-answer {
-      display: block;
-    }
-
+    .btn-primary:hover { background-color: #e67e22; transform: scale(1.05); }
+    .faq-section { max-width: 800px; margin: 60px auto; padding: 40px 20px; }
+    .faq-section h2 { text-align: center; color: #e67e22; font-size: 24px; margin-bottom: 20px; }
+    .faq-item { background-color: white; border-radius: 10px; margin-bottom: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    .faq-question { padding: 15px 20px; cursor: pointer; font-weight: bold; position: relative; }
+    .faq-question::after { content: "\25BE"; position: absolute; left: 20px; transition: transform 0.3s; }
+    .faq-item.open .faq-question::after { transform: rotate(180deg); }
+    .faq-answer { padding: 0 20px 15px; display: none; color: #333; }
+    .faq-item.open .faq-answer { display: block; }
     @media (max-width: 768px) {
-      .hero-container {
-        flex-direction: column;
-        text-align: center;
-      }
-      .hero-text {
-        max-width: 100%;
-      }
+      .hero-container { flex-direction: column; text-align: center; }
+      .hero-text { max-width: 100%; }
     }
   </style>
 </head>
@@ -189,7 +73,8 @@
         <li>باقات شهرية مرنة وأسعار مناسبة</li>
         <li>ندرس جميع المراحل من الروضة وحتى الجامعة</li>
       </ul>
-      <a href="{% url 'booking_page' %}" class="btn-primary">احجز الآن</a>
+      <!-- ✅ التعديل هنا: استخدمنا namespace الخاص بتطبيق store -->
+      <a href="{% url 'store:booking_page' %}" class="btn-primary">احجز الآن</a>
     </div>
   </section>
 

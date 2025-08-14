@@ -1,0 +1,28 @@
+{% include "header.html" %}
+<div class="wrapper" style="max-width:1100px;margin:0 auto;padding:30px 16px;" dir="rtl">
+  <h2 style="margin:0 0 16px 0;">شهاداتي</h2>
+
+  {% if certs %}
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;">
+      {% for c in certs %}
+        <article style="background:linear-gradient(180deg,#f7fafd,#ffffff);border:1px solid #e7eef5;border-radius:16px;padding:16px;box-shadow:0 4px 16px rgba(0,0,0,.04);">
+          <h3 style="margin:0 0 8px 0;font-size:18px;">🎖️ {{ c.course.title }}</h3>
+          <div style="color:#374151;margin-bottom:8px;">تاريخ الإصدار: {{ c.issued_at|date:"Y-m-d" }}</div>
+          {% if c.file_url %}
+            <a href="{{ c.file_url }}" target="_blank" rel="noopener"
+               style="display:inline-block;padding:8px 12px;border:1px solid #16a34a;border-radius:10px;color:#16a34a;text-decoration:none;">
+              تنزيل الشهادة
+            </a>
+          {% else %}
+            <div style="color:#6b7280;">— لا يوجد ملف للشهادة —</div>
+          {% endif %}
+        </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div style="background:#fff;border:1px dashed #d1d5db;border-radius:12px;padding:20px;color:#6b7280;">
+      لا توجد شهادات حتى الآن.
+    </div>
+  {% endif %}
+</div>
+{% include "footer.html" %}

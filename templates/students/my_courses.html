@@ -1,0 +1,25 @@
+{% include "header.html" %}
+<div class="wrapper" style="max-width:1100px;margin:0 auto;padding:30px 16px;" dir="rtl">
+  <h2 style="margin:0 0 16px 0;">دوراتي</h2>
+
+  {% if enrollments %}
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;">
+      {% for e in enrollments %}
+        <article style="background:linear-gradient(180deg,#f7fafd,#ffffff);border:1px solid #e7eef5;border-radius:16px;padding:16px;box-shadow:0 4px 16px rgba(0,0,0,.04);">
+          <h3 style="margin:0 0 8px 0;font-size:18px;">📚 {{ e.course.title }}</h3>
+          <p style="margin:0;color:#374151;">الانضمام: {{ e.joined_at|date:"Y-m-d" }}</p>
+          {% if e.course.start_date or e.course.end_date %}
+            <p style="margin:6px 0 0 0;color:#6b7280;">
+              المدة: {{ e.course.start_date|date:"Y-m-d" }} – {{ e.course.end_date|date:"Y-m-d" }}
+            </p>
+          {% endif %}
+        </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div style="background:#fff;border:1px dashed #d1d5db;border-radius:12px;padding:20px;color:#6b7280;">
+      لا توجد دورات حتى الآن.
+    </div>
+  {% endif %}
+</div>
+{% include "footer.html" %}

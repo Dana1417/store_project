@@ -1,0 +1,38 @@
+{% load static %}
+{% include "header.html" %}
+<div class="wrapper" style="max-width:700px;margin:0 auto;padding:30px 16px;" dir="rtl">
+  <h2 style="margin:0 0 16px 0;">المعلومات الشخصية</h2>
+
+  {% if messages %}
+    <div style="margin-bottom:12px;">
+      {% for m in messages %}
+        <div style="background:#ecfeff;border:1px solid #67e8f9;color:#155e75;border-radius:10px;padding:10px;margin-bottom:8px;">
+          {{ m }}
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <form method="post" novalidate style="background:#fff;border:1px solid #e7eef5;border-radius:16px;padding:16px;box-shadow:0 4px 16px rgba(0,0,0,.04);">
+    {% csrf_token %}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <label style="display:flex;flex-direction:column;gap:6px;">
+        <span>الجوال</span>
+        <input name="phone" type="text" value="{{ student.phone }}" maxlength="20"
+               style="border:1px solid #d1d5db;border-radius:10px;padding:10px;" />
+      </label>
+      <label style="display:flex;flex-direction:column;gap:6px;">
+        <span>المدينة</span>
+        <input name="city" type="text" value="{{ student.city }}" maxlength="120"
+               style="border:1px solid #d1d5db;border-radius:10px;padding:10px;" />
+      </label>
+    </div>
+
+    <div style="margin-top:16px;display:flex;gap:10px;justify-content:flex-end;">
+      <button type="submit" style="padding:10px 16px;border:none;border-radius:12px;background:#2563eb;color:#fff;cursor:pointer;">
+        حفظ
+      </button>
+    </div>
+  </form>
+</div>
+{% include "footer.html" %}
