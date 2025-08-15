@@ -1,91 +1,56 @@
-{% extends "teachers/base.html" %}
 {% load static %}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>لوحة الطالب</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
 
-{% block title %}لوحة المعلّم{% endblock %}
+  {% include "header.html" %}
 
-{% block content %}
-<div class="container" style="max-width:1100px;margin:28px auto;padding:0 16px">
-  <div class="topbar" style="display:flex;align-items:center;gap:12px;justify-content:space-between;margin:8px 0 18px">
-    <h1 class="title" style="font-size:28px;margin:0">
-      👋 مرحبًا <span id="teacher-name">{{ teacher_name }}</span>
-    </h1>
-    <div class="row" style="display:flex;gap:10px">
-      <a class="btn" href="{% url 'teachers:create_course' %}">+ إنشاء كورس</a>
-      <a class="btn" href="{% url 'teachers:create_subject' %}">+ مادة جديدة</a>
-    </div>
-  </div>
+  <main style="padding:30px;max-width:900px;margin:auto">
+    <h2>مرحبًا بك، {{ user.get_full_name|default:user.username }}</h2>
 
-  <!-- حالة لا توجد كورسات -->
-  <div id="empty-state" class="empty" style="display:none;align-items:center;gap:16px;background:var(--card);border:1px dashed var(--border);padding:18px;border-radius:16px;box-shadow:var(--shadow)">
-    <div class="icon">📦</div>
-    <div>
-      <div style="font-weight:700;margin-bottom:6px">لا توجد كورسات بعد</div>
-      <div class="muted" style="margin-bottom:10px">ابدئي بإضافة مادة ثم أنشئي كورس جديد.</div>
-      <a class="btn" href="{% url 'teachers:create_course' %}">+ إنشاء كورس الآن</a>
-    </div>
-  </div>
+    <p><strong>البريد:</strong> {{ user.email }}</p>
 
-  <!-- شبكة الكورسات -->
-  <div id="courses-grid" class="grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px"></div>
-</div>
+    {% if student %}
+      {% if student.stage %}
+        <p><strong>المرحلة الدراسية:</strong> {{ student.stage }}</p>
+      {% endif %}
 
-<!-- نحقن JSON -->
-{{ courses_data|json_script:"courses-data" }}
+      <hr>
 
-<style>
-  :root{
-    --bg:#f6f7fb; --card:#fff; --muted:#667085; --border:#eee; --shadow:0 8px 30px rgba(0,0,0,.06);
-    --brand:#2563eb; --brand-2:#1d4ed8; --chip:#eef2ff;
-  }
-  @media (prefers-color-scheme: dark){
-    :root{ --bg:#0b1020; --card:#0f172a; --muted:#98a2b3; --border:#1f2a44; --shadow:0 10px 40px rgba(0,0,0,.35); --chip:#0b1435;}
-  }
-  .card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:14px;box-shadow:var(--shadow);transition:transform .12s ease, box-shadow .2s ease}
-  .card:hover{transform:translateY(-2px);box-shadow:0 16px 50px rgba(0,0,0,.08)}
-  .cover{width:100%;height:150px;object-fit:cover;border-radius:14px;background:#f3f4f6}
-  .card h3{margin:10px 0 6px;font-size:18px}
-  .row{display:flex;align-items:center;justify-content:space-between;gap:10px}
-  .badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-  .chip{background:var(--chip);padding:6px 10px;border-radius:999px;font-size:12px;color:#334155;border:1px solid var(--border)}
-  .btn{display:inline-flex;align-items:center;gap:8px;background:var(--brand);color:#fff;text-decoration:none;border-radius:12px;padding:10px 14px}
-  .btn:hover{background:var(--brand-2)}
-  .muted{color:var(--muted)}
-</style>
+      <h3>الدورات المسجّل بها:</h3>
+      {% with enrolls=student.enrollments.all %}
+        {% if enrolls %}
+          <ul>
+            {% for en in enrolls %}
+              <li style="margin-bottom:6px">
+                {{ en.course.title }}
+                {% if en.teams_link and en.teams_link|slice:":8" == "https://" %}
+                  — <a href="{{ en.teams_link }}" target="_blank" rel="noopener">انضم الآن</a>
+                {% elif en.course.teams_link and en.course.teams_link|slice:":8" == "https://" %}
+                  — <a href="{{ en.course.teams_link }}" target="_blank" rel="noopener">انضم الآن</a>
+                {% endif %}
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p>لا توجد دورات حالياً.</p>
+        {% endif %}
+      {% endwith %}
+    {% else %}
+      <p>لم يتم ربط حسابك ببيانات طالب بعد.</p>
+    {% endif %}
 
-<script>
-(function () {
-  const courses = JSON.parse(document.getElementById("courses-data").textContent);
-  const grid = document.getElementById("courses-grid");
-  const empty = document.getElementById("empty-state");
+    <hr>
+    <a href="{% url 'logout' %}" class="btn btn-danger">تسجيل الخروج</a>
+  </main>
 
-  if (!courses.length) {
-    empty.style.display = "flex";
-    grid.style.display = "none";
-    return;
-  }
+  {% include "footer.html" %}
 
-  grid.innerHTML = "";
-  courses.forEach(c => {
-    const a = document.createElement("a");
-    a.href = c.detailUrl;
-    a.className = "card";
-    a.style.textDecoration = "none";
-    a.style.color = "inherit";
-
-    a.innerHTML = `
-      ${c.cover ? `<img class="cover" src="${c.cover}" alt="">` : ``}
-      <h3>${c.title}</h3>
-      <div class="row muted">
-        <span>${c.subject}</span>
-        <span class="row muted" style="gap:6px">👥 ${c.students} طالب</span>
-      </div>
-      <div class="badges">
-        <span class="chip">المرحلة: ${c.stage}</span>
-        <span class="chip">ID: ${c.id}</span>
-      </div>
-    `;
-    grid.appendChild(a);
-  });
-})();
-</script>
-{% endblock %}
+</body>
+</html>

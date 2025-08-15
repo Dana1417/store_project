@@ -80,7 +80,13 @@ def course_detail(request, course_id: int):
         teacher=tp,
     )
 
-    enrollments = Enrollment.objects.filter(course=course).select_related("student__user")
+    enrollments = (
+        Enrollment.objects.filter(course=course)
+        .select_related("student__user")
+        .order_by("-joined_at", "id")
+    )
+    # لسهولة الاستخدام داخل القالب
+    course.enrollment_list = list(enrollments)
     students = [en.student.user for en in enrollments]
 
     return render(request, "teachers/course_detail.html", {"course": course, "students": students})
@@ -135,8 +141,9 @@ def add_resource(request, course_id: int):
 @login_required
 @transaction.atomic
 def create_subject(request):
-    if not _ensure_teacher(request.user):
-        return HttpResponseForbidden("غير مصرّح")
+    # الإنشاء للمشرف فقط
+    if not request.user.is_staff:
+        return HttpResponseForbidden("الإنشاء مخصّص للمشرف.")
 
     if request.method == "POST":
         form = SubjectForm(request.POST)
@@ -154,16 +161,20 @@ def create_subject(request):
 @login_required
 @transaction.atomic
 def create_course(request):
-    if not _ensure_teacher(request.user):
-        return HttpResponseForbidden("غير مصرّح")
+    # الإنشاء للمشرف فقط
+    if not request.user.is_staff:
+        return HttpResponseForbidden("الإنشاء مخصّص للمشرف.")
 
-    tp = _get_teacher_profile(request.user)
+    tp = _get_teacher_profile(request.user) or _get_teacher_profile(request.user)
 
     if request.method == "POST":
         form = CourseForm(request.POST)
         if form.is_valid():
             course = form.save(commit=False)
-            course.teacher = tp
+            # لو المشرف هو الذي ينشئ، يمكنه اختيار المعلّم من الفورم،
+            # وإذا لم يوجد معلّم في الفورم لديك، يمكن ربطه هنا بـ tp إن لزم.
+            if not getattr(course, "teacher_id", None) and tp:
+                course.teacher = tp
             if not getattr(course, "is_active", True):
                 course.is_active = True
             course.save()

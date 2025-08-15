@@ -1,50 +1,167 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head><meta charset="UTF-8"><title>{{ course.title }}</title></head>
-<body style="font-family:Tajawal,system-ui">
-  <div style="max-width:1100px;margin:24px auto;padding:12px">
-    <h2>{{ course.title }}</h2>
-    <div style="color:#666;margin-bottom:18px">{{ course.subject.name }} • {{ course.subject.stage }}</div>
+{% extends "teachers/base.html" %}
+{% load static %}
 
-    <div style="display:grid;grid-template-columns:1fr 340px;gap:18px">
-      <div>
-        <h3>المحاضرات</h3>
-        <p><a href="{% url 'teachers:add_lesson' course.id %}">+ إضافة محاضرة</a></p>
-        <ul style="list-style:none;padding:0">
-          {% for l in course.lessons.all %}
-            <li style="background:#fff;border:1px solid #eee;border-radius:12px;padding:12px;margin-bottom:10px">
-              <b>#{{ l.order }} — {{ l.title }}</b>
-              {% if l.recording_url %}<div>🎥 <a href="{{ l.recording_url }}" target="_blank" rel="noopener">مشاهدة التسجيل</a></div>{% endif %}
-              {% if l.slide_url %}<div>📑 <a href="{{ l.slide_url }}" target="_blank" rel="noopener">الشرائح</a></div>{% endif %}
-              {% if l.content %}<p style="margin-top:8px;color:#444">{{ l.content|linebreaksbr }}</p>{% endif %}
-            </li>
-          {% empty %}<li>لا توجد محاضرات بعد.</li>{% endfor %}
-        </ul>
+{% block title %}تفاصيل الكورس — {{ course.title }}{% endblock %}
 
-        <h3 style="margin-top:20px">المراجع والكتب</h3>
-        <p><a href="{% url 'teachers:add_resource' course.id %}">+ إضافة مرجع</a></p>
-        <ul style="list-style:none;padding:0">
-          {% for r in course.resources.all %}
-            <li style="background:#fff;border:1px solid #eee;border-radius:12px;padding:12px;margin-bottom:10px">
-              <b>{{ r.title }}</b>
-              {% if r.file_url %} — <a href="{{ r.file_url }}" target="_blank" rel="noopener">تنزيل/عرض</a>{% endif %}
-              {% if r.external_link %} — <a href="{{ r.external_link }}" target="_blank" rel="noopener">رابط خارجي</a>{% endif %}
-            </li>
-          {% empty %}<li>لا توجد مراجع بعد.</li>{% endfor %}
-        </ul>
-      </div>
+{% block extra_css %}
+<style>
+  :root{ --card:#fff; --muted:#667085; --border:#eee; --shadow:0 8px 30px rgba(0,0,0,.06); --chip:#f3f4f6; }
+  .wrap{max-width:1100px;margin:24px auto;padding:12px}
+  .header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}
+  .title{margin:0;font-size:24px}
+  .meta{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 14px}
+  .chip{background:var(--chip);border:1px solid var(--border);border-radius:999px;padding:5px 10px;font-size:12px;color:#334155}
+  .grid{display:grid;grid-template-columns:1fr;gap:18px}
+  @media (min-width:1000px){ .grid{grid-template-columns:1fr 340px} }
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow);padding:14px}
+  .card h3{margin:0 0 10px;font-size:18px}
+  .list{list-style:none;padding:0;margin:0}
+  .item{background:#fff;border:1px solid #f1f5f9;border-radius:12px;padding:12px;margin-bottom:10px}
+  .btn{display:inline-flex;align-items:center;gap:8px;background:#2563eb;color:#fff;text-decoration:none;border-radius:10px;padding:8px 12px}
+  .btn:hover{background:#1d4ed8}
+  .btn-green{background:#10b981}
+  table{width:100%;border-collapse:separate;border-spacing:0 6px}
+  th,td{padding:10px 12px;text-align:right;border-bottom:1px solid #f2f2f2;vertical-align:middle}
+  th{font-weight:700;background:#fafafa}
+  tr:last-child td{border-bottom:none}
+  .muted{color:var(--muted)}
+</style>
+{% endblock %}
 
-      <div>
-        <h3>الطلاب المسجّلون ({{ students|length }})</h3>
-        <div style="background:#fff;border:1px solid #eee;border-radius:12px;padding:12px">
-          <ul style="list-style:none;padding:0;margin:0;max-height:420px;overflow:auto">
-            {% for s in students %}
-              <li style="padding:8px 6px;border-bottom:1px dashed #f0f0f0">{{ s.get_full_name|default:s.username }}</li>
-            {% empty %}<li>لا يوجد طلاب بعد.</li>{% endfor %}
-          </ul>
-        </div>
-      </div>
+{% block content %}
+<div class="wrap">
+
+  <div class="header">
+    <h2 class="title">{{ course.title }}</h2>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      {% if request.user.is_staff %}
+        <a class="btn" href="{% url 'teachers:add_lesson' course_id=course.id %}">+ إضافة محاضرة</a>
+        <a class="btn btn-green" href="{% url 'teachers:add_resource' course_id=course.id %}">+ إضافة مرجع/كتاب</a>
+      {% endif %}
     </div>
   </div>
-</body>
-</html>
+
+  <div class="meta">
+    {% if course.subject %}
+      <span class="chip">{{ course.subject.name }}</span>
+      <span class="chip">المرحلة: {{ course.subject.stage }}</span>
+    {% endif %}
+    <span class="chip">ID: {{ course.id }}</span>
+    <span class="chip">{% if course.is_active %}نشط{% else %}متوقف{% endif %}</span>
+    {% if course.duration_days %}<span class="chip">{{ course.duration_days }} يومًا</span>{% endif %}
+    {% if course.teacher %}
+      <span class="chip">المعلّم: {{ course.teacher.full_name|default:course.teacher.user.get_full_name|default:course.teacher.user.username }}</span>
+      {% if course.teacher and course.subject %}<span class="chip">مرحلة المعلّم: {{ course.subject.stage }}</span>{% endif %}
+      {% if request.user.role %}<span class="chip">دور المستخدم: {{ request.user.role }}</span>{% endif %}
+    {% endif %}
+  </div>
+
+  <div class="grid">
+
+    <!-- العمود الأيسر: محاضرات + مراجع + روابط -->
+    <section>
+      <div class="card">
+        <h3>المحاضرات</h3>
+        <ul class="list">
+          {% for l in course.lessons.all %}
+            <li class="item">
+              <b>#{{ l.order }} — {{ l.title }}</b>
+              {% if l.recording_url or l.slide_url %}
+                <div class="muted" style="margin-top:6px">
+                  {% if l.recording_url and l.recording_url|slice:":8" == "https://" %}
+                    🎥 <a href="{{ l.recording_url }}" target="_blank" rel="noopener">تسجيل</a>
+                  {% endif %}
+                  {% if l.slide_url and l.slide_url|slice:":8" == "https://" %}
+                    &nbsp;|&nbsp; 📑 <a href="{{ l.slide_url }}" target="_blank" rel="noopener">شرائح</a>
+                  {% endif %}
+                </div>
+              {% endif %}
+              {% if l.content %}
+                <p style="margin:8px 0 0;color:#444">{{ l.content|linebreaksbr }}</p>
+              {% endif %}
+            </li>
+          {% empty %}
+            <li class="muted">لا توجد محاضرات بعد.</li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <h3>المراجع والكتب</h3>
+        <ul class="list">
+          {% for r in course.resources.all %}
+            <li class="item">
+              <b>{{ r.title }}</b>
+              {% if r.file_url and r.file_url|slice:":8" == "https://" %}
+                — <a href="{{ r.file_url }}" target="_blank" rel="noopener">ملف</a>
+              {% endif %}
+              {% if r.external_link and r.external_link|slice:":8" == "https://" %}
+                — <a href="{{ r.external_link }}" target="_blank" rel="noopener">رابط خارجي</a>
+              {% endif %}
+            </li>
+          {% empty %}
+            <li class="muted">لا توجد مراجع بعد.</li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <h3>روابط الكورس</h3>
+        <p class="muted" style="margin:0">
+          رابط Teams (عام):
+          {% if course.teams_link and course.teams_link|slice:":8" == "https://" %}
+            <a class="btn" style="padding:6px 10px;margin-inline-start:8px" href="{{ course.teams_link }}" target="_blank" rel="noopener">فتح</a>
+          {% else %}
+            <span class="muted">غير مضاف</span>
+          {% endif %}
+        </p>
+      </div>
+    </section>
+
+    <!-- العمود الأيمن: الطلاب -->
+    <aside class="card">
+      <h3>الطلاب المسجّلون</h3>
+
+      {% if course.enrollment_list %}
+        <table>
+          <thead>
+            <tr>
+              <th>الطالب</th>
+              <th>البريد</th>
+              <th>انضم</th>
+              <th>Teams</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for en in course.enrollment_list %}
+              <tr>
+                <td>{{ en.student.user.get_full_name|default:en.student.user.username }}</td>
+                <td class="muted">{{ en.student.user.email }}</td>
+                <td class="muted">{% if en.joined_at %}{{ en.joined_at|date:"Y-m-d" }}{% else %}-{% endif %}</td>
+                <td>
+                  {% if en.teams_link and en.teams_link|slice:":8" == "https://" %}
+                    <a class="btn" style="padding:6px 10px" href="{{ en.teams_link }}" target="_blank" rel="noopener">فتح</a>
+                  {% elif course.teams_link and course.teams_link|slice:":8" == "https://" %}
+                    <a class="btn" style="padding:6px 10px" href="{{ course.teams_link }}" target="_blank" rel="noopener">فتح (عام)</a>
+                  {% else %}
+                    <span class="muted">—</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+      {% elif students %}
+        <ul class="list">
+          {% for s in students %}
+            <li class="item">{{ s.get_full_name|default:s.username }}</li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="muted">لا يوجد طلاب بعد.</p>
+      {% endif %}
+    </aside>
+  </div>
+</div>
+{% endblock %}
