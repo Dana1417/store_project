@@ -1,4 +1,3 @@
-# store/urls.py
 from django.urls import path
 from . import views
 
@@ -17,8 +16,11 @@ urlpatterns = [
 
     # ✅ السلة (Session)
     path("cart/", views.cart_detail, name="cart_detail"),
-    path("cart/add/<int:pk>/", views.add_to_cart, name="add_to_cart"),            # POST
-    path("cart/remove/<int:pk>/", views.remove_from_cart, name="remove_from_cart"),  # POST
+    path("cart/add/<int:pk>/", views.add_to_cart, name="add_to_cart"),             # POST
+    path("cart/remove/<int:pk>/", views.remove_from_cart, name="remove_from_cart"),# POST
+
+    # ✅ التأكيد/الدفع (بدون بوابة دفع حالياً)
+    path("checkout/", views.checkout, name="checkout"),
 
     # ✅ لوحة المعلّم
     path("teacher/dashboard/", views.teacher_dashboard, name="teacher_dashboard"),

@@ -49,9 +49,7 @@
     <h2>🛒 سلة المشتريات</h2>
     <div class="card">
 
-      {# ندعم كلا السياقين: items/total أو cart_items #}
       {% with rows=cart_items|default:items %}
-
       {% if rows %}
         <table>
           <thead>
@@ -71,21 +69,17 @@
                 <td>
                   {% if p.image %}
                     <img src="{{ p.image.url }}" alt="{{ p.name }}">
-                  {% else %}
-                    —
-                  {% endif %}
+                  {% else %} — {% endif %}
                 </td>
                 <td>{{ p.name }}</td>
                 <td>{{ p.price }} ريال</td>
                 <td class="qty">{{ qty }}</td>
                 <td>{{ sub }} ريال</td>
                 <td>
-                  {# يتطلب وجود مسار إزالة. يُفضّل POST مع CSRF #}
-                  <form method="post" action="{% url 'remove_from_cart' p.id %}">
+                  <form method="post" action="{% url 'remove_from_cart' p.id %}" style="display:inline;">
                     {% csrf_token %}
                     <button type="submit" class="rm-btn" title="إزالة">🗑️</button>
                   </form>
-                  {# إن لم يكن لديك remove_from_cart بعد، أخبريني أضيفه لك في views/urls #}
                 </td>
               </tr>
               {% endwith %}
@@ -93,14 +87,16 @@
           </tbody>
         </table>
 
-        <div class="total">
-          الإجمالي: {{ total|default_if_none:0 }} ريال
-        </div>
+        <div class="total">الإجمالي: {{ total|default_if_none:0 }} ريال</div>
 
         <div class="actions">
           <a href="{% url 'product_list' %}" class="btn gray">⬅️ متابعة التصفح</a>
-          <!-- Checkout: استخدمنا صفحة الحجز كخطوة دفع/تأكيد -->
-          <a href="{% url 'booking' %}" class="btn green">💳 إتمام الحجز/الدفع</a>
+
+          <!-- ✅ إتمام الحجز/الدفع كـ POST مباشرة إلى checkout -->
+          <form method="post" action="{% url 'checkout' %}" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn green">💳 إتمام الحجز/الدفع</button>
+          </form>
         </div>
 
       {% else %}

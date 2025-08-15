@@ -1,6 +1,9 @@
+from __future__ import annotations
+
 from django.db import models
 from cloudinary.models import CloudinaryField
 from django.urls import reverse
+
 
 # ✅ التصنيفات للمنتجات
 class Category(models.Model):
@@ -23,13 +26,29 @@ class Product(models.Model):
     )
     available = models.BooleanField(default=True, verbose_name="متوفر؟")
     image = CloudinaryField(verbose_name="صورة المنتج", blank=True, null=True)
-    description = models.TextField(blank=True, verbose_name="الوصف")  # 👈 جديد
+    description = models.TextField(blank=True, verbose_name="الوصف")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="تاريخ الإضافة")
+
+    # ✅ الربط مع دورة لوحة الطالب (Course) — اختياري
+    # نستخدم المسار النصي 'students.Course' لتجنب أي دورات استيراد دائرية
+    course = models.ForeignKey(
+        "students.Course",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="products",
+        verbose_name="الدورة المرتبطة (لوحة الطالب)",
+        help_text="اختياري: اربط هذا المنتج بدورة ليظهر للطالب تلقائيًا بعد الإتمام."
+    )
 
     class Meta:
         verbose_name = "منتج"
         verbose_name_plural = "منتجات"
         ordering = ("-created_at",)
+        indexes = [
+            models.Index(fields=["available"]),
+            models.Index(fields=["created_at"]),
+        ]
 
     def __str__(self) -> str:
         return self.name

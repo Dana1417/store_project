@@ -10,8 +10,15 @@ from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_http_methods
 from django.utils.http import url_has_allowed_host_and_scheme
+from django.utils import timezone
+from django.utils.text import slugify
+
+from datetime import timedelta
 
 from .models import Product
+
+# نماذج الطلاب (للتفعيل بعد التأكيد)
+from students.models import Student, Enrollment, Course
 
 # نمط تحقق بسيط لرقم الجوال: + اختياري و 8-15 رقم
 PHONE_RX = re.compile(r'^\+?\d{8,15}$')
@@ -96,10 +103,7 @@ def add_to_cart(request, pk: int):
 
 @require_http_methods(["POST"])
 def remove_from_cart(request, pk: int):
-    """
-    إزالة منتج من السلة (POST فقط).
-    """
-    # ليس ضروريًا التأكد من available هنا؛ الإزالة لا تتطلب وجوده متاحًا الآن
+    """إزالة منتج من السلة (POST فقط)."""
     _cart_remove(request, pk)
     messages.success(request, "تمت إزالة العنصر من السلة.")
     return redirect("cart_detail")
@@ -112,7 +116,7 @@ def cart_detail(request):
     السياق المعاد:
       - items: قائمة عناصر فيها {product, qty, line_total}
       - total: الإجمالي الكلي
-    القالب المتوقع: templates/cart/cart_detail.html
+    القالب: templates/cart/cart_detail.html
     """
     cart = _cart_get(request)
     if not cart:
@@ -132,6 +136,126 @@ def cart_detail(request):
         items.append({"product": p, "qty": qty, "line_total": line_total})
 
     return render(request, "cart/cart_detail.html", {"items": items, "total": total})
+
+
+# =========================
+#     أدوات ربط المنتج بالكورس
+# =========================
+def _resolve_or_create_course_from_product(p: Product) -> Course:
+    """
+    يحاول إيجاد Course مناسب للمنتج:
+    1) Product.course إن وجد
+    2) Course بالعنوان = product.name
+    3) Course بالـ slug = product.slug (إن وجد)
+    4) إنشاء Course تلقائيًا من بيانات المنتج
+    """
+    # 1) ربط مباشر
+    course = getattr(p, "course", None)
+    if course:
+        return course
+
+    # 2) بالعنوان
+    course = Course.objects.filter(title=p.name).first()
+    if course:
+        return course
+
+    # 3) بالـ slug (لو عند المنتج)
+    p_slug = getattr(p, "slug", None)
+    if p_slug:
+        course = Course.objects.filter(slug=p_slug).first()
+        if course:
+            return course
+
+    # 4) إنشاء تلقائي
+    auto_slug = (p_slug or f"p{p.pk}-{slugify(p.name)[:40]}") or f"p{p.pk}"
+    course = Course.objects.create(
+        title=p.name,
+        slug=auto_slug,
+        is_active=True,
+        duration_days=30,                        # مدة افتراضية
+        teams_link=getattr(p, "teams_link", "") or "",
+    )
+    return course
+
+
+# =========================
+#          Checkout
+# =========================
+@require_http_methods(["GET", "POST"])
+@login_required
+def checkout(request):
+    """
+    صفحة تأكيد الطلب/الحجز (بدون بوابة دفع الآن).
+    - GET: تعرض ملخص السلة.
+    - POST: تؤكّد وتحوّل عناصر السلة إلى Enrollments للطالب (مع إنشاء Course تلقائي عند الحاجة)، ثم تفرغ السلة.
+    """
+    cart = _cart_get(request)
+    if not cart:
+        messages.error(request, "سلتك فارغة. أضيفي عناصر أولًا.")
+        return redirect("cart_detail")
+
+    ids = [int(i) for i in cart.keys() if str(i).isdigit()]
+    products = Product.objects.filter(id__in=ids).order_by("id")
+
+    items: List[Dict[str, Any]] = []
+    total = 0
+    for p in products:
+        qty = int(cart.get(str(p.pk), 0))
+        line_total = (p.price or 0) * qty
+        total += line_total
+        items.append({"product": p, "qty": qty, "line_total": line_total})
+
+    if request.method == "POST":
+        # في هذا الإصدار: لا بوابة دفع — نفعّل التسجيلات مباشرة
+        student, _ = Student.objects.get_or_create(user=request.user)
+        created_any = False
+
+        for it in items:
+            p = it["product"]
+
+            # ✅ احصل/أنشئ Course مناسب لهذا المنتج
+            course = _resolve_or_create_course_from_product(p)
+
+            # إنشاء/تفعيل التسجيل
+            enrollment, created = Enrollment.objects.get_or_create(
+                student=student,
+                course=course,
+                defaults={
+                    "status": "active",
+                    "joined_at": timezone.now(),
+                    "starts_at": timezone.now(),
+                    "ends_at": timezone.now() + timedelta(days=getattr(course, "duration_days", 30) or 30),
+                    "teams_link": getattr(course, "teams_link", "") or "",
+                },
+            )
+
+            if not created:
+                # تحديث تسجيل سابق ليصبح نشطًا ضمن نافذة زمنية صالحة
+                if enrollment.status != "active":
+                    enrollment.status = "active"
+                if not enrollment.starts_at:
+                    enrollment.starts_at = timezone.now()
+                if not enrollment.ends_at:
+                    enrollment.ends_at = enrollment.starts_at + timedelta(days=getattr(course, "duration_days", 30) or 30)
+                if not enrollment.teams_link:
+                    enrollment.teams_link = getattr(course, "teams_link", "") or ""
+                enrollment.save()
+            else:
+                created_any = True
+
+        # ✅ إفراغ السلة وإعلام المستخدم
+        request.session["cart"] = {}
+        request.session.modified = True
+
+        if created_any:
+            messages.success(request, "تم تأكيد طلبك وتفعيل الدورات في لوحة الطالب ✅")
+        else:
+            messages.info(request, "تم التأكيد. لا توجد دورات جديدة لتفعيلها.")
+
+        return redirect("students:dashboard")
+
+    # GET → عرض صفحة التأكيد
+    return render(request, "cart/checkout.html", {"items": items, "total": total})
 
 
 # =========================
