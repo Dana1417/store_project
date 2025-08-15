@@ -2,11 +2,12 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
-from django.urls import reverse
+from django.urls import reverse  # يمكن حذفه إن لم يُستخدم
 
 from .forms import CustomUserCreationForm
 from store.models import Product
-from students.models import Student  # ✅ التصحيح هنا
+from students.models import Student
+from teachers.models import TeacherProfile  # ✅ جديد
 
 # ✅ الصفحة الرئيسية - عرض المنتجات المتاحة
 def home(request):
@@ -35,12 +36,13 @@ def register_view(request):
             if next_url:
                 return redirect(next_url)
 
-            # 👇 التأكد من إنشاء سجل الطالب فقط (بدون stage لأنه غير موجود في الموديل)
+            # 👇 إنشاء السجلات المرتبطة حسب الدور
             if user.role == 'student':
                 Student.objects.get_or_create(user=user)
-                return redirect('students:dashboard')        # ✅ التصحيح
+                return redirect('students:dashboard')
             elif user.role == 'teacher':
-                return redirect('store:teacher_dashboard')    # ✅ التصحيح
+                TeacherProfile.objects.get_or_create(user=user)  # ✅ إنشاء بروفايل المعلّم
+                return redirect('teachers:dashboard')            # ✅ التصحيح
             else:
                 return redirect('home')
         else:
@@ -71,10 +73,11 @@ def login_view(request):
                     return redirect(next_url)
 
                 if user.role == 'student':
-                    Student.objects.get_or_create(user=user)  # ✅ بدون stage
-                    return redirect('students:dashboard')      # ✅ التصحيح
+                    Student.objects.get_or_create(user=user)
+                    return redirect('students:dashboard')
                 elif user.role == 'teacher':
-                    return redirect('store:teacher_dashboard')  # ✅ التصحيح
+                    TeacherProfile.objects.get_or_create(user=user)  # ✅ تأكيد وجود البروفايل
+                    return redirect('teachers:dashboard')            # ✅ التصحيح
                 else:
                     return redirect('home')
         messages.error(request, "اسم المستخدم أو كلمة المرور غير صحيحة.")

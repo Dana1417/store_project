@@ -15,10 +15,11 @@ DEBUG = os.getenv("DEBUG", "True").lower() == "true"
 # 🖇️ السماح بالمضيفين
 ALLOWED_HOSTS = [h.strip() for h in os.getenv("ALLOWED_HOSTS", "127.0.0.1,localhost").split(",") if h.strip()]
 
-# ✅ CSRF (من env إن وُجد، وإلا نضيف الدومين على Render)
+# ✅ CSRF (من env إن وُجد، وإلا نضيف الدومين على Render + نمط *)
 _env_csrf = [o.strip() for o in os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",") if o.strip()]
 CSRF_TRUSTED_ORIGINS = _env_csrf or [
     "https://store-project-s3xp.onrender.com",
+    "https://*.onrender.com",
 ]
 
 # ✅ التطبيقات
@@ -28,7 +29,8 @@ INSTALLED_APPS = [
     "store",
     "orders",
     "cart",
-    "students.apps.StudentsConfig",  # ✅ جديد
+    "students.apps.StudentsConfig",
+    "teachers.apps.TeachersConfig",  # ✅ لوحة المعلّم
 
     # Django
     "django.contrib.admin",
@@ -46,6 +48,10 @@ INSTALLED_APPS = [
 # ✅ الوسطاء
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+
+    # ✅ WhiteNoise لخدمة الستايتك بكفاءة في الإنتاج
+    "whitenoise.middleware.WhiteNoiseMiddleware",
+
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -75,6 +81,8 @@ TEMPLATES = [
     },
 ]
 
+WSGI_APPLICATION = "store_project.wsgi.application"
+
 # 🛢️ قاعدة البيانات (SQLite للتطوير، PostgreSQL للإنتاج)
 if DEBUG:
     DATABASES = {
@@ -92,6 +100,7 @@ else:
             "NAME": os.getenv("DB_NAME"),
             "USER": os.getenv("DB_USER"),
             "PASSWORD": os.getenv("DB_PASSWORD"),
+            "CONN_MAX_AGE": 60,  # لتحسين الأداء
         }
     }
 
@@ -103,18 +112,29 @@ USE_TZ = True
 
 # 📁 الملفات الثابتة ووسائط
 STATIC_URL = "/static/"
-STATICFILES_DIRS = [BASE_DIR / "static"]
+STATICFILES_DIRS = [BASE_DIR / "static"] if (BASE_DIR / "static").exists() else []
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # ✅ نظام التخزين
-STORAGES = {
-    "default": {
-        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",  # وسائط على Cloudinary
-    },
-    "staticfiles": {
-        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",  # Static المحلي الافتراضي
-    },
-}
+if DEBUG:
+    STORAGES = {
+        "default": {
+            "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",  # وسائط على Cloudinary
+        },
+        "staticfiles": {
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",  # Static محلي في التطوير
+        },
+    }
+else:
+    STORAGES = {
+        "default": {
+            "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+        },
+        # ✅ WhiteNoise مع Manifest لضمان ثبات أسماء الملفات بعد collectstatic
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        },
+    }
 
 # ⚙️ Cloudinary
 CLOUDINARY_STORAGE = {
@@ -122,7 +142,6 @@ CLOUDINARY_STORAGE = {
     "API_KEY": os.getenv("CLOUDINARY_API_KEY", ""),
     "API_SECRET": os.getenv("CLOUDINARY_API_SECRET", ""),
 }
-
 MEDIA_URL = "/media/"
 
 # 📧 البريد الإلكتروني
@@ -148,13 +167,8 @@ AUTH_PASSWORD_VALIDATORS = [
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
-    "handlers": {
-        "console": {"class": "logging.StreamHandler"},
-    },
-    "root": {
-        "handlers": ["console"],
-        "level": "INFO" if DEBUG else "WARNING",
-    },
+    "handlers": {"console": {"class": "logging.StreamHandler"}},
+    "root": {"handlers": ["console"], "level": "INFO" if DEBUG else "WARNING"},
     "loggers": {
         "django.request": {"handlers": ["console"], "level": "ERROR", "propagate": False},
     },

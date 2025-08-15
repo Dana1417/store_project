@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head><meta charset="UTF-8"><title>إضافة مرجع</title></head>
+<body style="font-family:Tajawal,system-ui">
+  <h2>إضافة مرجع/كتاب لـ {{ course.title }}</h2>
+  <form method="post">{% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">حفظ</button>
+  </form>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head><meta charset="UTF-8"><title>{{ course.title }}</title></head>
+<body style="font-family:Tajawal,system-ui">
+  <div style="max-width:1100px;margin:24px auto;padding:12px">
+    <h2>{{ course.title }}</h2>
+    <div style="color:#666;margin-bottom:18px">{{ course.subject.name }} • {{ course.subject.stage }}</div>
+
+    <div style="display:grid;grid-template-columns:1fr 340px;gap:18px">
+      <div>
+        <h3>المحاضرات</h3>
+        <p><a href="{% url 'teachers:add_lesson' course.id %}">+ إضافة محاضرة</a></p>
+        <ul style="list-style:none;padding:0">
+          {% for l in course.lessons.all %}
+            <li style="background:#fff;border:1px solid #eee;border-radius:12px;padding:12px;margin-bottom:10px">
+              <b>#{{ l.order }} — {{ l.title }}</b>
+              {% if l.recording_url %}<div>🎥 <a href="{{ l.recording_url }}" target="_blank" rel="noopener">مشاهدة التسجيل</a></div>{% endif %}
+              {% if l.slide_url %}<div>📑 <a href="{{ l.slide_url }}" target="_blank" rel="noopener">الشرائح</a></div>{% endif %}
+              {% if l.content %}<p style="margin-top:8px;color:#444">{{ l.content|linebreaksbr }}</p>{% endif %}
+            </li>
+          {% empty %}<li>لا توجد محاضرات بعد.</li>{% endfor %}
+        </ul>
+
+        <h3 style="margin-top:20px">المراجع والكتب</h3>
+        <p><a href="{% url 'teachers:add_resource' course.id %}">+ إضافة مرجع</a></p>
+        <ul style="list-style:none;padding:0">
+          {% for r in course.resources.all %}
+            <li style="background:#fff;border:1px solid #eee;border-radius:12px;padding:12px;margin-bottom:10px">
+              <b>{{ r.title }}</b>
+              {% if r.file_url %} — <a href="{{ r.file_url }}" target="_blank" rel="noopener">تنزيل/عرض</a>{% endif %}
+              {% if r.external_link %} — <a href="{{ r.external_link }}" target="_blank" rel="noopener">رابط خارجي</a>{% endif %}
+            </li>
+          {% empty %}<li>لا توجد مراجع بعد.</li>{% endfor %}
+        </ul>
+      </div>
+
+      <div>
+        <h3>الطلاب المسجّلون ({{ students|length }})</h3>
+        <div style="background:#fff;border:1px solid #eee;border-radius:12px;padding:12px">
+          <ul style="list-style:none;padding:0;margin:0;max-height:420px;overflow:auto">
+            {% for s in students %}
+              <li style="padding:8px 6px;border-bottom:1px dashed #f0f0f0">{{ s.get_full_name|default:s.username }}</li>
+            {% empty %}<li>لا يوجد طلاب بعد.</li>{% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

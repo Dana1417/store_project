@@ -17,8 +17,11 @@ from datetime import timedelta
 
 from .models import Product
 
-# نماذج الطلاب (للتفعيل بعد التأكيد)
+# نماذج الطلاب
 from students.models import Student, Enrollment, Course
+
+# لضمان وجود بروفايل المعلّم عند التحويل للوحة teachers
+from teachers.models import TeacherProfile
 
 # نمط تحقق بسيط لرقم الجوال: + اختياري و 8-15 رقم
 PHONE_RX = re.compile(r'^\+?\d{8,15}$')
@@ -360,12 +363,21 @@ def booking_page(request):
 
 
 # =========================
-#      لوحة المعلم
+#      لوحة المعلم (مسار قديم داخل store)
 # =========================
 @login_required
 @require_http_methods(["GET"])
 def teacher_dashboard(request):
+    """
+    مسار قديم كان يعرض قالبًا ضمن store.
+    الآن: نضمن وجود TeacherProfile ثم نعيد التوجيه إلى لوحة المعلم في تطبيق teachers.
+    """
     if getattr(request.user, "role", None) != "teacher":
         messages.error(request, "غير مصرح بالوصول إلى لوحة المعلم.")
         return redirect("product_list")
-    return render(request, "store/teacher_dashboard.html")
+
+    # ضمان وجود بروفايل معلّم
+    TeacherProfile.objects.get_or_create(user=request.user)
+
+    # إعادة توجيه لمسار لوحة المعلّم الصحيح
+    return redirect("teachers:dashboard")
