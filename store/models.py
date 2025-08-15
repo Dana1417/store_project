@@ -1,5 +1,6 @@
 from django.db import models
 from cloudinary.models import CloudinaryField
+from django.urls import reverse
 
 # ✅ التصنيفات للمنتجات
 class Category(models.Model):
@@ -22,6 +23,7 @@ class Product(models.Model):
     )
     available = models.BooleanField(default=True, verbose_name="متوفر؟")
     image = CloudinaryField(verbose_name="صورة المنتج", blank=True, null=True)
+    description = models.TextField(blank=True, verbose_name="الوصف")  # 👈 جديد
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="تاريخ الإضافة")
 
     class Meta:
@@ -35,3 +37,6 @@ class Product(models.Model):
     @property
     def is_available(self) -> bool:
         return self.available
+
+    def get_absolute_url(self):
+        return reverse("product_detail", args=[self.pk])

@@ -73,8 +73,8 @@
         <li>باقات شهرية مرنة وأسعار مناسبة</li>
         <li>ندرس جميع المراحل من الروضة وحتى الجامعة</li>
       </ul>
-      <!-- ✅ التعديل هنا: استخدمنا namespace الخاص بتطبيق store -->
-      <a href="{% url 'store:booking_page' %}" class="btn-primary">احجز الآن</a>
+      <!-- ✅ الرابط الصحيح بدون namespace ليتوافق مع store/urls.py -->
+      <a href="{% url 'booking' %}" class="btn-primary">احجز الآن</a>
     </div>
   </section>
 

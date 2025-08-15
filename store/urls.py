@@ -1,18 +1,25 @@
+# store/urls.py
 from django.urls import path
 from . import views
 
-app_name = "store"
-
 urlpatterns = [
-    # ✅ عرض جميع المنتجات
+    # ✅ قائمة المنتجات
     path("products/", views.product_list, name="product_list"),
 
-    # ✅ عرض تفاصيل منتج معيّن عبر الـ ID
+    # ✅ تفاصيل منتج معيّن
     path("products/<int:pk>/", views.product_detail, name="product_detail"),
 
-    # ✅ نموذج حجز درس
-    path("booking/", views.booking_page, name="booking_page"),
+    # ✅ نموذج الحجز (العام)
+    path("booking/", views.booking_page, name="booking"),
 
-    # ✅ لوحة المعلم (إن كنتِ تستخدمينها)
+    # ✅ حجز سريع (POST فقط) من صفحة المنتج
+    path("book/<int:pk>/quick/", views.quick_book, name="quick_book"),
+
+    # ✅ السلة (Session)
+    path("cart/", views.cart_detail, name="cart_detail"),
+    path("cart/add/<int:pk>/", views.add_to_cart, name="add_to_cart"),            # POST
+    path("cart/remove/<int:pk>/", views.remove_from_cart, name="remove_from_cart"),  # POST
+
+    # ✅ لوحة المعلّم
     path("teacher/dashboard/", views.teacher_dashboard, name="teacher_dashboard"),
 ]

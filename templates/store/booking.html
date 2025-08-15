@@ -2,123 +2,194 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>نموذج الحجز</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet" />
   <style>
-    body {
-      font-family: 'Tajawal', sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: #fffaf0;
+    :root{
+      --brand:#e67e22; --brand-dark:#cf6e17;
+      --bg:#fffaf0; --card:#fff; --text:#333; --muted:#666; --border:#eaeaea;
+      --success-bg:#e9f7ef; --success:#1e7e34; --success-b:#c7eed8;
+      --error-bg:#fdecea; --error:#a71d2a; --error-b:#f5c6cb;
+      --shadow:0 6px 22px rgba(0,0,0,.08);
     }
-
-    .container {
-      max-width: 600px;
-      margin: 60px auto;
-      padding: 40px;
-      background-color: #fff;
-      border-radius: 20px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    *{box-sizing:border-box}
+    body{font-family:'Tajawal',sans-serif;margin:0;padding:0;background:var(--bg);color:var(--text)}
+    .wrap{max-width:780px;margin:28px auto 60px;padding:0 16px}
+    .card{background:var(--card);border-radius:20px;box-shadow:var(--shadow);padding:28px;border:1px solid var(--border)}
+    h1{font-size:24px;margin:0 0 8px;text-align:center;color:var(--brand)}
+    .desc{text-align:center;color:var(--muted);margin-bottom:18px}
+    .messages{margin-bottom:16px}
+    .msg{padding:10px 12px;border-radius:10px;margin-bottom:8px;border:1px solid transparent;line-height:1.5}
+    .msg.success{background:var(--success-bg);color:var(--success);border-color:var(--success-b)}
+    .msg.error{background:var(--error-bg);color:var(--error);border-color:var(--error-b)}
+    form{display:grid;gap:14px}
+    label{display:block;font-weight:700;margin-bottom:6px}
+    input[type="text"],input[type="tel"],select,textarea{
+      width:100%;padding:12px 14px;border:1px solid #ddd;border-radius:12px;
+      font-size:16px;outline:none;background:#fff;transition:border-color .2s,box-shadow .2s
     }
-
-    h2 {
-      text-align: center;
-      color: #e67e22;
-      margin-bottom: 30px;
+    input:focus,select:focus,textarea:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(230,126,34,.15)}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    @media (max-width:640px){.row{grid-template-columns:1fr}}
+    .checkbox-group{padding:12px;border:1px dashed #ddd;border-radius:12px}
+    .checkbox-item{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+    .hint{color:var(--muted);font-size:13px}
+    .readonly{background:#f9f9f9}
+    .pill{padding:8px 12px;border:1px solid #eee;border-radius:999px;display:inline-block}
+    button.btn,.btn[type="submit"]{
+      appearance:none;-webkit-appearance:none;border:none;cursor:pointer;font-weight:800;border-radius:9999px;
+      padding:14px 18px;font-size:16px;width:100%;
+      background:linear-gradient(135deg,var(--brand),var(--brand-dark));color:#fff;box-shadow:0 2px 8px rgba(0,0,0,.06);
+      transition:transform .06s ease,opacity .15s ease;
     }
-
-    label {
-      display: block;
-      margin-bottom: 8px;
-      font-weight: bold;
-      color: #333;
-    }
-
-    input[type="text"],
-    input[type="tel"],
-    select {
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 20px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 16px;
-    }
-
-    .checkbox-group {
-      margin-bottom: 20px;
-    }
-
-    .checkbox-group label {
-      display: block;
-      font-weight: normal;
-      margin-bottom: 10px;
-      cursor: pointer;
-    }
-
-    .checkbox-group input {
-      margin-left: 8px;
-    }
-
-    button {
-      display: block;
-      width: 100%;
-      padding: 14px;
-      background-color: #e67e22;
-      color: #fff;
-      font-size: 16px;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: background-color 0.3s;
-    }
-
-    button:hover {
-      background-color: #cf6e17;
-    }
+    button.btn:hover{opacity:.95}
+    button.btn:active{transform:translateY(1px)}
+    button.btn[disabled]{opacity:.6;cursor:not-allowed}
+    .field-error{font-size:13px;color:var(--error);margin-top:6px}
   </style>
 </head>
 <body>
 
-  <!-- ✅ استدعاء الهيدر -->
   {% include "header.html" %}
 
-  <div class="container">
-    <h2>نموذج الحجز</h2>
-    <form method="post">
-      {% csrf_token %}
-      
-      <label for="name">الاسم الكامل:</label>
-      <input type="text" id="name" name="name" placeholder="مثال: محمد أحمد" required>
+  <div class="wrap">
+    <div class="card">
+      <h1>احجز الآن</h1>
+      <p class="desc">أدخل بياناتك وسيتم التواصل معك لتأكيد الموعد.</p>
 
-      <label for="phone">رقم الجوال:</label>
-      <input type="tel" id="phone" name="phone" placeholder="مثال: 05xxxxxxxx" required>
-
-      <label for="stage">المرحلة الدراسية:</label>
-      <select id="stage" name="stage" required>
-        <option value="">اختر المرحلة</option>
-        <option value="ابتدائي">ابتدائي</option>
-        <option value="متوسط">متوسط</option>
-        <option value="ثانوي">ثانوي</option>
-        <option value="جامعي">جامعي</option>
-      </select>
-
-      <div class="checkbox-group">
-        <label>المواد الدراسية:</label>
-        <label><input type="checkbox" name="subjects" value="رياضيات"> رياضيات</label>
-        <label><input type="checkbox" name="subjects" value="علم"> علم</label>
-        <label><input type="checkbox" name="subjects" value="لغة إنجليزية"> لغة إنجليزية</label>
-        <label><input type="checkbox" name="subjects" value="حاسب"> حاسب</label>
+      <!-- رسائل Django الموسومة بـ booking -->
+      <div class="messages" id="serverMessages">
+        {% if messages %}
+          {% for m in messages %}
+            {% if "booking" in m.tags %}
+              <div class="msg {% if 'success' in m.tags %}success{% elif 'error' in m.tags %}error{% endif %}">{{ m }}</div>
+            {% endif %}
+          {% endfor %}
+        {% endif %}
       </div>
 
-      <button type="submit">إرسال الطلب</button>
-    </form>
+      <form id="bookingForm" method="post" novalidate>
+        {% csrf_token %}
+
+        <!-- المنتج / الدورة (اختياري) -->
+        <div>
+          <label>المنتج / الدورة (اختياري)</label>
+          {% if selected_product %}
+            <div class="pill">{{ selected_product.name }}</div>
+            <input type="hidden" name="product_id" value="{{ selected_product.id }}">
+          {% else %}
+            <select name="product_id">
+              <option value="" selected>بدون اختيار</option>
+              {% for p in products %}
+                <option value="{{ p.id }}"
+                        {% if old.product_id and old.product_id|stringformat:"s" == p.id|stringformat:"s" %}selected{% endif %}>
+                  {{ p.name }}
+                </option>
+              {% endfor %}
+            </select>
+          {% endif %}
+          <div class="hint">يمكنك تركها فارغة إذا لم تكن دورة محددة.</div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label for="name">الاسم الكامل</label>
+            <input id="name" name="name" type="text" placeholder="مثال: محمد أحمد" required minlength="2" autocomplete="name"
+                   value="{{ old.name|default:'' }}"/>
+            <div class="field-error" data-err-for="name"></div>
+          </div>
+          <div>
+            <label for="phone">رقم الجوال</label>
+            <input id="phone" name="phone" type="tel" placeholder="مثال: +9665xxxxxxxx"
+                   required pattern="^\+?\d{8,15}$"
+                   title="أدخل رقمًا صحيحًا من 8 إلى 15 خانة مع + اختياري."
+                   value="{{ old.phone|default:'' }}"/>
+            <div class="field-error" data-err-for="phone"></div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div>
+            <label for="stage">المرحلة الدراسية</label>
+            <select id="stage" name="stage" required>
+              <option value="">اختر المرحلة</option>
+              <option value="ابتدائي" {% if old.stage == "ابتدائي" %}selected{% endif %}>ابتدائي</option>
+              <option value="متوسط"  {% if old.stage == "متوسط" %}selected{% endif %}>متوسط</option>
+              <option value="ثانوي"  {% if old.stage == "ثانوي" %}selected{% endif %}>ثانوي</option>
+              <option value="جامعي"  {% if old.stage == "جامعي" %}selected{% endif %}>جامعي</option>
+            </select>
+            <div class="field-error" data-err-for="stage"></div>
+          </div>
+          <div>
+            <div class="section-title" style="font-weight:800;margin:6px 0">المواد الدراسية</div>
+            <div class="checkbox-group" aria-label="اختر المواد">
+              <div class="checkbox-item">
+                <input type="checkbox" id="sub-math" name="subjects" value="رياضيات"
+                  {% if old.subjects and 'رياضيات' in old.subjects %}checked{% endif %}/>
+                <label for="sub-math">رياضيات</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="sub-science" name="subjects" value="علوم"
+                  {% if old.subjects and 'علوم' in old.subjects %}checked{% endif %}/>
+                <label for="sub-science">علوم</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="sub-english" name="subjects" value="لغة إنجليزية"
+                  {% if old.subjects and 'لغة إنجليزية' in old.subjects %}checked{% endif %}/>
+                <label for="sub-english">لغة إنجليزية</label>
+              </div>
+              <div class="checkbox-item">
+                <input type="checkbox" id="sub-computer" name="subjects" value="حاسب"
+                  {% if old.subjects and 'حاسب' in old.subjects %}checked{% endif %}/>
+                <label for="sub-computer">حاسب</label>
+              </div>
+              <div class="hint">يمكنك اختيار أكثر من مادة.</div>
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn" id="submitBtn">احجز الآن</button>
+        <p class="hint">يمكنك إرسال الطلب بدون تحديد دورة. إذا كانت دورة مثبتة فسنضيفها للسلة بعد الإرسال.</p>
+      </form>
+    </div>
   </div>
 
-  <!-- ✅ استدعاء الفوتر -->
   {% include "footer.html" %}
 
+  <script>
+    function qs(s, c=document){return c.querySelector(s)}
+    function qsa(s, c=document){return Array.from(c.querySelectorAll(s))}
+    function text(el, v){ if(el) el.textContent = v }
+
+    (function enhanceForm(){
+      var form = qs('#bookingForm');
+      var btn  = qs('#submitBtn');
+      if (!form || !btn) return;
+
+      function clearFieldErrors(){ qsa('.field-error').forEach(el=>text(el,'')) }
+      function showErr(name,msg){ text(qs('[data-err-for="'+name+'"]'), msg||'') }
+
+      form.addEventListener('submit', function(ev){
+        clearFieldErrors();
+        var ok = true;
+        var name  = qs('#name').value.trim();
+        var phone = qs('#phone').value.trim();
+        var stage = qs('#stage').value.trim();
+        if (name.length < 2){ showErr('name','الاسم قصير جدًا.'); ok=false }
+        if (!/^\+?\d{8,15}$/.test(phone)){ showErr('phone','رقم الجوال غير صالح. أدخل 8–15 رقمًا مع + اختياري.'); ok=false }
+        if (!stage){ showErr('stage','المرحلة الدراسية مطلوبة.'); ok=false }
+
+        if (!ok){
+          var box = qs('#serverMessages');
+          if (box){ var div = document.createElement('div'); div.className='msg error'; div.textContent='تحقق من الحقول المدخلة.'; box.prepend(div) }
+          ev.preventDefault();
+          return false;
+        }
+        btn.disabled = true; btn.textContent = 'جارٍ الإرسال...';
+      });
+    })();
+  </script>
 </body>
 </html>

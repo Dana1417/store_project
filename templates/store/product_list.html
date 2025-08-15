@@ -37,53 +37,117 @@
       border: 1px solid #ddd;
       border-radius: 12px;
       width: 260px;
-      padding: 20px;
+      padding: 16px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.05);
       transition: transform 0.3s ease;
+      text-align: start;
     }
+    .product-card:hover { transform: translateY(-5px); }
 
-    .product-card:hover {
-      transform: translateY(-5px);
-    }
-
-    .product-card img {
+    /* صندوق الصورة */
+    .product-media {
+      position: relative;
       width: 100%;
       height: 160px;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #fafafa;
+      border: 1px solid #eee;
+    }
+    .product-media img {
+      width: 100%;
+      height: 100%;
       object-fit: cover;
-      border-radius: 8px;
+      display: block;
     }
 
-    .product-card h3 {
+    /* بديل إن لم توجد صورة */
+    .placeholder {
+      width: 100%;
+      height: 100%;
+      display: grid;
+      place-items: center;
+      color: #bbb;
+      font-weight: 700;
+      font-size: 14px;
+      background: repeating-linear-gradient(
+        45deg, #f9f9f9, #f9f9f9 10px, #f1f1f1 10px, #f1f1f1 20px
+      );
+    }
+
+    /* شارة (بادج) أعلى اليمين */
+    .badge {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      padding: 4px 8px;
+      font-size: 12px;
+      font-weight: 800;
+      border-radius: 999px;
+      background: #ffedd5;
+      color: #b45309;
+      border: 1px solid #ffd7b2;
+    }
+
+    /* طبقة "غير متوفر حالياً" فوق الصورة */
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(230, 126, 34, 0.78);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       font-size: 18px;
-      margin: 15px 0 10px;
+      font-weight: 900;
+      letter-spacing: .3px;
+      text-shadow: 0 1px 2px rgba(0,0,0,.25);
+    }
+
+    .product-name {
+      font-size: 18px;
+      margin: 14px 0 6px;
       color: #333;
+      font-weight: 800;
     }
 
-    .product-card p {
+    .price {
       color: #e67e22;
-      font-weight: bold;
-      margin-bottom: 10px;
+      font-weight: 800;
+      margin-bottom: 12px;
     }
 
-    .product-card a {
+    .actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .btn {
       display: inline-block;
       background-color: #f39c12;
       color: white;
-      padding: 8px 18px;
-      border-radius: 6px;
+      padding: 8px 14px;
+      border-radius: 9999px;
       text-decoration: none;
-      transition: background-color 0.3s ease;
+      transition: background-color 0.2s ease, opacity .15s ease;
+      font-weight: 800;
+      font-size: 14px;
+      text-align: center;
+      flex: 1;
     }
+    .btn:hover { background-color: #e67e22; }
 
-    .product-card a:hover {
-      background-color: #e67e22;
+    /* زر معطل (للعناصر غير المتاحة إن رغبتِ) */
+    .btn.disabled {
+      background: #ddd;
+      color: #888;
+      cursor: not-allowed;
+      pointer-events: none;
     }
 
     @media (max-width: 768px) {
-      .product-list {
-        flex-direction: column;
-        align-items: center;
-      }
+      .product-list { flex-direction: column; align-items: center; }
+      .product-card { width: min(92vw, 360px); }
     }
   </style>
 </head>
@@ -97,12 +161,33 @@
     <div class="product-list">
       {% for product in products %}
         <div class="product-card">
-          {% if product.image %}
-            <img src="{{ product.image.url }}" alt="{{ product.name }}">
-          {% endif %}
-          <h3>{{ product.name }}</h3>
-          <p>{{ product.price }} ريال</p>
-          <a href="{% url 'product_detail' product.pk %}">عرض التفاصيل</a>
+          <div class="product-media">
+            {% if product.image %}
+              <img src="{{ product.image.url }}" alt="{{ product.name }}">
+            {% else %}
+              <div class="placeholder">لا توجد صورة</div>
+            {% endif %}
+
+            {# شارة أعلى اليمين - اختياري (مثلاً جديد) #}
+            {# <div class="badge">جديد</div> #}
+
+            {% if not product.available %}
+              <div class="overlay">غير متوفر حالياً</div>
+            {% endif %}
+          </div>
+
+          <div class="product-name">{{ product.name }}</div>
+          <div class="price">{{ product.price }} ريال</div>
+
+          <div class="actions">
+            <a href="{% url 'product_detail' product.pk %}" class="btn">عرض التفاصيل</a>
+            {# إن أردتِ تعطيل زر الحجز/الإضافة عند عدم التوفر #}
+            {% if product.available %}
+              <a href="{% url 'booking' %}?product_name={{ product.name|urlencode }}" class="btn">احجز الآن</a>
+            {% else %}
+              <a class="btn disabled">غير متاح</a>
+            {% endif %}
+          </div>
         </div>
       {% empty %}
         <p>لا توجد منتجات حالياً.</p>

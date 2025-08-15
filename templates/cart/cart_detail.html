@@ -1,50 +1,119 @@
-{% extends 'base.html' %}
-{% block content %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>سلة المشتريات</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    body{font-family:'Tajawal',sans-serif;background:#fffaf0;margin:0;color:#333}
+    .wrap{padding:30px;max-width:980px;margin:auto}
+    h2{text-align:center;margin:0 0 30px;color:#e67e22}
+    .card{background:#fff;border:1px solid #eee;border-radius:16px;box-shadow:0 6px 22px rgba(0,0,0,.06);padding:20px}
+    table{width:100%;border-collapse:collapse;background:#fff;border:1px solid #eee;border-radius:12px;overflow:hidden}
+    thead tr{background:#f8d49d}
+    th,td{padding:12px;border-bottom:1px solid #eee;text-align:center;vertical-align:middle}
+    img{height:60px;border-radius:8px}
+    .actions{margin-top:20px;text-align:center;display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+    .btn{padding:10px 18px;border-radius:9999px;color:#fff;text-decoration:none;display:inline-block;font-weight:800}
+    .btn.gray{background:#999}
+    .btn.orange{background:#f39c12}
+    .btn.green{background:#27ae60}
+    .empty{color:#e67e22;text-align:center}
+    .total{margin-top:12px;text-align:left;font-weight:800}
+    .rm-btn{background:transparent;border:0;color:#c0392b;cursor:pointer;font-size:16px}
+    .qty{min-width:56px}
+    .messages{max-width:980px;margin:12px auto 0;padding:0 16px}
+    .msg{padding:10px 12px;border-radius:10px;margin-bottom:8px;border:1px solid transparent;line-height:1.5}
+    .msg.success{background:#e9f7ef;color:#1e7e34;border-color:#c7eed8}
+    .msg.error{background:#fdecea;color:#a71d2a;border-color:#f5c6cb}
+  </style>
+</head>
+<body>
 
-<div style="padding: 30px; max-width: 900px; margin: auto;">
-  <h2 style="text-align: center; margin-bottom: 30px;">🛒 سلة المشتريات</h2>
+  {% include "header.html" %}
 
-  {% if cart_items %}
-    <table style="width: 100%; border-collapse: collapse; background-color: #fffaf0;">
-      <thead>
-        <tr style="background-color: #f8d49d;">
-          <th style="padding: 10px;">الصورة</th>
-          <th>اسم الدورة</th>
-          <th>السعر للوحدة</th>
-          <th>الكمية</th>
-          <th>السعر الإجمالي</th>
-          <th>إزالة</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for item in cart_items %}
-        <tr style="text-align: center; border-bottom: 1px solid #eee;">
-          <td>
-            <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" style="height: 60px; border-radius: 8px;">
-          </td>
-          <td>{{ item.product.name }}</td>
-          <td>{{ item.product.price }} ريال</td>
-          <td>{{ item.quantity }}</td>
-          <td>{{ item.total_price }} ريال</td>
-          <td>
-            <a href="{% url 'remove_from_cart' item.product.id %}" style="color: red;">🗑️</a>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+  <!-- رسائل Django -->
+  <div class="messages">
+    {% if messages %}
+      {% for m in messages %}
+        <div class="msg {% if m.tags and 'success' in m.tags %}success{% elif m.tags and 'error' in m.tags %}error{% endif %}">
+          {{ m }}
+        </div>
+      {% endfor %}
+    {% endif %}
+  </div>
 
-    <div style="margin-top: 30px; text-align: center;">
-      <a href="/" style="padding: 10px 20px; background: #ffb347; color: white; border-radius: 8px; text-decoration: none;">⬅️ مواصلة التصفح</a>
-      <a href="#" style="padding: 10px 20px; background: #27ae60; color: white; border-radius: 8px; text-decoration: none; margin-right: 10px;">💳 إتمام الشراء</a>
+  <div class="wrap">
+    <h2>🛒 سلة المشتريات</h2>
+    <div class="card">
+
+      {# ندعم كلا السياقين: items/total أو cart_items #}
+      {% with rows=cart_items|default:items %}
+
+      {% if rows %}
+        <table>
+          <thead>
+            <tr>
+              <th>الصورة</th>
+              <th>اسم الدورة</th>
+              <th>السعر للوحدة</th>
+              <th>الكمية</th>
+              <th>الإجمالي</th>
+              <th>إزالة</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for it in rows %}
+              {% with p=it.product qty=it.quantity|default:it.qty sub=it.total_price|default:it.line_total %}
+              <tr>
+                <td>
+                  {% if p.image %}
+                    <img src="{{ p.image.url }}" alt="{{ p.name }}">
+                  {% else %}
+                    —
+                  {% endif %}
+                </td>
+                <td>{{ p.name }}</td>
+                <td>{{ p.price }} ريال</td>
+                <td class="qty">{{ qty }}</td>
+                <td>{{ sub }} ريال</td>
+                <td>
+                  {# يتطلب وجود مسار إزالة. يُفضّل POST مع CSRF #}
+                  <form method="post" action="{% url 'remove_from_cart' p.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="rm-btn" title="إزالة">🗑️</button>
+                  </form>
+                  {# إن لم يكن لديك remove_from_cart بعد، أخبريني أضيفه لك في views/urls #}
+                </td>
+              </tr>
+              {% endwith %}
+            {% endfor %}
+          </tbody>
+        </table>
+
+        <div class="total">
+          الإجمالي: {{ total|default_if_none:0 }} ريال
+        </div>
+
+        <div class="actions">
+          <a href="{% url 'product_list' %}" class="btn gray">⬅️ متابعة التصفح</a>
+          <!-- Checkout: استخدمنا صفحة الحجز كخطوة دفع/تأكيد -->
+          <a href="{% url 'booking' %}" class="btn green">💳 إتمام الحجز/الدفع</a>
+        </div>
+
+      {% else %}
+        <p class="empty">🚫 لا توجد عناصر في السلة.</p>
+        <div class="actions">
+          <a href="{% url 'product_list' %}" class="btn orange">⬅️ ابدأ التصفح</a>
+        </div>
+      {% endif %}
+      {% endwith %}
+
     </div>
+  </div>
 
-  {% else %}
-    <p style="text-align: center; color: #e67e22;">🚫 لا توجد عناصر في السلة.</p>
-    <div style="text-align: center;">
-      <a href="/" style="padding: 10px 20px; background: #ffb347; color: white; border-radius: 8px; text-decoration: none;">⬅️ ابدأ التصفح</a>
-    </div>
-  {% endif %}
-</div>
-
-{% endblock %}
+  {% include "footer.html" %}
+</body>
+</html>
