@@ -20,26 +20,31 @@
   .btn{display:inline-flex;align-items:center;gap:8px;background:#2563eb;color:#fff;text-decoration:none;border-radius:10px;padding:8px 12px}
   .btn:hover{background:#1d4ed8}
   .btn-green{background:#10b981}
+  .btn-outline{background:#fff;color:#2563eb;border:1px solid #2563eb}
   table{width:100%;border-collapse:separate;border-spacing:0 6px}
   th,td{padding:10px 12px;text-align:right;border-bottom:1px solid #f2f2f2;vertical-align:middle}
   th{font-weight:700;background:#fafafa}
   tr:last-child td{border-bottom:none}
   .muted{color:var(--muted)}
+  .cover{width:100%;max-height:260px;object-fit:cover;border-radius:12px;border:1px solid var(--border);margin-bottom:10px}
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="wrap">
-
   <div class="header">
     <h2 class="title">{{ course.title }}</h2>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
-      {% if request.user.is_staff %}
+      {% if request.user.role == 'teacher' or request.user.is_staff %}
         <a class="btn" href="{% url 'teachers:add_lesson' course_id=course.id %}">+ إضافة محاضرة</a>
         <a class="btn btn-green" href="{% url 'teachers:add_resource' course_id=course.id %}">+ إضافة مرجع/كتاب</a>
       {% endif %}
     </div>
   </div>
+
+  {% if course.cover_image_url and course.cover_image_url|slice:":8" == "https://" %}
+    <img src="{{ course.cover_image_url }}" alt="غلاف {{ course.title }}" class="cover">
+  {% endif %}
 
   <div class="meta">
     {% if course.subject %}
@@ -50,32 +55,39 @@
     <span class="chip">{% if course.is_active %}نشط{% else %}متوقف{% endif %}</span>
     {% if course.duration_days %}<span class="chip">{{ course.duration_days }} يومًا</span>{% endif %}
     {% if course.teacher %}
-      <span class="chip">المعلّم: {{ course.teacher.full_name|default:course.teacher.user.get_full_name|default:course.teacher.user.username }}</span>
-      {% if course.teacher and course.subject %}<span class="chip">مرحلة المعلّم: {{ course.subject.stage }}</span>{% endif %}
+      <span class="chip">المعلّم:
+        {{ course.teacher.full_name|default:course.teacher.user.get_full_name|default:course.teacher.user.username }}
+      </span>
       {% if request.user.role %}<span class="chip">دور المستخدم: {{ request.user.role }}</span>{% endif %}
     {% endif %}
   </div>
 
   <div class="grid">
-
     <!-- العمود الأيسر: محاضرات + مراجع + روابط -->
     <section>
       <div class="card">
         <h3>المحاضرات</h3>
         <ul class="list">
-          {% for l in course.lessons.all %}
+          {% for l in lessons|default:course.lessons.all %}
             <li class="item">
               <b>#{{ l.order }} — {{ l.title }}</b>
-              {% if l.recording_url or l.slide_url %}
+
+              {% if l.recording_url or l.video_file or l.slide_url or l.slide_file %}
                 <div class="muted" style="margin-top:6px">
                   {% if l.recording_url and l.recording_url|slice:":8" == "https://" %}
-                    🎥 <a href="{{ l.recording_url }}" target="_blank" rel="noopener">تسجيل</a>
+                    🎥 <a href="{{ l.recording_url }}" target="_blank" rel="noopener noreferrer">تسجيل</a>
+                  {% elif l.video_file %}
+                    🎥 <a href="{{ l.video_file.url }}" target="_blank" rel="noopener noreferrer">تحميل الفيديو</a>
                   {% endif %}
+
                   {% if l.slide_url and l.slide_url|slice:":8" == "https://" %}
-                    &nbsp;|&nbsp; 📑 <a href="{{ l.slide_url }}" target="_blank" rel="noopener">شرائح</a>
+                    &nbsp;|&nbsp; 📑 <a href="{{ l.slide_url }}" target="_blank" rel="noopener noreferrer">شرائح</a>
+                  {% elif l.slide_file %}
+                    &nbsp;|&nbsp; 📑 <a href="{{ l.slide_file.url }}" target="_blank" rel="noopener noreferrer">تحميل الشرائح</a>
                   {% endif %}
                 </div>
               {% endif %}
+
               {% if l.content %}
                 <p style="margin:8px 0 0;color:#444">{{ l.content|linebreaksbr }}</p>
               {% endif %}
@@ -89,15 +101,17 @@
       <div class="card" style="margin-top:16px">
         <h3>المراجع والكتب</h3>
         <ul class="list">
-          {% for r in course.resources.all %}
+          {% for r in materials|default:course.resources.all %}
             <li class="item">
               <b>{{ r.title }}</b>
-              {% if r.file_url and r.file_url|slice:":8" == "https://" %}
-                — <a href="{{ r.file_url }}" target="_blank" rel="noopener">ملف</a>
-              {% endif %}
               {% if r.external_link and r.external_link|slice:":8" == "https://" %}
-                — <a href="{{ r.external_link }}" target="_blank" rel="noopener">رابط خارجي</a>
+                — <a href="{{ r.external_link }}" target="_blank" rel="noopener noreferrer">رابط خارجي</a>
               {% endif %}
+              {% if r.file %}
+                — <a href="{{ r.file.url }}" target="_blank" rel="noopener noreferrer">تحميل</a>
+              {% endif %}
+              {% if r.get_kind_display %} — <span class="muted">{{ r.get_kind_display }}</span>{% endif %}
+              {% if r.note %} — <span class="muted">{{ r.note }}</span>{% endif %}
             </li>
           {% empty %}
             <li class="muted">لا توجد مراجع بعد.</li>
@@ -110,7 +124,8 @@
         <p class="muted" style="margin:0">
           رابط Teams (عام):
           {% if course.teams_link and course.teams_link|slice:":8" == "https://" %}
-            <a class="btn" style="padding:6px 10px;margin-inline-start:8px" href="{{ course.teams_link }}" target="_blank" rel="noopener">فتح</a>
+            <a class="btn btn-outline" style="padding:6px 10px;margin-inline-start:8px"
+               href="{{ course.teams_link }}" target="_blank" rel="noopener noreferrer">فتح</a>
           {% else %}
             <span class="muted">غير مضاف</span>
           {% endif %}
@@ -140,9 +155,9 @@
                 <td class="muted">{% if en.joined_at %}{{ en.joined_at|date:"Y-m-d" }}{% else %}-{% endif %}</td>
                 <td>
                   {% if en.teams_link and en.teams_link|slice:":8" == "https://" %}
-                    <a class="btn" style="padding:6px 10px" href="{{ en.teams_link }}" target="_blank" rel="noopener">فتح</a>
+                    <a class="btn btn-outline" style="padding:6px 10px" href="{{ en.teams_link }}" target="_blank" rel="noopener noreferrer">فتح</a>
                   {% elif course.teams_link and course.teams_link|slice:":8" == "https://" %}
-                    <a class="btn" style="padding:6px 10px" href="{{ course.teams_link }}" target="_blank" rel="noopener">فتح (عام)</a>
+                    <a class="btn btn-outline" style="padding:6px 10px" href="{{ course.teams_link }}" target="_blank" rel="noopener noreferrer">فتح (عام)</a>
                   {% else %}
                     <span class="muted">—</span>
                   {% endif %}
@@ -155,7 +170,10 @@
       {% elif students %}
         <ul class="list">
           {% for s in students %}
-            <li class="item">{{ s.get_full_name|default:s.username }}</li>
+            <li class="item">
+              {{ s.student.user.get_full_name|default:s.student.user.username }}
+              <span class="muted"> — {{ s.student.user.email }}</span>
+            </li>
           {% endfor %}
         </ul>
       {% else %}

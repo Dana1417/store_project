@@ -1,11 +1,105 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-<head><meta charset="UTF-8"><title>إضافة مرجع</title></head>
-<body style="font-family:Tajawal,system-ui">
-  <h2>إضافة مرجع/كتاب لـ {{ course.title }}</h2>
-  <form method="post">{% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">حفظ</button>
-  </form>
+<head>
+  <meta charset="UTF-8">
+  <title>إضافة مرجع</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <style>
+    body {
+      font-family: "Tajawal", system-ui, Arial, sans-serif;
+      background: #f8f9fa;
+      margin: 0; padding: 0;
+    }
+    .container {
+      max-width: 720px;
+      margin: 40px auto;
+      padding: 24px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+    }
+    h2 {
+      margin-top: 0;
+      color: #2c3e50;
+      font-size: 22px;
+    }
+    .hint {
+      background:#f1f5f9;
+      border:1px solid #e2e8f0;
+      border-radius:10px;
+      padding:12px;
+      margin:14px 0;
+      color:#374151;
+      line-height:1.7;
+      font-size: 14px;
+    }
+    form p { margin-bottom: 14px; }
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+      color: #34495e;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-family: inherit;
+      font-size: 15px;
+    }
+    input[type="file"] { padding: 4px; }
+    button {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 8px;
+      background: #0d6efd;
+      color: #fff;
+      font-size: 15px;
+      cursor: pointer;
+    }
+    button:hover { background: #0b5ed7; }
+    .back {
+      display: inline-block;
+      margin-top: 16px;
+      text-decoration: none;
+      color: #0d6efd;
+    }
+    .tips {
+      font-size: 13px;
+      color:#6b7280;
+      margin-top: -6px;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  {% include "header.html" %}
+
+  <main class="container">
+    <h2>📚 إضافة مرجع/كتاب للمقرر: <strong>{{ course.title }}</strong></h2>
+
+    <div class="hint">
+      ✅ يمكنك إضافة **ملف** (PDF/Doc/Zip…) <u>أو</u> **رابط خارجي** يبدأ بـ <code>https://</code> — ليست كلاهما معًا.<br>
+      🏷️ اختَر <b>النوع</b> المناسب (كتاب/ملزمة/شرائح/أخرى) واذكر أي ملاحظة مختصرة إن لزم.
+    </div>
+
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      {{ form.as_p }}
+
+      {# توضيحات صغيرة تحت بعض الحقول (اختياري) #}
+      <div class="tips">إن أدخلت رابطًا، تأكد أن يبدأ بـ <code>https://</code>.</div>
+
+      <button type="submit">💾 حفظ المرجع</button>
+    </form>
+
+    <a href="{% url 'teachers:course_detail' course.id %}" class="back">⬅ رجوع لتفاصيل المقرر</a>
+  </main>
+
+  {% include "footer.html" %}
+
 </body>
 </html>

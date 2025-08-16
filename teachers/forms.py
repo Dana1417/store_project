@@ -65,8 +65,16 @@ class SubjectForm(forms.ModelForm):
 class CourseForm(forms.ModelForm):
     class Meta:
         model = Course
-        # teacher يُضبط برمجيًا في view من TeacherProfile
-        fields = ["subject", "title", "description", "teams_link", "duration_days", "is_active"]
+        # teacher يُضبط برمجيًا من الـ view باستخدام TeacherProfile
+        fields = [
+            "subject",
+            "title",
+            "description",
+            "teams_link",
+            "duration_days",
+            "is_active",
+            "cover_image_url",
+        ]
         labels = {
             "subject": "المادة",
             "title": "عنوان الكورس",
@@ -74,6 +82,7 @@ class CourseForm(forms.ModelForm):
             "teams_link": "رابط Microsoft Teams",
             "duration_days": "مدة الكورس (أيام)",
             "is_active": "نشط",
+            "cover_image_url": "رابط صورة الغلاف (اختياري)",
         }
         widgets = {
             "subject": forms.Select(attrs={"class": "form-select", "aria-label": "المادة"}),
@@ -112,7 +121,24 @@ class CourseForm(forms.ModelForm):
                 }
             ),
             "is_active": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+            "cover_image_url": forms.URLInput(
+                attrs={
+                    "placeholder": "https://...",
+                    "class": "form-control",
+                    "inputmode": "url",
+                    "aria-label": "رابط صورة الغلاف",
+                }
+            ),
         }
+
+    # تحققات بسيطة
+    def _require_https(self, url: str, field_label: str) -> str:
+        url = (url or "").strip()
+        if not url:
+            return url
+        if not url.startswith("https://"):
+            raise ValidationError(f"يجب أن يبدأ {field_label} بـ https://")
+        return url
 
     def clean_title(self):
         title = (self.cleaned_data.get("title") or "").strip()
@@ -123,16 +149,14 @@ class CourseForm(forms.ModelForm):
     def clean_description(self):
         desc = (self.cleaned_data.get("description") or "").strip()
         if desc and len(desc) < 10:
-            raise ValidationError("الرجاء كتابة وصف أطول أو اتركه فارغًا.")
+            raise ValidationError("اكتب وصفًا أو اتركه فارغًا.")
         return desc
 
     def clean_teams_link(self):
-        url = (self.cleaned_data.get("teams_link") or "").strip()
-        if not url:
-            return url  # اختياري
-        if not url.startswith("https://"):
-            raise ValidationError("يجب أن يبدأ رابط Teams بـ https://")
-        return url
+        return self._require_https(self.cleaned_data.get("teams_link"), "رابط Teams")
+
+    def clean_cover_image_url(self):
+        return self._require_https(self.cleaned_data.get("cover_image_url"), "رابط صورة الغلاف")
 
     def clean_duration_days(self):
         days = self.cleaned_data.get("duration_days")
@@ -161,13 +185,25 @@ class CourseForm(forms.ModelForm):
 class LessonForm(forms.ModelForm):
     class Meta:
         model = Lesson
-        fields = ["order", "title", "content", "recording_url", "slide_url"]
+        fields = [
+            "order",
+            "title",
+            "content",
+            # فيديو: ملف أو رابط
+            "video_file",
+            "recording_url",
+            # شرائح: ملف أو رابط
+            "slide_file",
+            "slide_url",
+        ]
         labels = {
             "order": "الترتيب",
             "title": "عنوان المحاضرة",
             "content": "المحتوى",
-            "recording_url": "رابط التسجيل (إن وجد)",
-            "slide_url": "رابط الشرائح (إن وجد)",
+            "video_file": "ملف الفيديو (mp4…)",
+            "recording_url": "رابط التسجيل (إن لم ترفع ملفًا)",
+            "slide_file": "ملف الشرائح (PDF/PPTX)",
+            "slide_url": "رابط الشرائح (إن لم ترفع ملفًا)",
         }
         widgets = {
             "order": forms.NumberInput(attrs={"min": 1, "class": "form-control", "aria-label": "ترتيب المحاضرة"}),
@@ -197,6 +233,25 @@ class LessonForm(forms.ModelForm):
     def clean_slide_url(self):
         return self._clean_https("slide_url")
 
+    def clean(self):
+        cleaned = super().clean()
+        video_file = cleaned.get("video_file")
+        recording_url = cleaned.get("recording_url")
+        slide_file = cleaned.get("slide_file")
+        slide_url = cleaned.get("slide_url")
+
+        # فيديو: ملف XOR رابط
+        if not video_file and not recording_url:
+            raise ValidationError("يجب رفع ملف فيديو أو إدخال رابط للتسجيل.")
+        if video_file and recording_url:
+            raise ValidationError("اختر طريقة واحدة للفيديو: ملف أو رابط.")
+
+        # شرائح: اختياري، لكن إن وُجدا معًا فمرفوض
+        if slide_file and slide_url:
+            raise ValidationError("اختر طريقة واحدة للشرائح: ملف أو رابط.")
+
+        return cleaned
+
 
 # =========================
 #       ResourceForm
@@ -204,16 +259,20 @@ class LessonForm(forms.ModelForm):
 class ResourceForm(forms.ModelForm):
     class Meta:
         model = Resource
-        fields = ["title", "file_url", "external_link"]
+        # النموذج المحدّث يحتوي file و external_link و kind و note
+        fields = ["title", "file", "external_link", "kind", "note"]
         labels = {
             "title": "عنوان المرجع/الكتاب",
-            "file_url": "رابط الملف (إن وجد)",
-            "external_link": "رابط خارجي (إن وجد)",
+            "file": "ملف (PDF/Doc/Zip…) إن وجد",
+            "external_link": "رابط خارجي (إن لم ترفع ملفًا)",
+            "kind": "النوع",
+            "note": "ملاحظة (اختياري)",
         }
         widgets = {
-            "title": forms.TextInput(attrs={"class": "form-control", "placeholder": "مثال: كتاب مرجعي"}),
-            "file_url": forms.URLInput(attrs={"class": "form-control", "placeholder": "https://..."}),
+            "title": forms.TextInput(attrs={"class": "form-control", "placeholder": "مثال: الكتاب المرجعي للوحدة 1"}),
             "external_link": forms.URLInput(attrs={"class": "form-control", "placeholder": "https://..."}),
+            "kind": forms.Select(attrs={"class": "form-select"}),
+            "note": forms.Textarea(attrs={"rows": 2, "class": "form-control", "placeholder": "ملاحظات/وصف مختصر"}),
         }
 
     def clean_title(self):
@@ -222,16 +281,20 @@ class ResourceForm(forms.ModelForm):
             raise ValidationError("العنوان قصير جدًا.")
         return title
 
-    def _clean_https(self, field_name: str):
-        url = (self.cleaned_data.get(field_name) or "").strip()
+    def clean_external_link(self):
+        url = (self.cleaned_data.get("external_link") or "").strip()
         if not url:
             return url
         if not url.startswith("https://"):
             raise ValidationError("الرابط يجب أن يبدأ بـ https://")
         return url
 
-    def clean_file_url(self):
-        return self._clean_https("file_url")
-
-    def clean_external_link(self):
-        return self._clean_https("external_link")
+    def clean(self):
+        cleaned = super().clean()
+        file = cleaned.get("file")
+        link = cleaned.get("external_link")
+        if not file and not link:
+            raise ValidationError("يجب إرفاق ملف أو إدخال رابط خارجي.")
+        if file and link:
+            raise ValidationError("اختر طريقة واحدة: ملف أو رابط.")
+        return cleaned
