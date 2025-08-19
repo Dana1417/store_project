@@ -1,38 +1,72 @@
 {% load static %}
 {% include "header.html" %}
-<div class="wrapper" style="max-width:700px;margin:0 auto;padding:30px 16px;" dir="rtl">
-  <h2 style="margin:0 0 16px 0;">المعلومات الشخصية</h2>
+
+<div class="wrapper" style="max-width:720px;margin:0 auto;padding:30px 16px;" dir="rtl" aria-labelledby="profile-title">
+  <h2 id="profile-title" style="margin:0 0 16px 0;">المعلومات الشخصية</h2>
 
   {% if messages %}
-    <div style="margin-bottom:12px;">
+    <div style="margin-bottom:14px;">
       {% for m in messages %}
-        <div style="background:#ecfeff;border:1px solid #67e8f9;color:#155e75;border-radius:10px;padding:10px;margin-bottom:8px;">
-          {{ m }}
-        </div>
+        {% if m.tags == "success" %}
+          <div style="background:#ecfdf5;border:1px solid #a7f3d0;color:#065f46;border-radius:10px;padding:10px;margin-bottom:8px;">{{ m }}</div>
+        {% elif m.tags == "error" %}
+          <div style="background:#fef2f2;border:1px solid #fecaca;color:#991b1b;border-radius:10px;padding:10px;margin-bottom:8px;">{{ m }}</div>
+        {% elif m.tags == "warning" %}
+          <div style="background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;border-radius:10px;padding:10px;margin-bottom:8px;">{{ m }}</div>
+        {% else %}
+          <div style="background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af;border-radius:10px;padding:10px;margin-bottom:8px;">{{ m }}</div>
+        {% endif %}
       {% endfor %}
     </div>
   {% endif %}
 
-  <form method="post" novalidate style="background:#fff;border:1px solid #e7eef5;border-radius:16px;padding:16px;box-shadow:0 4px 16px rgba(0,0,0,.04);">
+  <form method="post" action="" style="background:#fff;border:1px solid #e7eef5;border-radius:16px;padding:16px;box-shadow:0 4px 16px rgba(0,0,0,.04);">
     {% csrf_token %}
+
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <!-- الجوال -->
       <label style="display:flex;flex-direction:column;gap:6px;">
-        <span>الجوال</span>
-        <input name="phone" type="text" value="{{ student.phone }}" maxlength="20"
-               style="border:1px solid #d1d5db;border-radius:10px;padding:10px;" />
+        <span style="font-weight:600;">الجوال</span>
+        <input
+          name="phone"
+          type="text"
+          dir="ltr"
+          inputmode="tel"
+          pattern="^\+?\d{8,15}$"
+          title="اكتبي رقمًا بين 8 و 15 رقمًا، ويمكن أن يبدأ بـ +. مثال: +9665xxxxxxx"
+          placeholder="+9665xxxxxxx"
+          value="{{ student.phone|default_if_none:'' }}"
+          maxlength="20"
+          autocomplete="tel"
+          style="border:1px solid #d1d5db;border-radius:10px;padding:10px;"
+        />
+        <small style="color:#6b7280;">الصيغة المسموحة: + ثم 8–15 رقم (العلامة + اختيارية).</small>
       </label>
+
+      <!-- المدينة -->
       <label style="display:flex;flex-direction:column;gap:6px;">
-        <span>المدينة</span>
-        <input name="city" type="text" value="{{ student.city }}" maxlength="120"
-               style="border:1px solid #d1d5db;border-radius:10px;padding:10px;" />
+        <span style="font-weight:600;">المدينة</span>
+        <input
+          name="city"
+          type="text"
+          value="{{ student.city|default_if_none:'' }}"
+          maxlength="120"
+          autocomplete="address-level2"
+          placeholder="مثال: الرياض"
+          style="border:1px solid #d1d5db;border-radius:10px;padding:10px;"
+        />
       </label>
     </div>
 
-    <div style="margin-top:16px;display:flex;gap:10px;justify-content:flex-end;">
-      <button type="submit" style="padding:10px 16px;border:none;border-radius:12px;background:#2563eb;color:#fff;cursor:pointer;">
+    <div style="margin-top:16px;display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;">
+      <a href="{% url 'students:dashboard' %}" style="padding:10px 16px;border:1px solid #cfd8dc;border-radius:12px;background:#fff;color:#37474f;text-decoration:none;font-weight:600;">
+        رجوع للوحة الطالب
+      </a>
+      <button type="submit" style="padding:10px 16px;border:none;border-radius:12px;background:#2563eb;color:#fff;cursor:pointer;font-weight:700;">
         حفظ
       </button>
     </div>
   </form>
 </div>
+
 {% include "footer.html" %}

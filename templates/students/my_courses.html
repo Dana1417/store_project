@@ -1,18 +1,101 @@
+{% load static %}
 {% include "header.html" %}
-<div class="wrapper" style="max-width:1100px;margin:0 auto;padding:30px 16px;" dir="rtl">
-  <h2 style="margin:0 0 16px 0;">دوراتي</h2>
+<div class="wrapper" style="max-width:1100px;margin:0 auto;padding:30px 16px;" dir="rtl" aria-labelledby="my-courses-title">
+  <h2 id="my-courses-title" style="margin:0 0 16px 0;">دوراتي</h2>
 
   {% if enrollments %}
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;">
       {% for e in enrollments %}
-        <article style="background:linear-gradient(180deg,#f7fafd,#ffffff);border:1px solid #e7eef5;border-radius:16px;padding:16px;box-shadow:0 4px 16px rgba(0,0,0,.04);">
-          <h3 style="margin:0 0 8px 0;font-size:18px;">📚 {{ e.course.title }}</h3>
-          <p style="margin:0;color:#374151;">الانضمام: {{ e.joined_at|date:"Y-m-d" }}</p>
-          {% if e.course.start_date or e.course.end_date %}
-            <p style="margin:6px 0 0 0;color:#6b7280;">
-              المدة: {{ e.course.start_date|date:"Y-m-d" }} – {{ e.course.end_date|date:"Y-m-d" }}
-            </p>
+        <article style="background:linear-gradient(180deg,#f7fafd,#ffffff);
+                        border:1px solid #e7eef5;border-radius:16px;padding:16px;
+                        box-shadow:0 4px 16px rgba(0,0,0,.04);display:flex;flex-direction:column;gap:10px;">
+
+          <!-- غلاف الدورة (اختياري) -->
+          {% if e.course.cover_image_url %}
+            <img src="{{ e.course.cover_image_url }}" alt="غلاف {{ e.course.title }}"
+                 style="width:100%;height:160px;object-fit:cover;border-radius:12px;border:1px solid #e5e7eb;">
           {% endif %}
+
+          <!-- العنوان يفتح صفحة تفاصيل المقرر للطالب (باستخدام code) -->
+          <h3 style="margin:6px 0 6px 0;font-size:18px;line-height:1.4;">
+            📚
+            <a href="{% url 'students:course_detail' e.course.code %}"
+               style="text-decoration:none;color:#1f6fd6;">
+              {{ e.course.title }}
+            </a>
+          </h3>
+
+          <!-- معلومات مختصرة -->
+          <div style="color:#374151;font-size:14px;">
+            <div>الانضمام: <b>{{ e.joined_at|date:"Y-m-d" }}</b></div>
+            {% if e.course.start_date or e.course.end_date %}
+              <div style="margin-top:4px;color:#6b7280;">
+                المدة:
+                <span>{{ e.course.start_date|date:"Y-m-d" }}</span>
+                –
+                <span>{{ e.course.end_date|date:"Y-m-d" }}</span>
+              </div>
+            {% endif %}
+            {% if e.course.subject %}
+              <div style="margin-top:4px;color:#6b7280;">
+                المادة: {{ e.course.subject.name }} — {{ e.course.subject.stage }}
+              </div>
+            {% endif %}
+          </div>
+
+          <!-- شارة حالة اختيارية (إن كان لديك حقل status في Enrollment) -->
+          {% if e.status %}
+            <div style="margin-top:2px;">
+              {% if e.status == "active" %}
+                <span style="display:inline-block;background:#ecfdf5;color:#065f46;
+                             border:1px solid #a7f3d0;border-radius:999px;
+                             padding:4px 10px;font-size:12px;">
+                  نشط
+                </span>
+              {% elif e.status == "expired" %}
+                <span style="display:inline-block;background:#fef2f2;color:#991b1b;
+                             border:1px solid #fecaca;border-radius:999px;
+                             padding:4px 10px;font-size:12px;">
+                  منتهي
+                </span>
+              {% else %}
+                <span style="display:inline-block;background:#f3f4f6;color:#374151;
+                             border:1px solid #e5e7eb;border-radius:999px;
+                             padding:4px 10px;font-size:12px;">
+                  {{ e.status }}
+                </span>
+              {% endif %}
+            </div>
+          {% endif %}
+
+          <!-- أزرار الإجراء -->
+          <div style="display:flex;gap:8px;align-items:center;margin-top:8px;flex-wrap:wrap;">
+            <a href="{% url 'students:course_detail' e.course.code %}"
+               style="text-decoration:none;padding:8px 12px;border-radius:10px;
+                      border:1px solid #cfd8dc;background:#fff;color:#37474f;font-weight:600;"
+               aria-label="تفاصيل دورة {{ e.course.title }}">
+              تفاصيل الدورة
+            </a>
+
+            <!-- زر الدخول المباشر عبر فيو join_course (يتحقق من التسجيل و الصلاحية) باستخدام code -->
+            <a href="{% url 'students:join_course' e.course.code %}"
+               target="_blank" rel="noopener noreferrer"
+               style="text-decoration:none;padding:8px 12px;border-radius:10px;
+                      background:#1f6fd6;color:#fff;font-weight:700;border:1px solid #1f6fd6;"
+               aria-label="دخول مباشر إلى تيمز لدورة {{ e.course.title }}">
+              دخول مباشر (Teams)
+            </a>
+
+            <!-- زر اختياري لعرض رابط التيمز مباشرةً -->
+            {% if e.course.teams_link %}
+              <a href="{{ e.course.teams_link }}" target="_blank" rel="noopener noreferrer"
+                 style="text-decoration:none;padding:8px 12px;border-radius:10px;
+                        border:1px solid #cfd8dc;background:#fff;color:#37474f;font-weight:600;"
+                 aria-label="فتح رابط Teams لدورة {{ e.course.title }}">
+                رابط Teams
+              </a>
+            {% endif %}
+          </div>
         </article>
       {% endfor %}
     </div>

@@ -14,33 +14,22 @@ urlpatterns = [
     path("admin/", admin.site.urls),
 
     # تطبيقات المشروع الرئيسية
-    path("", include("core.urls")),             # الرئيسية، تواصل معنا، ...الخ
-    path("", include("store.urls")),            # المنتجات، تفاصيل المنتج، الحجز، ...الخ
-    path("orders/", include("orders.urls")),    # الطلبات
-    path("cart/", include("cart.urls")),        # السلة
+    path("", include("core.urls")),            # الصفحة الرئيسية وما شابه
+    path("", include("store.urls")),           # المنتجات وتفاصيل المنتج
 
-    # ✅ لوحة الطالب (namespace)
-    path(
-        "student/",
-        include(("students.urls", "students"), namespace="students"),
-    ),
+    path("orders/", include("orders.urls")),   # الطلبات (Checkout/Pay/Success)
+    path("cart/", include("cart.urls")),       # السلة
 
-    # ✅ لوحة المعلّم (namespace)
-    path(
-        "teachers/",
-        include(("teachers.urls", "teachers"), namespace="teachers"),
-    ),
+    # لوحة الطالب (namespace = students)
+    path("student/", include(("students.urls", "students"), namespace="students")),
+
+    # لوحة المعلّم (namespace = teachers)
+    path("teachers/", include(("teachers.urls", "teachers"), namespace="teachers")),
 ]
 
-# عرض ملفات الوسائط والملفات الثابتة أثناء التطوير فقط
+# أثناء التطوير فقط: خدمة MEDIA إن كانت معرفة محليًا
 if settings.DEBUG:
-    # وسائط المستخدم (MEDIA)
-    if getattr(settings, "MEDIA_URL", None) and getattr(settings, "MEDIA_ROOT", None):
-        urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
-    # (اختياري) الملفات الثابتة لو رغبتِ بعرضها عبر Django محليًا
-    # ملاحظة: في الإنتاج نستخدم WhiteNoise/Cloud Storage
-    if getattr(settings, "STATIC_URL", None) and getattr(settings, "STATIC_ROOT", None):
-        # ألغِ التعليق التالي إذا أردتِ خدمة static من STATIC_ROOT أثناء التطوير
-        # urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
-        pass
+    media_url = getattr(settings, "MEDIA_URL", None)
+    media_root = getattr(settings, "MEDIA_ROOT", None)
+    if media_url and media_root:
+        urlpatterns += static(media_url, document_root=media_root)

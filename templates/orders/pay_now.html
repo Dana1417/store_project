@@ -1,0 +1,12 @@
+<!-- templates/orders/pay_now.html -->
+<h1>الدفع التجريبي</h1>
+<p>رقم الطلب: {{ order.id }}</p>
+<p>المنتج: {{ order.product }}</p>
+<p>الكمية: {{ order.quantity }}</p>
+<p>الإجمالي: {{ order.total_price }}</p>
+<p>الحالة الحالية: {{ order.status }}</p>
+
+<form method="post">
+  {% csrf_token %}
+  <button type="submit">ادفع الآن (محاكاة)</button>
+</form>

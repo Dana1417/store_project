@@ -1,0 +1,27 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{% block title %}لوحة الطالب{% endblock %}</title>
+
+  {# ملف التنسيق العام للمشروع (اتركه كما هو لديك) #}
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  {% block extra_head %}{% endblock %}
+</head>
+<body>
+
+  {# الهيدر الأصلي للمشروع #}
+  {% include "header.html" %}
+
+  <main id="content">
+    {% block content %}{% endblock %}
+  </main>
+
+  {# الفوتر الأصلي للمشروع #}
+  {% include "footer.html" %}
+
+  {% block extra_js %}{% endblock %}
+</body>
+</html>
