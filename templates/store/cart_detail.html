@@ -1,0 +1,118 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>سلة المشتريات</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet" />
+  <style>
+    body {font-family:'Tajawal',sans-serif;background:#fffaf0;margin:0;color:#333}
+    .wrap {padding:30px;max-width:980px;margin:auto}
+    h2 {text-align:center;margin:0 0 30px;color:#e67e22}
+    .card {background:#fff;border:1px solid #eee;border-radius:16px;box-shadow:0 6px 22px rgba(0,0,0,.06);padding:20px}
+    table {width:100%;border-collapse:collapse;background:#fff;border:1px solid #eee;border-radius:12px;overflow:hidden}
+    thead tr {background:#f8d49d}
+    th,td {padding:12px;border-bottom:1px solid #eee;text-align:center;vertical-align:middle}
+    img {height:60px;border-radius:8px}
+    .actions {margin-top:20px;text-align:center;display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+    .btn {padding:10px 18px;border-radius:9999px;color:#fff;text-decoration:none;display:inline-block;font-weight:800;cursor:pointer;border:0}
+    .btn.gray {background:#999}
+    .btn.orange {background:#f39c12}
+    .btn.green {background:#27ae60}
+    .empty {color:#e67e22;text-align:center}
+    .total {margin-top:12px;text-align:left;font-weight:800}
+    .rm-btn {background:transparent;border:0;color:#c0392b;cursor:pointer;font-size:16px}
+    .qty {min-width:56px}
+    .messages {max-width:980px;margin:12px auto 0;padding:0 16px}
+    .msg {padding:10px 12px;border-radius:10px;margin-bottom:8px;border:1px solid transparent;line-height:1.5}
+    .msg.success {background:#e9f7ef;color:#1e7e34;border-color:#c7eed8}
+    .msg.error {background:#fdecea;color:#a71d2a;border-color:#f5c6cb}
+    .msg.warning {background:#fff8e1;color:#8a6d3b;border-color:#ffecb5}
+    .msg.info {background:#e8f4fd;color:#0b5ed7;border-color:#b6e0fe}
+  </style>
+</head>
+<body>
+
+  {% include "header.html" %}
+
+  <!-- ✅ رسائل Django -->
+  <div class="messages">
+    {% if messages %}
+      {% for m in messages %}
+        <div class="msg
+             {% if 'success' in m.tags %}success
+             {% elif 'error' in m.tags %}error
+             {% elif 'warning' in m.tags %}warning
+             {% elif 'info' in m.tags %}info
+             {% endif %}">
+          {{ m }}
+        </div>
+      {% endfor %}
+    {% endif %}
+  </div>
+
+  <div class="wrap">
+    <h2>🛒 سلة المشتريات</h2>
+    <div class="card">
+
+      {% if items %}
+        <table>
+          <thead>
+            <tr>
+              <th>الصورة</th>
+              <th>المنتج / الدورة</th>
+              <th>السعر</th>
+              <th>الكمية</th>
+              <th>الإجمالي</th>
+              <th>إزالة</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for it in items %}
+              <tr>
+                <td>
+                  {% if it.product.image %}
+                    <img src="{{ it.product.image.url }}" alt="{{ it.product.name }}">
+                  {% else %}—{% endif %}
+                </td>
+                <td>{{ it.product.name }}</td>
+                <td>{{ it.product.price }} ريال</td>
+                <td class="qty">{{ it.quantity }}</td>
+                <td>{{ it.subtotal }} ريال</td>
+                <td>
+                  <form method="post" action="{% url 'store:remove_from_cart' it.product.id %}" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="rm-btn" title="إزالة">🗑️</button>
+                  </form>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        <div class="total">
+          الإجمالي: {{ total }} ريال
+        </div>
+
+        <div class="actions">
+          <a href="{% url 'store:product_list' %}" class="btn gray">⬅️ متابعة التصفح</a>
+          <form method="post" action="{% url 'store:checkout' %}" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn green">💳 إتمام الحجز / الدفع</button>
+          </form>
+        </div>
+
+      {% else %}
+        <p class="empty">🚫 لا توجد عناصر في السلة.</p>
+        <div class="actions">
+          <a href="{% url 'store:product_list' %}" class="btn orange">⬅️ ابدأ التسوق</a>
+        </div>
+      {% endif %}
+
+    </div>
+  </div>
+
+  {% include "footer.html" %}
+</body>
+</html>

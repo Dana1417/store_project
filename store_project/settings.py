@@ -1,4 +1,3 @@
-# store_project/settings.py
 from pathlib import Path
 import os
 from dotenv import load_dotenv
@@ -8,7 +7,6 @@ from dotenv import load_dotenv
 # =========================
 load_dotenv()
 
-# 📁 المسار الرئيسي
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # =========================
@@ -43,17 +41,13 @@ def env_list(key: str, default: list[str] | None = None, sep: str = ",") -> list
 SECRET_KEY = env_str("SECRET_KEY", "django-insecure-key")
 DEBUG = env_bool("DEBUG", True)
 
-# 🖇️ المضيفون المسموحون
 ALLOWED_HOSTS = env_list("ALLOWED_HOSTS", ["127.0.0.1", "localhost"])
 
-# دعم Render: إضافة اسم المضيف الخارجي تلقائيًا إن وُجد
 _render_host = env_str("RENDER_EXTERNAL_HOSTNAME", "")
 if _render_host and _render_host not in ALLOWED_HOSTS:
     ALLOWED_HOSTS.append(_render_host)
 
 # ✅ CSRF Trusted Origins
-# مثال في .env:
-# CSRF_TRUSTED_ORIGINS="https://store-project-xxxx.onrender.com,https://*.onrender.com"
 _env_csrf = env_list("CSRF_TRUSTED_ORIGINS")
 CSRF_TRUSTED_ORIGINS = _env_csrf if _env_csrf else ["https://*.onrender.com"]
 
@@ -62,9 +56,9 @@ CSRF_TRUSTED_ORIGINS = _env_csrf if _env_csrf else ["https://*.onrender.com"]
 # =========================
 INSTALLED_APPS = [
     # تطبيقاتك
-    "core",   # ← يأتي أولًا إذا كان لديك AUTH_USER_MODEL مُخصص
+    "core",   # ← لو عندك AUTH_USER_MODEL مخصص
     "store",
-    "orders.apps.OrdersConfig",   # ✅ لتفعيل signals
+    "orders.apps.OrdersConfig",   # ✅ مهم لتشغيل signals
     "cart",
     "students.apps.StudentsConfig",
     "teachers.apps.TeachersConfig",
@@ -89,8 +83,7 @@ INSTALLED_APPS = [
 # =========================
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    # WhiteNoise لخدمة الملفات الثابتة بكفاءة (خصوصًا في الإنتاج)
-    "whitenoise.middleware.WhiteNoiseMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",  # لملفات static في الإنتاج
 
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.locale.LocaleMiddleware",
@@ -102,16 +95,14 @@ MIDDLEWARE = [
 ]
 
 # =========================
-#        القوالب والـ URLs
+#        القوالب و URLs
 # =========================
 ROOT_URLCONF = "store_project.urls"
 
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        # مجلد القوالب الرئيسي للمشروع
         "DIRS": [BASE_DIR / "templates"],
-        # تمكين التحميل من templates داخل التطبيقات
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -120,7 +111,6 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
             ],
-            # أثناء التطوير، اجعلي التنبيه على المتغيرات غير الموجودة أوضح
             **({"string_if_invalid": "[INVALID: %s]"} if DEBUG else {}),
         },
     },
@@ -131,8 +121,6 @@ WSGI_APPLICATION = "store_project.wsgi.application"
 # =========================
 #        قاعدة البيانات
 # =========================
-# - في التطوير: SQLite (بلا ضبط إضافي)
-# - في الإنتاج: PostgreSQL عبر متغيرات البيئة (Render)
 if DEBUG:
     DATABASES = {
         "default": {
@@ -149,10 +137,8 @@ else:
             "NAME": env_str("DB_NAME"),
             "USER": env_str("DB_USER"),
             "PASSWORD": env_str("DB_PASSWORD"),
-            "CONN_MAX_AGE": env_int("DB_CONN_MAX_AGE", 60),  # اتصالات دائمة محسّنة
-            "OPTIONS": {
-                "connect_timeout": env_int("DB_CONNECT_TIMEOUT", 10),
-            },
+            "CONN_MAX_AGE": env_int("DB_CONN_MAX_AGE", 60),
+            "OPTIONS": {"connect_timeout": env_int("DB_CONNECT_TIMEOUT", 10)},
         }
     }
 
@@ -169,10 +155,8 @@ USE_TZ = True
 # =========================
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
-# مجلد static اختياري للمشروع (بالإضافة إلى static داخل التطبيقات)
 STATICFILES_DIRS = [BASE_DIR / "static"] if (BASE_DIR / "static").exists() else []
 
-# Django 5: STORAGES بدل STATICFILES_STORAGE/DEFAULT_FILE_STORAGE
 if DEBUG:
     STORAGES = {
         "default": {"BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage"},
@@ -181,20 +165,21 @@ if DEBUG:
 else:
     STORAGES = {
         "default": {"BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage"},
-        "staticfiles": {
-            "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
-        },
+        "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
     }
 
-# Cloudinary
+# =========================
+#          Cloudinary
+# =========================
 CLOUDINARY_STORAGE = {
     "CLOUD_NAME": env_str("CLOUDINARY_CLOUD_NAME", ""),
     "API_KEY": env_str("CLOUDINARY_API_KEY", ""),
     "API_SECRET": env_str("CLOUDINARY_API_SECRET", ""),
+    "VIDEO_EXTENSIONS": ("mp4", "mov", "mkv", "webm"),
+    "RAW_MEDIA_TYPES": ("pdf", "doc", "docx", "ppt", "pptx", "pptm", "xlsx", "zip"),
 }
 MEDIA_URL = "/media/"
 
-# WhiteNoise: إعدادات مفيدة أثناء التطوير
 WHITENOISE_AUTOREFRESH = DEBUG
 WHITENOISE_USE_FINDERS = DEBUG
 
@@ -212,7 +197,7 @@ DEFAULT_FROM_EMAIL = env_str("DEFAULT_FROM_EMAIL", EMAIL_HOST_USER or "noreply@e
 # =========================
 #   نموذج المستخدم المخصص
 # =========================
-AUTH_USER_MODEL = "core.CustomUser"
+AUTH_USER_MODEL = "core.CustomUser"  # ✅ لو فعلاً عندك موديل في core.models
 
 # =========================
 #  سياسة كلمات المرور
@@ -234,7 +219,6 @@ LOGGING = {
     "handlers": {"console": {"class": "logging.StreamHandler"}},
     "root": {"handlers": ["console"], "level": LOG_LEVEL},
     "loggers": {
-        # أخطاء الطلبات تُظهر في الكونسول بشكل أنظف
         "django.request": {"handlers": ["console"], "level": "ERROR", "propagate": False},
     },
 }
@@ -258,8 +242,8 @@ CRISPY_TEMPLATE_PACK = "bootstrap5"
 # =========================
 #   رفع الملفات والذاكرة
 # =========================
-FILE_UPLOAD_MAX_MEMORY_SIZE = env_int("FILE_UPLOAD_MAX_MEMORY_SIZE", 10 * 1024 * 1024)   # 10MB
-DATA_UPLOAD_MAX_MEMORY_SIZE = env_int("DATA_UPLOAD_MAX_MEMORY_SIZE", 20 * 1024 * 1024)  # 20MB
+FILE_UPLOAD_MAX_MEMORY_SIZE = env_int("FILE_UPLOAD_MAX_MEMORY_SIZE", 25 * 1024 * 1024)
+DATA_UPLOAD_MAX_MEMORY_SIZE = env_int("DATA_UPLOAD_MAX_MEMORY_SIZE", 50 * 1024 * 1024)
 
 # =========================
 #  إعدادات أمان في الإنتاج
@@ -270,12 +254,10 @@ if not DEBUG:
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
 
-    # HSTS
-    SECURE_HSTS_SECONDS = env_int("SECURE_HSTS_SECONDS", 60 * 60 * 24 * 30)  # 30 يوم
+    SECURE_HSTS_SECONDS = env_int("SECURE_HSTS_SECONDS", 60 * 60 * 24 * 30)
     SECURE_HSTS_INCLUDE_SUBDOMAINS = env_bool("SECURE_HSTS_INCLUDE_SUBDOMAINS", True)
     SECURE_HSTS_PRELOAD = env_bool("SECURE_HSTS_PRELOAD", True)
 
-    # سياسات أخرى
     SECURE_REFERRER_POLICY = env_str("SECURE_REFERRER_POLICY", "strict-origin-when-cross-origin")
     X_FRAME_OPTIONS = env_str("X_FRAME_OPTIONS", "DENY")
     SECURE_CONTENT_TYPE_NOSNIFF = True

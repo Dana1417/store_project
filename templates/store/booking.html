@@ -59,7 +59,7 @@
       <h1>احجز الآن</h1>
       <p class="desc">أدخل بياناتك وسيتم التواصل معك لتأكيد الموعد.</p>
 
-      <!-- رسائل Django الموسومة بـ booking -->
+      <!-- رسائل Django -->
       <div class="messages" id="serverMessages">
         {% if messages %}
           {% for m in messages %}
@@ -70,7 +70,8 @@
         {% endif %}
       </div>
 
-      <form id="bookingForm" method="post" novalidate>
+      <!-- نموذج الحجز -->
+      <form id="bookingForm" method="post" action="{% url 'store:booking' %}" novalidate>
         {% csrf_token %}
 
         <!-- المنتج / الدورة (اختياري) -->

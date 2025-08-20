@@ -4,186 +4,46 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>المنتجات - متجرنا</title>
+  <title>قائمة المنتجات - متجرنا</title>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    body {
-      font-family: 'Tajawal', sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: #fffaf0;
-    }
-
-    .products-section {
-      padding: 60px 20px;
-      text-align: center;
-    }
-
-    .products-section h2 {
-      font-size: 26px;
-      color: #e67e22;
-      margin-bottom: 40px;
-    }
-
-    .product-list {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 30px;
-    }
-
-    .product-card {
-      background-color: #fff;
-      border: 1px solid #ddd;
-      border-radius: 12px;
-      width: 260px;
-      padding: 16px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-      transition: transform 0.3s ease;
-      text-align: start;
-    }
-    .product-card:hover { transform: translateY(-5px); }
-
-    /* صندوق الصورة */
-    .product-media {
-      position: relative;
-      width: 100%;
-      height: 160px;
-      border-radius: 10px;
-      overflow: hidden;
-      background: #fafafa;
-      border: 1px solid #eee;
-    }
-    .product-media img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-
-    /* بديل إن لم توجد صورة */
-    .placeholder {
-      width: 100%;
-      height: 100%;
-      display: grid;
-      place-items: center;
-      color: #bbb;
-      font-weight: 700;
-      font-size: 14px;
-      background: repeating-linear-gradient(
-        45deg, #f9f9f9, #f9f9f9 10px, #f1f1f1 10px, #f1f1f1 20px
-      );
-    }
-
-    /* شارة (بادج) أعلى اليمين */
-    .badge {
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      padding: 4px 8px;
-      font-size: 12px;
-      font-weight: 800;
-      border-radius: 999px;
-      background: #ffedd5;
-      color: #b45309;
-      border: 1px solid #ffd7b2;
-    }
-
-    /* طبقة "غير متوفر حالياً" فوق الصورة */
-    .overlay {
-      position: absolute;
-      inset: 0;
-      background: rgba(230, 126, 34, 0.78);
-      color: #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-      font-weight: 900;
-      letter-spacing: .3px;
-      text-shadow: 0 1px 2px rgba(0,0,0,.25);
-    }
-
-    .product-name {
-      font-size: 18px;
-      margin: 14px 0 6px;
-      color: #333;
-      font-weight: 800;
-    }
-
-    .price {
-      color: #e67e22;
-      font-weight: 800;
-      margin-bottom: 12px;
-    }
-
-    .actions {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-    }
-    .btn {
-      display: inline-block;
-      background-color: #f39c12;
-      color: white;
-      padding: 8px 14px;
-      border-radius: 9999px;
-      text-decoration: none;
-      transition: background-color 0.2s ease, opacity .15s ease;
-      font-weight: 800;
-      font-size: 14px;
-      text-align: center;
-      flex: 1;
-    }
-    .btn:hover { background-color: #e67e22; }
-
-    /* زر معطل (للعناصر غير المتاحة إن رغبتِ) */
-    .btn.disabled {
-      background: #ddd;
-      color: #888;
-      cursor: not-allowed;
-      pointer-events: none;
-    }
-
-    @media (max-width: 768px) {
-      .product-list { flex-direction: column; align-items: center; }
-      .product-card { width: min(92vw, 360px); }
-    }
+    body { font-family:'Tajawal',sans-serif; margin:0; background:#fffaf0; }
+    .wrap { max-width:1100px; margin:30px auto; padding:0 16px; }
+    .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); gap:20px; }
+    .card { background:#fff; border:1px solid #eee; border-radius:16px; box-shadow:0 4px 15px rgba(0,0,0,.06); padding:16px; display:flex; flex-direction:column; }
+    .card img { max-width:100%; border-radius:12px; margin-bottom:12px; }
+    h2 { font-size:20px; margin:0 0 8px; color:#333; }
+    .price { font-size:18px; font-weight:700; color:#e67e22; margin-bottom:10px; }
+    .desc { flex:1; color:#666; font-size:14px; margin-bottom:12px; }
+    .actions { display:flex; gap:8px; flex-wrap:wrap; }
+    .btn { flex:1; text-align:center; background:#f39c12; color:#fff; padding:8px 12px; border-radius:30px; text-decoration:none; font-weight:700; font-size:14px; }
+    .btn:hover { background:#e67e22; }
+    .btn.disabled { background:#ddd; color:#777; pointer-events:none; }
   </style>
 </head>
 <body>
-
   {% include 'header.html' %}
 
-  <section class="products-section">
-    <h2>📚 المنتجات التعليمية</h2>
-
-    <div class="product-list">
+  <div class="wrap">
+    <h1>المنتجات</h1>
+    <div class="grid">
       {% for product in products %}
-        <div class="product-card">
-          <div class="product-media">
-            {% if product.image %}
-              <img src="{{ product.image.url }}" alt="{{ product.name }}">
-            {% else %}
-              <div class="placeholder">لا توجد صورة</div>
-            {% endif %}
+        <div class="card">
+          {% if product.image %}
+            <img src="{{ product.image.url }}" alt="{{ product.name }}">
+          {% else %}
+            <div style="padding:60px;background:#f9f9f9;color:#aaa;text-align:center;border-radius:12px;">لا توجد صورة</div>
+          {% endif %}
 
-            {# شارة أعلى اليمين - اختياري (مثلاً جديد) #}
-            {# <div class="badge">جديد</div> #}
-
-            {% if not product.available %}
-              <div class="overlay">غير متوفر حالياً</div>
-            {% endif %}
-          </div>
-
-          <div class="product-name">{{ product.name }}</div>
+          <h2>{{ product.name }}</h2>
           <div class="price">{{ product.price }} ريال</div>
+          <div class="desc">{{ product.description|truncatewords:15 }}</div>
 
           <div class="actions">
-            <a href="{% url 'product_detail' product.pk %}" class="btn">عرض التفاصيل</a>
-            {# إن أردتِ تعطيل زر الحجز/الإضافة عند عدم التوفر #}
+            <a href="{% url 'store:product_detail' product.id %}" class="btn">التفاصيل</a>
+
             {% if product.available %}
-              <a href="{% url 'booking' %}?product_name={{ product.name|urlencode }}" class="btn">احجز الآن</a>
+              <a href="{% url 'store:booking' %}?product_id={{ product.id }}" class="btn">احجز الآن</a>
             {% else %}
               <a class="btn disabled">غير متاح</a>
             {% endif %}
@@ -193,7 +53,7 @@
         <p>لا توجد منتجات حالياً.</p>
       {% endfor %}
     </div>
-  </section>
+  </div>
 
   {% include 'footer.html' %}
 </body>

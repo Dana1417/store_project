@@ -1,4 +1,3 @@
-# teachers/forms.py
 from __future__ import annotations
 
 from django import forms
@@ -16,8 +15,22 @@ VIDEO_ACCEPT = ".mp4,.mov,.mkv,.webm"
 SLIDE_ACCEPT = ".pdf,.ppt,.pptx,.pptm"
 DOC_ACCEPT = ".pdf,.doc,.docx,.ppt,.pptx,.xlsx,.zip"
 
+VIDEO_CT_PREFIX = "video/"
+ALLOWED_SLIDE_CT = {"application/pdf",
+                    "application/vnd.ms-powerpoint",
+                    "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+                    "application/vnd.ms-powerpoint.presentation.macroEnabled.12"}
+
+ALLOWED_DOC_CT = {"application/pdf",
+                  "application/msword",
+                  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                  "application/vnd.ms-powerpoint",
+                  "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+                  "application/vnd.ms-excel",
+                  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                  "application/zip"}
+
 def _require_https(url: str, field_label: str) -> str:
-    """تحويل/التحقق من https للروابط في الفورم."""
     url = (url or "").strip()
     if not url:
         return url
@@ -26,9 +39,11 @@ def _require_https(url: str, field_label: str) -> str:
     return url
 
 def _validate_filesize(uploaded_file, max_mb: int, field_label: str) -> None:
-    """تحقق حجم الملف داخل الفورم (داعم للواجهات قبل وصوله للنموذج)."""
-    if uploaded_file and uploaded_file.size > max_mb * 1024 * 1024:
+    if uploaded_file and hasattr(uploaded_file, "size") and uploaded_file.size > max_mb * 1024 * 1024:
         raise ValidationError(f"حجم {field_label} يتجاوز {max_mb}MB")
+
+def _ct(uploaded_file) -> str:
+    return getattr(uploaded_file, "content_type", "") or ""
 
 
 # =========================
@@ -71,9 +86,6 @@ class SubjectForm(forms.ModelForm):
         return stage
 
     def clean(self):
-        """
-        منع التكرار (name, stage) بشكل غير حساس لحالة الأحرف.
-        """
         cleaned = super().clean()
         name = cleaned.get("name")
         stage = cleaned.get("stage")
@@ -92,7 +104,6 @@ class SubjectForm(forms.ModelForm):
 class CourseForm(forms.ModelForm):
     class Meta:
         model = Course
-        # teacher يُضبط برمجيًا من الـ view باستخدام TeacherProfile
         fields = [
             "subject",
             "title",
@@ -160,10 +171,8 @@ class CourseForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # ترتيب لطيف + ترشيح المواد إن رغبتِ
         self.fields["subject"].queryset = Subject.objects.order_by("name", "stage")
 
-    # تحققات بسيطة
     def clean_title(self):
         title = (self.cleaned_data.get("title") or "").strip()
         if len(title) < 4:
@@ -191,9 +200,6 @@ class CourseForm(forms.ModelForm):
         return days
 
     def clean(self):
-        """
-        منع تكرار عنوان الكورس لنفس المادة (غير حساس لحالة الأحرف).
-        """
         cleaned = super().clean()
         subj = cleaned.get("subject")
         title = cleaned.get("title")
@@ -216,10 +222,8 @@ class LessonForm(forms.ModelForm):
             "order",
             "title",
             "content",
-            # فيديو: ملف أو رابط
             "video_file",
             "recording_url",
-            # شرائح: ملف أو رابط
             "slide_file",
             "slide_url",
         ]
@@ -228,9 +232,9 @@ class LessonForm(forms.ModelForm):
             "title": "عنوان المحاضرة",
             "content": "المحتوى",
             "video_file": "ملف الفيديو (mp4/mov/mkv/webm)",
-            "recording_url": "رابط التسجيل (إن لم ترفع ملفًا)",
+            "recording_url": "رابط التسجيل (إن لم ترفعي ملفًا)",
             "slide_file": "ملف الشرائح (PDF/PPT/PPTX)",
-            "slide_url": "رابط الشرائح (إن لم ترفع ملفًا)",
+            "slide_url": "رابط الشرائح (إن لم ترفعي ملفًا)",
         }
         widgets = {
             "order": forms.NumberInput(attrs={"min": 1, "class": "form-control", "aria-label": "ترتيب المحاضرة"}),
@@ -263,12 +267,6 @@ class LessonForm(forms.ModelForm):
         return self._clean_https("slide_url")
 
     def clean(self):
-        """
-        قواعد متسقة مع نموذج Lesson:
-        - فيديو: ملف XOR رابط (يجب أحدهما فقط).
-        - شرائح: اختيارية، لكن إن وُجد ملف ورابط معًا → خطأ.
-        - فحص أحجام الملفات (500MB للفيديو، 100MB للشرائح).
-        """
         cleaned = super().clean()
         video_file = cleaned.get("video_file")
         recording_url = cleaned.get("recording_url")
@@ -281,13 +279,22 @@ class LessonForm(forms.ModelForm):
         if video_file and recording_url:
             raise ValidationError("اختر طريقة واحدة للفيديو: ملف أو رابط.")
 
+        # تحقق نوع المحتوى للفيديو
+        if video_file:
+            if not _ct(video_file).startswith(VIDEO_CT_PREFIX):
+                raise ValidationError("ملف الفيديو يجب أن يكون من نوع video/* (mp4/mov/mkv/webm).")
+            _validate_filesize(video_file, MAX_VIDEO_MB, "ملف الفيديو")
+
         # شرائح: اختياري لكن لا تجمع بينهما
         if slide_file and slide_url:
             raise ValidationError("اختر طريقة واحدة للشرائح: ملف أو رابط.")
 
-        # أحجام
-        _validate_filesize(video_file, MAX_VIDEO_MB, "ملف الفيديو")
-        _validate_filesize(slide_file, MAX_FILE_MB, "ملف الشرائح")
+        if slide_file:
+            # السماح بـ PDF/PPT/PPTX
+            if _ct(slide_file) not in ALLOWED_SLIDE_CT:
+                # بعض المتصفحات ترسل content_type غير دقيق؛ نكتفي بالحجم إن فشل النوع
+                pass
+            _validate_filesize(slide_file, MAX_FILE_MB, "ملف الشرائح")
 
         return cleaned
 
@@ -298,12 +305,11 @@ class LessonForm(forms.ModelForm):
 class ResourceForm(forms.ModelForm):
     class Meta:
         model = Resource
-        # النموذج المحدّث يحتوي file و external_link و kind و note
         fields = ["title", "file", "external_link", "kind", "note"]
         labels = {
             "title": "عنوان المرجع/الكتاب",
             "file": "ملف (PDF/Doc/PPT/Excel/Zip…)",
-            "external_link": "رابط خارجي (إن لم ترفع ملفًا)",
+            "external_link": "رابط خارجي (إن لم ترفعي ملفًا)",
             "kind": "النوع",
             "note": "ملاحظة (اختياري)",
         }
@@ -325,11 +331,6 @@ class ResourceForm(forms.ModelForm):
         return _require_https(self.cleaned_data.get("external_link"), "الرابط")
 
     def clean(self):
-        """
-        متسق مع نموذج Resource:
-        - يجب اختيار طريقة واحدة: ملف أو رابط.
-        - فحص حجم الملف (100MB).
-        """
         cleaned = super().clean()
         file = cleaned.get("file")
         link = cleaned.get("external_link")
@@ -337,5 +338,9 @@ class ResourceForm(forms.ModelForm):
             raise ValidationError("يجب إرفاق ملف أو إدخال رابط خارجي.")
         if file and link:
             raise ValidationError("اختر طريقة واحدة: ملف أو رابط.")
-        _validate_filesize(file, MAX_FILE_MB, "الملف")
+        if file:
+            if _ct(file) and _ct(file) not in ALLOWED_DOC_CT:
+                # إن كان content_type غير دقيق لا نفشل؛ نعتمد على الامتداد/الفلتر في الموديل
+                pass
+            _validate_filesize(file, MAX_FILE_MB, "الملف")
         return cleaned

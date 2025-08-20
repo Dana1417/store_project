@@ -1,6 +1,5 @@
 # store/models.py
 from __future__ import annotations
-
 from django.db import models
 from django.urls import reverse
 from cloudinary.models import CloudinaryField
@@ -37,7 +36,6 @@ class Product(models.Model):
     description = models.TextField(blank=True, verbose_name="الوصف")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="تاريخ الإضافة")
 
-    # ✅ اربط المنتج بدورة من تطبيق المعلّم (teachers) وليس students
     course = models.ForeignKey(
         "teachers.Course",
         null=True,
@@ -65,5 +63,5 @@ class Product(models.Model):
         return self.available
 
     def get_absolute_url(self):
-        # تأكّد أن لديك مسار باسم product_detail يقبل pk
-        return reverse("product_detail", args=[self.pk])
+        # استخدم namespace الصحيح
+        return reverse("store:product_detail", args=[self.pk])

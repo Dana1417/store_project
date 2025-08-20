@@ -1,4 +1,3 @@
-# teachers/models.py
 from __future__ import annotations
 
 from django.db import models
@@ -8,57 +7,45 @@ from django.core.validators import URLValidator, FileExtensionValidator
 from django.utils.text import slugify
 from django.utils import timezone
 
-# =========================
-#        ثوابت عامة
-# =========================
 ALLOWED_VIDEO_EXTS = ["mp4", "mov", "mkv", "webm"]
 ALLOWED_SLIDE_EXTS = ["pdf", "ppt", "pptx", "pptm"]
-ALLOWED_DOC_EXTS = ["pdf", "doc", "docx", "ppt", "pptx", "xlsx"]
+ALLOWED_DOC_EXTS = ["pdf", "doc", "docx", "ppt", "pptx", "xlsx", "zip"]
 
-MAX_VIDEO_MB = 500   # حد أقصى لملف الفيديو
-MAX_FILE_MB = 100    # حد أقصى لباقي الملفات
+MAX_VIDEO_MB = 500
+MAX_FILE_MB = 100
+
 
 def _validate_https(url: str, field_name: str):
-    """التحقق من صحة الرابط وأنه يبدأ بـ https://"""
     if url:
         if not str(url).startswith("https://"):
             raise ValidationError({field_name: "الرابط يجب أن يبدأ بـ https://"})
         URLValidator()(url)
 
+
 def _validate_filesize(f, max_mb: int, field_name: str):
-    if f and f.size > max_mb * 1024 * 1024:
+    if f and hasattr(f, "size") and f.size and f.size > max_mb * 1024 * 1024:
         raise ValidationError({field_name: f"حجم الملف يتجاوز {max_mb}MB"})
 
-# =========================
-#     دوال مسارات الرفع
-# =========================
+
 def lecture_upload_to(instance: "Lesson", filename: str) -> str:
-    """
-    حفظ ملفات المحاضرات ضمن مجلد يحمل كود المقرر.
-    مثال: lectures/networks101/2025-08-16_الاسم.mp4
-    """
     code = getattr(instance.course, "code", "") or slugify(instance.course.title)[:64]
     ts = timezone.now().strftime("%Y-%m-%d")
     return f"lectures/{code}/{ts}_{filename}"
 
+
 def material_upload_to(instance: "Resource", filename: str) -> str:
-    """
-    حفظ ملفات المراجع/الكتب ضمن مجلد يحمل كود المقرر.
-    مثال: materials/networks101/2025-08-16_الاسم.pdf
-    """
     code = getattr(instance.course, "code", "") or slugify(instance.course.title)[:64]
     ts = timezone.now().strftime("%Y-%m-%d")
     return f"materials/{code}/{ts}_{filename}"
 
-# =========================
-#       نماذج المعلّم
-# =========================
+
 class TeacherProfile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     full_name = models.CharField(max_length=150, blank=True)
 
     def __str__(self) -> str:
         return self.full_name or self.user.get_full_name() or self.user.username
+
 
 class Subject(models.Model):
     name = models.CharField(max_length=120)
@@ -73,9 +60,11 @@ class Subject(models.Model):
     def __str__(self) -> str:
         return f"{self.name} - {self.stage}"
 
+
 class CourseQuerySet(models.QuerySet):
     def active(self):
         return self.filter(is_active=True)
+
 
 class Course(models.Model):
     teacher = models.ForeignKey(TeacherProfile, on_delete=models.CASCADE, related_name="courses")
@@ -83,13 +72,8 @@ class Course(models.Model):
     title = models.CharField(max_length=120)
     description = models.TextField(blank=True)
 
-    # تحسينات لإدارة المقرر
-    code = models.SlugField(
-        max_length=64,
-        unique=True,
-        blank=True,
-        help_text="يُولَّد تلقائيًا إن تُرك فارغًا (مشتق من العنوان + لاحقة زمنية).",
-    )
+    code = models.SlugField(max_length=64, unique=True, blank=True,
+                            help_text="يُولَّد تلقائيًا إن تُرك فارغًا.")
     teams_link = models.URLField("رابط Microsoft Teams", blank=True)
     duration_days = models.PositiveIntegerField(default=30)
     is_active = models.BooleanField(default=True)
@@ -111,7 +95,6 @@ class Course(models.Model):
         return self.title
 
     def get_absolute_url(self) -> str:
-        # يمكن استخدامه في لوحة المعلّم
         return f"/teachers/course/{self.pk}/"
 
     @property
@@ -120,9 +103,6 @@ class Course(models.Model):
 
     @property
     def students_count(self) -> int:
-        """
-        عدّ طلاب هذا المقرر عبر علاقة Enrollment (في تطبيق الطلاب).
-        """
         rel = getattr(self, "enrollments", None)
         try:
             return rel.count() if rel is not None else 0
@@ -136,36 +116,25 @@ class Course(models.Model):
             raise ValidationError({"duration_days": "المدة يجب أن تكون بين 1 و 730 يومًا."})
 
     def save(self, *args, **kwargs):
-        # توليد كود مختصر إذا تُرك فارغًا (slug + لاحقة زمنية قصيرة لتفادي التعارض)
         if not self.code:
             base = slugify(self.title)[:50] or "course"
             suffix = str(int(timezone.now().timestamp()))[-6:]
             self.code = f"{base}-{suffix}"
         super().save(*args, **kwargs)
 
-# =========================
-#     الدروس/المحاضرات
-# =========================
+
 class Lesson(models.Model):
-    """
-    محاضرة/درس داخل المقرر.
-    يدعم:
-      - فيديو: ملف أو رابط خارجي (XOR)
-      - شرائح: ملف أو رابط (اختياري، XOR)
-    """
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="lessons")
     order = models.PositiveIntegerField(default=1)
     title = models.CharField(max_length=150)
     content = models.TextField(blank=True)
 
-    # فيديو المحاضرة
     video_file = models.FileField(
         upload_to=lecture_upload_to, blank=True, null=True,
         validators=[FileExtensionValidator(ALLOWED_VIDEO_EXTS)],
     )
     recording_url = models.URLField(blank=True)
 
-    # الشرائح
     slide_file = models.FileField(
         upload_to=lecture_upload_to, blank=True, null=True,
         validators=[FileExtensionValidator(ALLOWED_SLIDE_EXTS)],
@@ -177,9 +146,8 @@ class Lesson(models.Model):
     class Meta:
         ordering = ["order", "id"]
         constraints = [
-            models.UniqueConstraint(
-                fields=["course", "order"], name="uniq_lesson_order_per_course"
-            ),
+            models.UniqueConstraint(fields=["course", "order"],
+                                    name="uniq_lesson_order_per_course"),
         ]
         indexes = [models.Index(fields=["course", "order"])]
 
@@ -187,15 +155,6 @@ class Lesson(models.Model):
         return f"{self.course.title} — {self.title}"
 
     def clean(self):
-        """
-        قواعد:
-          - للفيديو: (video_file XOR recording_url)
-          - للشرائح: (slide_file XOR slide_url) أو لا شيء
-          - جميع الروابط يجب أن تبدأ بـ https://
-          - الترتيب موجب
-          - التحقق من أحجام الملفات
-        """
-        # فيديو
         if not self.video_file and not self.recording_url:
             raise ValidationError({"recording_url": "يجب رفع ملف فيديو أو إدخال رابط للمحاضرة."})
         if self.video_file and self.recording_url:
@@ -204,24 +163,17 @@ class Lesson(models.Model):
             _validate_https(self.recording_url, "recording_url")
         _validate_filesize(self.video_file, MAX_VIDEO_MB, "video_file")
 
-        # شرائح
         if self.slide_file and self.slide_url:
             raise ValidationError({"slide_url": "اختر طريقة واحدة للشرائح: ملف أو رابط."})
         if self.slide_url:
             _validate_https(self.slide_url, "slide_url")
         _validate_filesize(self.slide_file, MAX_FILE_MB, "slide_file")
 
-        # ترتيب
         if self.order < 1:
             raise ValidationError({"order": "الترتيب يجب أن يكون 1 أو أكبر."})
 
-# =========================
-#     الموارد (كتب/مستندات)
-# =========================
+
 class Resource(models.Model):
-    """
-    مادة/كتاب/مرجع للمقرر. إمّا ملف مرفوع أو رابط خارجي (XOR).
-    """
     TYPE_CHOICES = (
         ("book", "كتاب/مرجع"),
         ("sheet", "ملزمة/واجب"),
@@ -251,11 +203,6 @@ class Resource(models.Model):
         return self.title
 
     def clean(self):
-        """
-        - يجب اختيار طريقة واحدة: ملف أو رابط.
-        - الروابط يجب أن تبدأ بـ https://
-        - فحص حجم الملف.
-        """
         if not self.file and not self.external_link:
             raise ValidationError({"external_link": "يجب إرفاق ملف أو إدخال رابط خارجي."})
         if self.file and self.external_link:
