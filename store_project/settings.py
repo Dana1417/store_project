@@ -3,7 +3,7 @@ import os
 from dotenv import load_dotenv
 
 # =========================
-#        تحميل المتغيرات
+#     تحميل المتغيرات
 # =========================
 load_dotenv()
 
@@ -42,12 +42,11 @@ SECRET_KEY = env_str("SECRET_KEY", "django-insecure-key")
 DEBUG = env_bool("DEBUG", True)
 
 ALLOWED_HOSTS = env_list("ALLOWED_HOSTS", ["127.0.0.1", "localhost"])
-
 _render_host = env_str("RENDER_EXTERNAL_HOSTNAME", "")
 if _render_host and _render_host not in ALLOWED_HOSTS:
     ALLOWED_HOSTS.append(_render_host)
 
-# ✅ CSRF Trusted Origins
+# CSRF Trusted Origins
 _env_csrf = env_list("CSRF_TRUSTED_ORIGINS")
 CSRF_TRUSTED_ORIGINS = _env_csrf if _env_csrf else ["https://*.onrender.com"]
 
@@ -55,10 +54,10 @@ CSRF_TRUSTED_ORIGINS = _env_csrf if _env_csrf else ["https://*.onrender.com"]
 #        التطبيقات
 # =========================
 INSTALLED_APPS = [
-    # تطبيقاتك
-    "core",   # ← لو عندك AUTH_USER_MODEL مخصص
+    # تطبيقات المشروع
+    "core",   
     "store",
-    "orders.apps.OrdersConfig",   # ✅ مهم لتشغيل signals
+    "orders.apps.OrdersConfig",
     "cart",
     "students.apps.StudentsConfig",
     "teachers.apps.TeachersConfig",
@@ -83,7 +82,7 @@ INSTALLED_APPS = [
 # =========================
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",  # لملفات static في الإنتاج
+    "whitenoise.middleware.WhiteNoiseMiddleware",
 
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.locale.LocaleMiddleware",
@@ -133,7 +132,7 @@ else:
         "default": {
             "ENGINE": "django.db.backends.postgresql",
             "HOST": env_str("DB_HOST"),
-            "PORT": env_str("DB_PORT", "5432"),
+            "PORT": env_int("DB_PORT", 5432),
             "NAME": env_str("DB_NAME"),
             "USER": env_str("DB_USER"),
             "PASSWORD": env_str("DB_PASSWORD"),
@@ -168,15 +167,10 @@ else:
         "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
     }
 
-# =========================
-#          Cloudinary
-# =========================
 CLOUDINARY_STORAGE = {
     "CLOUD_NAME": env_str("CLOUDINARY_CLOUD_NAME", ""),
     "API_KEY": env_str("CLOUDINARY_API_KEY", ""),
     "API_SECRET": env_str("CLOUDINARY_API_SECRET", ""),
-    "VIDEO_EXTENSIONS": ("mp4", "mov", "mkv", "webm"),
-    "RAW_MEDIA_TYPES": ("pdf", "doc", "docx", "ppt", "pptx", "pptm", "xlsx", "zip"),
 }
 MEDIA_URL = "/media/"
 
@@ -197,7 +191,7 @@ DEFAULT_FROM_EMAIL = env_str("DEFAULT_FROM_EMAIL", EMAIL_HOST_USER or "noreply@e
 # =========================
 #   نموذج المستخدم المخصص
 # =========================
-AUTH_USER_MODEL = "core.CustomUser"  # ✅ لو فعلاً عندك موديل في core.models
+AUTH_USER_MODEL = "core.CustomUser"
 
 # =========================
 #  سياسة كلمات المرور
