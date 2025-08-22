@@ -1,8 +1,10 @@
-# store/admin.py
 from django.contrib import admin
-from .models import Category, Product
+from .models import Category, Product, Booking
 
 
+# =========================
+#   إدارة التصنيفات
+# =========================
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
     list_display = ("id", "name")
@@ -11,6 +13,9 @@ class CategoryAdmin(admin.ModelAdmin):
     list_per_page = 25
 
 
+# =========================
+#   إدارة المنتجات
+# =========================
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     # الأعمدة في قائمة المنتجات
@@ -38,3 +43,16 @@ class ProductAdmin(admin.ModelAdmin):
         }),
     )
     readonly_fields = ("created_at",)
+
+
+# =========================
+#   إدارة الحجوزات
+# =========================
+@admin.register(Booking)
+class BookingAdmin(admin.ModelAdmin):
+    list_display = ("id", "full_name", "phone", "stage", "course", "created_at")
+    list_filter = ("course", "created_at")
+    search_fields = ("full_name", "phone", "stage", "subjects")
+    ordering = ("-created_at",)
+    date_hierarchy = "created_at"
+    list_per_page = 25

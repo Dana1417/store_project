@@ -29,4 +29,9 @@ urlpatterns = [
     # =========================
     path("subject/new/", views.create_subject, name="create_subject"),
     path("course/new/", views.create_course, name="create_course"),
+
+    # =========================
+    #   حجوزات المعلّم
+    # =========================
+    path("bookings/", views.teacher_bookings, name="bookings"),
 ]

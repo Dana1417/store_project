@@ -4,71 +4,35 @@
 <head>
   <meta charset="UTF-8">
   <title>تسجيل الدخول</title>
-  <link rel="stylesheet" href="{% static 'css/header.css' %}">  {# استدعاء تنسيقات الهيدر إن وجدت #}
-  <link rel="stylesheet" href="{% static 'css/footer.css' %}">  {# استدعاء تنسيقات الفوتر إن وجدت #}
+  <link rel="stylesheet" href="{% static 'css/header.css' %}">
+  <link rel="stylesheet" href="{% static 'css/footer.css' %}">
   <style>
-    body {
-      font-family: 'Arial', sans-serif;
-      background: #fff6e5;
-      margin: 0;
-      padding: 0;
-    }
-
+    body { font-family: 'Arial', sans-serif; background: #fff6e5; margin: 0; padding: 0; }
     .login-container {
-      max-width: 400px;
-      margin: 100px auto;
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      padding: 30px 20px;
-      direction: rtl;
+      max-width: 400px; margin: 100px auto; background: #fff;
+      border-radius: 12px; box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      padding: 30px 20px; direction: rtl;
     }
-
-    h2 {
-      text-align: center;
-      color: #ff6600;
-      margin-bottom: 25px;
+    h2 { text-align: center; color: #ff6600; margin-bottom: 25px; }
+    label { display: block; margin-bottom: 8px; font-weight: bold; }
+    input[type="text"], input[type="password"] {
+      width: 100%; padding: 10px; margin-bottom: 20px;
+      border: 1px solid #ddd; border-radius: 8px;
     }
-
-    label {
-      display: block;
-      margin-bottom: 8px;
-      font-weight: bold;
-    }
-
-    input[type="text"],
-    input[type="password"] {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 20px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-    }
-
     button {
-      width: 100%;
-      background-color: #ff6600;
-      color: white;
-      border: none;
-      padding: 12px;
-      border-radius: 8px;
-      font-size: 16px;
-      cursor: pointer;
+      width: 100%; background-color: #ff6600; color: white;
+      border: none; padding: 12px; border-radius: 8px;
+      font-size: 16px; cursor: pointer;
     }
-
-    button:hover {
-      background-color: #e65c00;
-    }
+    button:hover { background-color: #e65c00; }
   </style>
 </head>
 <body>
-
-  {# استدعاء الهيدر من ملف مستقل #}
   {% include "header.html" %}
 
   <div class="login-container">
     <h2>تسجيل الدخول</h2>
-    <form method="post">
+    <form method="post" action="">
       {% csrf_token %}
       {{ form.non_field_errors }}
 
@@ -82,8 +46,6 @@
     </form>
   </div>
 
-  {# استدعاء الفوتر من ملف مستقل #}
   {% include "footer.html" %}
-
 </body>
 </html>

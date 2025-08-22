@@ -68,7 +68,7 @@
       <div class="headline">
         <h1 id="student-dashboard-title">مرحبًا، {{ student.user.get_full_name|default:student.user.username }}</h1>
         <div class="actions">
-          <a class="logout" href="/logout/">تسجيل خروج</a>
+          <a class="logout" href="{% url 'logout' %}">تسجيل خروج</a>
         </div>
       </div>
 
@@ -80,39 +80,35 @@
         </div>
       {% endif %}
 
+      <!-- KPIs -->
       <div class="kpis" aria-label="إحصائيات سريعة">
-        <div class="kpi"><b>الدورات المسجّلة</b><div class="num">{{ enroll_count }}</div></div>
-        <div class="kpi"><b>نتائج الاختبارات</b><div class="num">{{ exam_count }}</div></div>
-        <div class="kpi"><b>الشهادات</b><div class="num">{{ cert_count }}</div></div>
-        <div class="kpi"><b>المراجع المتاحة</b><div class="num">{{ res_count }}</div></div>
+        <div class="kpi"><b>الدورات المسجّلة</b><div class="num">{{ enrollments|length }}</div></div>
+        <div class="kpi"><b>نتائج الاختبارات</b><div class="num">{{ exams|length }}</div></div>
+        <div class="kpi"><b>الشهادات</b><div class="num">{{ certs|length }}</div></div>
+        <div class="kpi"><b>المراجع المتاحة</b><div class="num">{{ resources|length }}</div></div>
       </div>
 
-      <!-- ===== الدورات المسجّلة (النشطة/المدفوعة) ===== -->
+      <!-- ===== الدورات ===== -->
       <h3 class="section-title">الدورات المسجّلة</h3>
       {% if enrollments %}
         {% for e in enrollments %}
           <article class="course-card">
             <div class="course-card__head">
-
               <div class="course-meta">
                 {% if e.course.cover_image_url %}
                   <img class="cover" src="{{ e.course.cover_image_url }}" alt="غلاف {{ e.course.title }}">
                 {% endif %}
-
-                <!-- عنوان الدورة يفتح صفحة التفاصيل (بالـ pk) -->
                 <h4 class="course-title">
                   📘
-                  <a href="{% url 'students:course_detail_by_id' e.course.pk %}"
-                     class="course-title" style="text-decoration:none; color:var(--brand)">
+                  <a href="{% url 'students:course_detail_by_id' e.course.pk %}" style="text-decoration:none; color:var(--brand)">
                     {{ e.course }}
                   </a>
                 </h4>
               </div>
 
-              <!-- زر الدخول للحصة (Teams) بالـ pk -->
               {% if e.course.teams_link %}
                 <a class="btn btn-primary"
-                   href="{% url 'students:join_course_by_id' e.course.pk %}"
+                   href="{{ e.course.teams_link }}"
                    target="_blank" rel="noopener noreferrer">
                    دخول مباشر (Teams)
                 </a>
@@ -120,7 +116,6 @@
                 <span class="muted">لا يوجد رابط تيمز متاح</span>
               {% endif %}
             </div>
-
             <div class="muted" style="margin-top:8px;">
               انضمام: {{ e.joined_at|date:"d-m-Y" }}
               {% if e.course.start_date or e.course.end_date %}
@@ -147,8 +142,6 @@
                 <a class="btn" href="{{ c.file.url }}" target="_blank" rel="noopener noreferrer">عرض الشهادة</a>
               {% elif c.file_url %}
                 <a class="btn" href="{{ c.file_url }}" target="_blank" rel="noopener noreferrer">عرض الشهادة</a>
-              {% elif c.link %}
-                <a class="btn" href="{{ c.link }}" target="_blank" rel="noopener noreferrer">عرض الشهادة</a>
               {% else %}
                 <span class="muted">لا يوجد ملف شهادة</span>
               {% endif %}
@@ -159,7 +152,7 @@
         <div class="empty">لا توجد شهادات حتى الآن.</div>
       {% endif %}
 
-      <!-- ===== المراجع المتاحة ===== -->
+      <!-- ===== المراجع ===== -->
       <h3 class="section-title">المراجع المتاحة</h3>
       {% if resources %}
         <ul class="list-cards">
@@ -169,13 +162,10 @@
                 📄 <b>{{ r.title }}</b>
                 <small class="muted">— {{ r.course|default:"عام" }}</small>
               </div>
-
               {% if r.file %}
                 <a class="btn" href="{{ r.file.url }}" target="_blank" rel="noopener noreferrer">فتح المرجع</a>
               {% elif r.external_link %}
                 <a class="btn" href="{{ r.external_link }}" target="_blank" rel="noopener noreferrer">فتح المرجع</a>
-              {% elif r.link %}
-                <a class="btn" href="{{ r.link }}" target="_blank" rel="noopener noreferrer">فتح المرجع</a>
               {% elif r.file_url %}
                 <a class="btn" href="{{ r.file_url }}" target="_blank" rel="noopener noreferrer">فتح المرجع</a>
               {% else %}

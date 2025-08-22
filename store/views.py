@@ -8,7 +8,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_http_methods
 from django.db import transaction
 
-from .models import Product
+from .models import Product, Booking   # ✅ استدعاء Booking
 from orders.models import Order
 from students.models import Student, Enrollment
 
@@ -17,12 +17,9 @@ from students.models import Student, Enrollment
 #     أدوات السلة (Session)
 # =========================
 def _cart_get(request) -> Dict[str, int]:
-    """إرجاع محتوى السلة من السيشن."""
     return request.session.get("cart", {})
 
-
 def _cart_save(request, cart: Dict[str, int]) -> None:
-    """حفظ السلة في السيشن."""
     request.session["cart"] = cart
     request.session.modified = True
 
@@ -103,7 +100,6 @@ def cart_detail(request):
 @require_http_methods(["POST", "GET"])
 def quick_book(request, pk: int):
     product = get_object_or_404(Product, pk=pk, available=True)
-    # تعيين السلة بمنتج واحد فقط
     cart = {str(product.id): 1}
     _cart_save(request, cart)
     messages.success(request, f"✅ تم حجز {product.name} بنجاح")
@@ -130,7 +126,6 @@ def checkout(request):
 
         for product in products:
             qty = cart[str(product.id)]
-            # إنشاء طلب لكل منتج (حسب تصميم Order الحالي)
             order = Order.objects.create(
                 user=request.user,
                 product=product,
@@ -140,14 +135,12 @@ def checkout(request):
             order.total_price = product.price * qty
             order.save()
 
-            # إذا المنتج مربوط بدورة → نسجل الطالب فيها
             if product.course:
                 Enrollment.objects.get_or_create(
                     student=student,
                     course=product.course,
                 )
 
-        # إفراغ السلة
         request.session["cart"] = {}
         request.session.modified = True
 
@@ -164,18 +157,15 @@ def checkout(request):
 def booking_page(request):
     """
     نموذج الحجز العام:
-    - إذا جاء product_id من GET → تعبئة المنتج.
-    - يسمح بإرسال معلومات إضافية (اسم/جوال/مرحلة).
+    - يحفظ البيانات في جدول Booking.
     """
     products = Product.objects.filter(available=True)
 
-    # المنتج المختار من زر "احجز الآن"
     product_id = request.GET.get("product_id")
     selected_product = None
     if product_id:
         selected_product = Product.objects.filter(id=product_id, available=True).first()
 
-    # تعبئة بيانات سابقة
     old = {
         "name": request.POST.get("name", ""),
         "phone": request.POST.get("phone", ""),
@@ -188,6 +178,24 @@ def booking_page(request):
         name = request.POST.get("name")
         phone = request.POST.get("phone")
         stage = request.POST.get("stage")
+        subjects = ", ".join(request.POST.getlist("subjects"))
+        product_id = request.POST.get("product_id")
+
+        course = None
+        if product_id:
+            product = Product.objects.filter(id=product_id).first()
+            if product and product.course:
+                course = product.course
+
+        # ✅ إنشاء سجل جديد في Booking
+        Booking.objects.create(
+            full_name=name,
+            phone=phone,
+            stage=stage,
+            subjects=subjects,
+            course=course,
+        )
+
         messages.success(request, f"✅ شكراً {name}، تم استلام طلبك وسنتواصل معك قريباً.")
         return redirect("store:booking")
 

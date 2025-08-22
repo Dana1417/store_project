@@ -6,7 +6,6 @@ from dotenv import load_dotenv
 #     تحميل المتغيرات
 # =========================
 load_dotenv()
-
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # =========================
@@ -46,23 +45,26 @@ _render_host = env_str("RENDER_EXTERNAL_HOSTNAME", "")
 if _render_host and _render_host not in ALLOWED_HOSTS:
     ALLOWED_HOSTS.append(_render_host)
 
-# CSRF Trusted Origins
-_env_csrf = env_list("CSRF_TRUSTED_ORIGINS")
-CSRF_TRUSTED_ORIGINS = _env_csrf if _env_csrf else ["https://*.onrender.com"]
+CSRF_TRUSTED_ORIGINS = [
+    "http://127.0.0.1:8000",
+    "http://localhost:8000",
+    "https://*.onrender.com",
+]
 
 # =========================
 #        التطبيقات
 # =========================
 INSTALLED_APPS = [
     # تطبيقات المشروع
-    "core",   
+    "core",
     "store",
     "orders.apps.OrdersConfig",
     "cart",
     "students.apps.StudentsConfig",
     "teachers.apps.TeachersConfig",
+    "adminpanel",   # ✅ إضافة لوحة المشرف الجديدة
 
-    # Django
+    # Django الأساسي
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -70,7 +72,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
 
-    # طرف ثالث
+    # مكتبات طرف ثالث
     "cloudinary",
     "cloudinary_storage",
     "crispy_forms",
@@ -85,7 +87,7 @@ MIDDLEWARE = [
     "whitenoise.middleware.WhiteNoiseMiddleware",
 
     "django.contrib.sessions.middleware.SessionMiddleware",
-    "django.middleware.locale.LocaleMiddleware",
+    "django.middleware.locale.LocaleMiddleware",  # ✅ دعم تعدد اللغات
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",

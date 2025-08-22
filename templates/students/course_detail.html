@@ -1,7 +1,7 @@
 {% extends "students/base.html" %}
 {% load static %}
 
-{% block title %}{% firstof course.title course %}{% endblock %}
+{% block title %}📘 {{ course.title }}{% endblock %}
 
 {% block content %}
 <main dir="rtl" class="wrapper" style="max-width:1150px;margin:0 auto;padding:28px 16px;">
@@ -9,9 +9,8 @@
   <!-- العنوان + زر العودة -->
   <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:20px;">
     <h1 style="margin:0;font-size:26px;color:#1f2937;display:flex;align-items:center;gap:8px;">
-      📖 {% firstof course.title course %}
+      📖 {{ course.title }}
     </h1>
-
     <a href="{% url 'students:dashboard' %}"
        style="text-decoration:none;background:#f3f4f6;border:1px solid #e5e7eb;border-radius:10px;padding:8px 14px;font-size:14px;">
       ⬅️ العودة إلى دوراتي
@@ -21,126 +20,112 @@
   <!-- صورة الغلاف -->
   {% if course.cover_image_url %}
     <div style="margin-bottom:20px;">
-      <img src="{{ course.cover_image_url }}" alt="غلاف {% firstof course.title course %}"
+      <img src="{{ course.cover_image_url }}" alt="غلاف {{ course.title }}"
            style="width:100%;max-height:320px;object-fit:cover;border-radius:14px;border:1px solid #e5e7eb;">
     </div>
   {% endif %}
 
-  <!-- التخطيط: عمودين -->
+  <!-- تخطيط: عمودين -->
   <div style="display:grid;grid-template-columns:1fr 320px;gap:20px;align-items:start;">
 
-    <!-- العمود الأساسي: وصف الدورة + الدروس + المراجع -->
+    <!-- العمود الأساسي -->
     <div style="display:flex;flex-direction:column;gap:16px;">
 
       <!-- وصف الدورة -->
-      <section style="background:#fff;border:1px solid #e7eef5;border-radius:14px;padding:18px;box-shadow:0 3px 14px rgba(0,0,0,.04);">
-        <h2 style="margin:0 0 10px;font-size:18px;color:#111827;">📌 وصف الدورة</h2>
+      <section class="card">
+        <h2>📌 وصف الدورة</h2>
         {% if course.description %}
-          <p style="margin:0;line-height:1.8;color:#374151;white-space:pre-line;">
-            {{ course.description }}
-          </p>
+          <p>{{ course.description|linebreaksbr }}</p>
         {% else %}
-          <p style="margin:0;color:#6b7280;">لا يوجد وصف لهذه الدورة.</p>
+          <p class="muted">لا يوجد وصف لهذه الدورة.</p>
         {% endif %}
       </section>
 
-      <!-- قائمة الدروس -->
-      <section style="background:#fff;border:1px solid #e7eef5;border-radius:14px;padding:18px;box-shadow:0 3px 14px rgba(0,0,0,.04);">
-        <h2 style="margin:0 0 10px;font-size:18px;color:#111827;">🎓 الدروس</h2>
-        {% if lessons %}
-          <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px;">
-            {% for lesson in lessons %}
-              <li>
-                <div style="padding:10px 12px;border:1px solid #e5e7eb;border-radius:10px;background:#fafafa;">
-                  <strong>{{ lesson.title }}</strong>
-                  {% if lesson.published_at %}
-                    <div style="font-size:12px;color:#6b7280;">تاريخ النشر: {{ lesson.published_at|date:"Y-m-d" }}</div>
-                  {% endif %}
-                  {% if lesson.file %}
-                    <a href="{{ lesson.file.url }}" target="_blank" rel="noopener noreferrer"
-                       style="display:inline-block;margin-top:6px;font-size:14px;color:#2563eb;text-decoration:none;">
-                      📂 تحميل
-                    </a>
-                  {% elif lesson.url %}
-                    <a href="{{ lesson.url }}" target="_blank" rel="noopener noreferrer"
-                       style="display:inline-block;margin-top:6px;font-size:14px;color:#2563eb;text-decoration:none;">
-                      🔗 فتح الرابط
-                    </a>
-                  {% endif %}
-                </div>
-              </li>
-            {% endfor %}
-          </ul>
-        {% else %}
-          <p style="color:#6b7280;">لا توجد دروس مضافة بعد.</p>
-        {% endif %}
+      <!-- المحاضرات -->
+      <section class="card">
+        <h2>🎓 المحاضرات</h2>
+        <ul class="list">
+          {% for l in lessons %}
+            <li class="item">
+              <b>#{{ l.order }} — {{ l.title }}</b>
+              <div class="muted" style="margin-top:6px">
+                {% if l.recording_url %}
+                  🎥 <a href="{{ l.recording_url }}" target="_blank">رابط الفيديو</a>
+                {% elif l.video_file %}
+                  🎥 <a href="{{ l.video_file.url }}" target="_blank">تحميل الفيديو</a>
+                {% endif %}
+                {% if l.slide_url %}
+                  &nbsp;|&nbsp; 📑 <a href="{{ l.slide_url }}" target="_blank">شرائح</a>
+                {% elif l.slide_file %}
+                  &nbsp;|&nbsp; 📑 <a href="{{ l.slide_file.url }}" target="_blank">تحميل الشرائح</a>
+                {% endif %}
+              </div>
+              {% if l.content %}
+                <p style="margin:8px 0 0;color:#444">{{ l.content|linebreaksbr }}</p>
+              {% endif %}
+            </li>
+          {% empty %}
+            <li class="muted">لا توجد محاضرات بعد.</li>
+          {% endfor %}
+        </ul>
       </section>
 
       <!-- المراجع -->
-      <section style="background:#fff;border:1px solid #e7eef5;border-radius:14px;padding:18px;box-shadow:0 3px 14px rgba(0,0,0,.04);">
-        <h2 style="margin:0 0 10px;font-size:18px;color:#111827;">📚 المراجع</h2>
-        {% if resources %}
-          <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px;">
-            {% for res in resources %}
-              <li>
-                {% if res.file %}
-                  <a href="{{ res.file.url }}" target="_blank" rel="noopener noreferrer"
-                     style="display:block;padding:10px 12px;border:1px solid #e5e7eb;border-radius:10px;background:#fafafa;color:#111827;text-decoration:none;">
-                    📘 {{ res.title }}
-                  </a>
-                {% elif res.url %}
-                  <a href="{{ res.url }}" target="_blank" rel="noopener noreferrer"
-                     style="display:block;padding:10px 12px;border:1px solid #e5e7eb;border-radius:10px;background:#fafafa;color:#111827;text-decoration:none;">
-                    🔗 {{ res.title }}
-                  </a>
-                {% else %}
-                  <div style="padding:10px 12px;border:1px solid #e5e7eb;border-radius:10px;background:#fafafa;color:#111827;">
-                    {{ res.title }}
-                  </div>
-                {% endif %}
-              </li>
-            {% endfor %}
-          </ul>
-        {% else %}
-          <p style="color:#6b7280;">لا توجد مراجع متاحة.</p>
-        {% endif %}
+      <section class="card">
+        <h2>📚 المراجع</h2>
+        <ul class="list">
+          {% for r in resources %}
+            <li class="item">
+              <b>{{ r.title }}</b>
+              {% if r.external_link %}
+                — <a href="{{ r.external_link }}" target="_blank">رابط خارجي</a>
+              {% endif %}
+              {% if r.file %}
+                — <a href="{{ r.file.url }}" target="_blank">تحميل</a>
+              {% endif %}
+              {% if r.get_kind_display %}
+                — <span class="muted">{{ r.get_kind_display }}</span>
+              {% endif %}
+            </li>
+          {% empty %}
+            <li class="muted">لا توجد مراجع بعد.</li>
+          {% endfor %}
+        </ul>
       </section>
 
     </div>
 
-    <!-- الشريط الجانبي -->
-    <aside style="display:flex;flex-direction:column;gap:16px;">
+    <!-- العمود الجانبي -->
+    <aside class="card">
+      <h3>🎯 حالة الوصول</h3>
+      {% if enrollment %}
+        <div style="color:#065f46;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:10px;padding:8px;margin-bottom:12px;">
+          ✅ أنت مسجّل في هذه الدورة
+        </div>
+      {% else %}
+        <div style="color:#7c2d12;background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:8px;margin-bottom:12px;">
+          ⚠️ غير مسجّل
+        </div>
+      {% endif %}
 
-      <div style="background:#fff;border:1px solid #e7eef5;border-radius:14px;padding:16px;box-shadow:0 3px 14px rgba(0,0,0,.04);">
-        <h3 style="margin:0 0 10px;font-size:16px;font-weight:700;">🎯 حالة الوصول</h3>
+      {% if course.teams_link %}
+        <a href="{{ course.teams_link }}" target="_blank" rel="noopener noreferrer"
+           style="display:block;text-align:center;padding:10px;border-radius:10px;background:#2563eb;color:#fff;font-weight:700;text-decoration:none;margin-bottom:8px;">
+          🚀 دخول مباشر (Teams)
+        </a>
+      {% endif %}
 
-        {% if enrollment %}
-          <div style="color:#065f46;background:#ecfdf5;border:1px solid #a7f3d0;border-radius:10px;padding:8px;margin-bottom:12px;">
-            ✅ أنت مسجّل في هذه الدورة
-          </div>
-        {% else %}
-          <div style="color:#7c2d12;background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:8px;margin-bottom:12px;">
-            ⚠️ غير مسجّل
-          </div>
-        {% endif %}
-
-        {% if course.code %}
-          <a href="{% url 'students:join_course' course.code %}" target="_blank" rel="noopener noreferrer"
-             style="display:block;text-align:center;padding:10px;border-radius:10px;background:#2563eb;color:#fff;font-weight:700;text-decoration:none;margin-bottom:8px;">
-            🚀 دخول مباشر (Teams)
-          </a>
-        {% endif %}
-
-        {% if course.teams_link %}
-          <a href="{{ course.teams_link }}" target="_blank" rel="noopener noreferrer"
-             style="display:block;text-align:center;padding:10px;border-radius:10px;background:#10b981;color:#fff;font-weight:700;text-decoration:none;">
-            🔗 رابط Teams
-          </a>
-        {% endif %}
-      </div>
-
+      <hr style="border:none;border-top:1px solid #f1f5f9;margin:12px 0">
+      <div class="muted">آخر تحديث: {% now "Y-m-d H:i" %}</div>
     </aside>
-
   </div>
 </main>
+
+<style>
+  .card{background:#fff;border:1px solid #e7eef5;border-radius:14px;padding:18px;box-shadow:0 3px 14px rgba(0,0,0,.04)}
+  .card h2{margin:0 0 10px;font-size:18px;color:#111827}
+  .list{list-style:none;padding:0;margin:0}
+  .item{background:#fafafa;border:1px solid #e5e7eb;border-radius:12px;padding:12px;margin-bottom:10px}
+  .muted{color:#6b7280;font-size:14px}
+</style>
 {% endblock %}

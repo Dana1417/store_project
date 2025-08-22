@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>📋 قائمة الحجوزات</h1>
+<table border="1" cellpadding="5">
+  <tr>
+    <th>الاسم</th>
+    <th>الجوال</th>
+    <th>المرحلة</th>
+    <th>الدورة</th>
+    <th>المواد</th>
+    <th>تاريخ الحجز</th>
+  </tr>
+  {% for b in bookings %}
+  <tr>
+    <td>{{ b.full_name }}</td>
+    <td>{{ b.phone }}</td>
+    <td>{{ b.stage }}</td>
+    <td>{{ b.course.title }}</td>
+    <td>{{ b.subjects }}</td>
+    <td>{{ b.created_at|date:"Y-m-d H:i" }}</td>
+  </tr>
+  {% empty %}
+  <tr><td colspan="6">🚫 لا توجد حجوزات</td></tr>
+  {% endfor %}
+</table>
+{% endblock %}

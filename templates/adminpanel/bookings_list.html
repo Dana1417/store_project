@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}📋 قائمة الحجوزات{% endblock %}
+
+{% block content %}
+<div style="max-width: 1100px; margin: 0 auto; padding: 20px;">
+  <h1 style="margin-bottom: 20px; color:#333;">📋 قائمة الحجوزات</h1>
+
+  <table style="width:100%; border-collapse: collapse; background: #fff; border: 1px solid #ddd; box-shadow: 0 3px 8px rgba(0,0,0,0.05);">
+    <thead style="background: #f9fafb;">
+      <tr>
+        <th style="padding: 10px; border: 1px solid #ddd;">الاسم</th>
+        <th style="padding: 10px; border: 1px solid #ddd;">رقم الجوال</th>
+        <th style="padding: 10px; border: 1px solid #ddd;">المرحلة</th>
+        <th style="padding: 10px; border: 1px solid #ddd;">الدورة</th>
+        <th style="padding: 10px; border: 1px solid #ddd;">المواد</th>
+        <th style="padding: 10px; border: 1px solid #ddd;">تاريخ الحجز</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for b in bookings %}
+      <tr>
+        <td style="padding: 10px; border: 1px solid #ddd;">{{ b.full_name }}</td>
+        <td style="padding: 10px; border: 1px solid #ddd;">{{ b.phone }}</td>
+        <td style="padding: 10px; border: 1px solid #ddd;">{{ b.stage }}</td>
+        <td style="padding: 10px; border: 1px solid #ddd;">{{ b.course.title }}</td>
+        <td style="padding: 10px; border: 1px solid #ddd;">{{ b.subjects|default:"-" }}</td>
+        <td style="padding: 10px; border: 1px solid #ddd;">{{ b.created_at|date:"Y-m-d H:i" }}</td>
+      </tr>
+      {% empty %}
+      <tr>
+        <td colspan="6" style="text-align:center; padding:15px; color:#999;">🚫 لا توجد حجوزات</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

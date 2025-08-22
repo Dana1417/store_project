@@ -1,0 +1,61 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}لوحة الموقع{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <style>
+    body {
+      font-family: "Tajawal", sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f9fafb;
+    }
+    header {
+      background: #f97316;
+      padding: 12px 20px;
+      color: white;
+    }
+    nav a {
+      color: white;
+      margin: 0 10px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    nav a:hover { text-decoration: underline; }
+    main { padding: 20px; }
+    footer {
+      margin-top: 30px;
+      text-align: center;
+      padding: 15px;
+      background: #eee;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- الهيدر -->
+  <header>
+    <nav>
+      <a href="/">🏠 الرئيسية</a>
+      <a href="/products/">🛒 المنتجات</a>
+      <a href="/adminpanel/">⚙️ لوحة المشرف</a>
+      <a href="/student/">🎓 الطلاب</a>
+      <a href="/teachers/">👩‍🏫 المعلمين</a>
+    </nav>
+  </header>
+
+  <!-- المحتوى -->
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- الفوتر -->
+  <footer>
+    <p>© 2025 جميع الحقوق محفوظة</p>
+  </footer>
+
+</body>
+</html>

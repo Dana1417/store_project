@@ -1,10 +1,12 @@
-# store/models.py
 from __future__ import annotations
 from django.db import models
 from django.urls import reverse
 from cloudinary.models import CloudinaryField
 
 
+# =========================
+#      التصنيفات
+# =========================
 class Category(models.Model):
     """تصنيفات المنتجات."""
     name = models.CharField(max_length=100, verbose_name="اسم التصنيف")
@@ -21,6 +23,9 @@ class Category(models.Model):
         return self.name
 
 
+# =========================
+#       المنتجات
+# =========================
 class Product(models.Model):
     """منتج متجر مرتبط اختياريًا بدورة ليتم تفعيلها بعد الدفع."""
     name = models.CharField(max_length=200, verbose_name="اسم المنتج")
@@ -63,5 +68,38 @@ class Product(models.Model):
         return self.available
 
     def get_absolute_url(self):
-        # استخدم namespace الصحيح
         return reverse("store:product_detail", args=[self.pk])
+
+
+# =========================
+#        الحجوزات
+# =========================
+class Booking(models.Model):
+    """نموذج حجوزات (احجز الآن)."""
+    full_name = models.CharField(max_length=150, verbose_name="اسم الطالب")
+    phone = models.CharField(max_length=20, verbose_name="رقم الجوال")
+    stage = models.CharField(max_length=100, verbose_name="المرحلة الدراسية", blank=True)
+    subjects = models.TextField(verbose_name="المواد", blank=True)
+
+    course = models.ForeignKey(
+        "teachers.Course",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="bookings",
+        verbose_name="الدورة (اختياري)"
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="تاريخ الحجز")
+
+    class Meta:
+        verbose_name = "حجز"
+        verbose_name_plural = "حجوزات"
+        ordering = ("-created_at",)
+        indexes = [
+            models.Index(fields=["course"]),
+            models.Index(fields=["created_at"]),
+        ]
+
+    def __str__(self):
+        return f"حجز {self.full_name} - {self.course.title if self.course else 'بدون دورة'}"

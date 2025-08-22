@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>📘 جميع الدورات</h1>
+<table border="1" cellpadding="5">
+  <tr>
+    <th>العنوان</th>
+    <th>المعلم</th>
+    <th>المادة</th>
+    <th>الحالة</th>
+    <th>تاريخ البداية</th>
+    <th>تاريخ النهاية</th>
+  </tr>
+  {% for c in courses %}
+  <tr>
+    <td>{{ c.title }}</td>
+    <td>{{ c.teacher.user.get_full_name|default:c.teacher.user.username }}</td>
+    <td>{{ c.subject.name }}</td>
+    <td>{% if c.is_active %}✅ نشطة{% else %}❌ متوقفة{% endif %}</td>
+    <td>{{ c.start_date|default:"-" }}</td>
+    <td>{{ c.end_date|default:"-" }}</td>
+  </tr>
+  {% empty %}
+  <tr><td colspan="6">🚫 لا توجد دورات</td></tr>
+  {% endfor %}
+</table>
+{% endblock %}
