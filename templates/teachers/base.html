@@ -6,24 +6,132 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <title>{% block title %}لوحة المعلّم{% endblock %}</title>
 
-  {# خطوط/ستايلات عامة لموقعك (اختياري) #}
+  <!-- خطوط وأيقونات -->
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    body {
+      font-family: 'Tajawal', sans-serif;
+      margin: 0;
+      background: #f5f7fb;
+      color: #333;
+    }
+
+    main {
+      max-width: 1100px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    .dashboard-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .dashboard-header h1 {
+      font-size: 24px;
+      color: #2c3e50;
+      margin: 10px 0;
+    }
+    .dashboard-header p {
+      color: #666;
+      font-size: 15px;
+      margin: 0;
+    }
+
+    /* بطاقة الدورة */
+    .course-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 6px 20px rgba(0,0,0,.06);
+      margin-bottom: 20px;
+      transition: transform .2s;
+    }
+    .course-card:hover { transform: translateY(-4px); }
+
+    .course-title {
+      font-weight: 700;
+      color: #ff6600;
+      margin-bottom: 10px;
+      font-size: 18px;
+    }
+
+    .course-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      font-size: 14px;
+      color: #555;
+      margin-bottom: 15px;
+    }
+    .course-meta span {
+      background: #f1f1f1;
+      padding: 6px 12px;
+      border-radius: 8px;
+    }
+
+    /* الأزرار */
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .btn {
+      border: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: .2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      text-decoration: none;
+    }
+    .btn.blue { background: #2196f3; color: #fff; }
+    .btn.green { background: #4caf50; color: #fff; }
+    .btn.orange { background: #ff9800; color: #fff; }
+    .btn:hover { filter: brightness(0.9); }
+
+    /* responsive */
+    @media(max-width:768px){
+      main { margin: 20px auto; }
+      .course-meta { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+
   {% block extra_css %}{% endblock %}
 </head>
-<body style="font-family:'Tajawal',system-ui,-apple-system,Segoe UI,Arial">
+<body>
 
-  {# الهيدر العام لموقعك #}
   {% include "header.html" %}
 
   <main>
-    {% block content %}{% endblock %}
+    <div class="dashboard-header">
+      <h1>مرحباً {{ user.username }}</h1>
+      <p>البريد: {{ user.email }}</p>
+    </div>
+
+    {% block content %}
+    <!-- أمثلة لدورات -->
+    <div class="course-card">
+      <div class="course-title"><i class="fa-solid fa-network-wired"></i> كورس شبكات الحاسب - المستوى الأول</div>
+      <div class="course-meta">
+        <span><i class="fa-solid fa-users"></i> طلاب: 30</span>
+        <span><i class="fa-solid fa-book"></i> نقاط: 50</span>
+        <span><i class="fa-solid fa-calendar-days"></i> 12 أسبوع</span>
+      </div>
+      <div class="actions">
+        <a href="#" class="btn blue"><i class="fa-solid fa-chalkboard"></i> محاضرة</a>
+        <a href="#" class="btn green"><i class="fa-solid fa-book-open"></i> مرجع/كتاب</a>
+        <a href="#" class="btn orange"><i class="fa-solid fa-circle-info"></i> تفاصيل أكثر</a>
+      </div>
+    </div>
+    {% endblock %}
   </main>
 
-  {# الفوتر العام لموقعك #}
   {% include "footer.html" %}
-
-  <script src="{% static 'js/main.js' %}"></script>
-  {% block extra_js %}{% endblock %}
 </body>
 </html>

@@ -5,58 +5,155 @@
   <meta charset="UTF-8">
   <title>إنشاء حساب</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
   <style>
     body {
-      font-family: 'Arial', sans-serif;
-      background: #fff6e5;
+      font-family: 'Tajawal', sans-serif;
+      background: #f5f7fb;
       margin: 0;
       padding: 0;
     }
+
     .register-container {
       max-width: 400px;
-      margin: 140px auto 100px;
+      margin: 80px auto;
       background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      padding: 30px 20px;
+      border-radius: 16px;
+      box-shadow: 0 6px 20px rgba(0,0,0,.08);
+      padding: 30px 25px;
     }
+
     h2 {
       text-align: center;
       color: #ff6600;
       margin-bottom: 25px;
+      font-size: 22px;
     }
-    label { display: block; margin-bottom: 8px; font-weight: bold; }
-    input {
-      width: 100%; padding: 10px; margin-bottom: 20px;
-      border: 1px solid #ddd; border-radius: 8px; font-size: 14px;
+
+    h2 i { margin-left: 6px; color: #ff9800; }
+
+    /* مجموعة الحقول */
+    .form-group {
+      margin-bottom: 18px;
     }
+
+    .input-box {
+      position: relative;
+    }
+
+    .input-box i {
+      position: absolute;
+      top: 50%;
+      right: 12px;
+      transform: translateY(-50%);
+      color: #888;
+    }
+
+    .input-box input {
+      width: 100%;
+      padding: 12px 40px 12px 12px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+
+    .input-box input:focus {
+      border-color: #ff9800;
+      outline: none;
+    }
+
+    /* نوع الحساب */
+    .account-type {
+      display: flex;
+      gap: 10px;
+      margin: 10px 0 20px;
+    }
+
+    .account-type input { display: none; }
+
+    .account-type label {
+      flex: 1;
+      text-align: center;
+      background: #f1f1f1;
+      padding: 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: .2s;
+      font-size: 14px;
+    }
+
+    .account-type input:checked + label {
+      background: #ff9800;
+      color: #fff;
+    }
+
     button {
-      width: 100%; background-color: #ff6600; color: white;
-      border: none; padding: 12px; border-radius: 8px;
-      font-size: 16px; cursor: pointer;
+      width: 100%;
+      background: linear-gradient(90deg, #ff9800, #ff6600);
+      color: #fff;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: .2s;
     }
-    button:hover { background-color: #e65c00; }
-    .error-message { color: red; font-size: 13px; margin-top: -10px; margin-bottom: 15px; }
+
+    button:hover { filter: brightness(0.95); }
+
+    @media(max-width:600px){
+      .register-container { margin: 40px 15px; padding: 20px; }
+    }
   </style>
 </head>
 <body>
   {% include "header.html" %}
 
   <div class="register-container">
-    <h2>إنشاء حساب</h2>
+    <h2><i class="fa-solid fa-user-plus"></i>إنشاء حساب</h2>
     <form method="post" action="">
       {% csrf_token %}
-      {{ form.non_field_errors }}
 
-      {% for field in form %}
-        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-        {{ field }}
-        {% if field.errors %}
-          <div class="error-message">{{ field.errors|join:", " }}</div>
-        {% endif %}
-      {% endfor %}
+      <!-- اسم المستخدم -->
+      <div class="form-group input-box">
+        <i class="fa-solid fa-user"></i>
+        {{ form.username }}
+      </div>
 
-      <button type="submit">تسجيل</button>
+      <!-- البريد -->
+      <div class="form-group input-box">
+        <i class="fa-solid fa-envelope"></i>
+        {{ form.email }}
+      </div>
+
+      <!-- نوع الحساب -->
+      <label style="font-weight:bold;">نوع الحساب</label>
+      <div class="account-type">
+        <input type="radio" id="student" name="account_type" value="student">
+        <label for="student"><i class="fa-solid fa-graduation-cap"></i> طالب</label>
+
+        <input type="radio" id="teacher" name="account_type" value="teacher">
+        <label for="teacher"><i class="fa-solid fa-chalkboard-teacher"></i> معلم</label>
+      </div>
+
+      <!-- كلمة المرور -->
+      <div class="form-group input-box">
+        <i class="fa-solid fa-lock"></i>
+        {{ form.password1 }}
+      </div>
+
+      <!-- تأكيد كلمة المرور -->
+      <div class="form-group input-box">
+        <i class="fa-solid fa-lock"></i>
+        {{ form.password2 }}
+      </div>
+
+      <button type="submit"><i class="fa-solid fa-check"></i> تسجيل</button>
     </form>
   </div>
 

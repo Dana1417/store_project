@@ -62,7 +62,7 @@ INSTALLED_APPS = [
     "cart",
     "students.apps.StudentsConfig",
     "teachers.apps.TeachersConfig",
-    "adminpanel",   # لوحة المشرف المخصصة
+    "adminpanel",
 
     # Django الأساسي
     "django.contrib.admin",
@@ -77,6 +77,7 @@ INSTALLED_APPS = [
     "cloudinary_storage",
     "crispy_forms",
     "crispy_bootstrap5",
+    "widget_tweaks",   # ✅ مهم لتخصيص الحقول في القوالب
 ]
 
 # =========================
@@ -85,9 +86,8 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "whitenoise.middleware.WhiteNoiseMiddleware",
-
     "django.contrib.sessions.middleware.SessionMiddleware",
-    "django.middleware.locale.LocaleMiddleware",  # دعم تعدد اللغات
+    "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",

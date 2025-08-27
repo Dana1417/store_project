@@ -2,183 +2,118 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
-  {% if request.resolver_match and request.resolver_match.app_name == "teachers" %}
-    <title>لوحة المعلّم</title>
-  {% elif request.resolver_match and request.resolver_match.app_name == "students" %}
-    <title>لوحة الطالب</title>
-  {% else %}
-    <title>لوحة المستخدم</title>
-  {% endif %}
-
-  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لوحة المعلم</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
   <style>
-    :root{ --card:#fff; --muted:#667085; --border:#eee; --chip:#f4f6f8; --shadow:0 6px 18px rgba(0,0,0,.06); }
-    .container{ padding:30px; max-width:1100px; margin:auto; }
-    .muted{ color:var(--muted); }
-    .chips{ display:flex; gap:8px; flex-wrap:wrap; margin:8px 0; }
-    .chip{ background:var(--chip); border:1px solid var(--border); border-radius:999px; padding:4px 10px; font-size:.85rem; color:#334155 }
-    .grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:14px; }
-    .card{ background:var(--card); border:1px solid var(--border); border-radius:12px; padding:14px; box-shadow:var(--shadow) }
-    .card h3{ margin:0 0 8px; font-size:18px }
-    .btn{ display:inline-block; padding:8px 12px; border-radius:10px; text-decoration:none; border:1px solid #2563eb; color:#fff; background:#2563eb }
-    .btn-outline{ background:#fff; color:#2563eb }
-    .section-title{ margin:22px 0 10px; font-size:1.15rem; color:#34495e; }
-    .list{ margin:0; padding-inline-start:18px; }
-    .list li{ margin:6px 0; }
-    .empty{ color:#888; }
-    hr{ border:0; border-top:1px solid var(--border); margin:24px 0; }
+    body {font-family:'Tajawal',sans-serif;background:#f8fafc;margin:0;color:#333;}
+    .container {max-width:1200px;margin:auto;padding:30px;}
+
+    h2 {margin-bottom:10px;font-size:24px;}
+    .muted {color:#6b7280;font-size:14px;}
+
+    /* كروت الإحصائيات */
+    .stats {display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin:25px 0;}
+    .stat-card {background:#fff;padding:20px;border-radius:14px;box-shadow:0 4px 12px rgba(0,0,0,.05);display:flex;align-items:center;gap:14px;}
+    .stat-icon {font-size:26px;padding:12px;border-radius:12px;color:#fff;}
+    .stat-info h3 {margin:0;font-size:18px;}
+    .stat-info p {margin:4px 0 0;font-size:14px;color:#666;}
+    .courses-icon {background:#6366f1;}
+    .lessons-icon {background:#10b981;}
+    .students-icon {background:#f59e0b;}
+
+    /* المقررات */
+    .section-title {margin:30px 0 15px;font-size:20px;color:#111;}
+    .grid {display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px;}
+    .card {background:#fff;border-radius:14px;padding:18px;box-shadow:0 2px 8px rgba(0,0,0,.05);}
+    .card h3 {margin:0 0 10px;font-size:18px;color:#222;}
+    .chips {display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
+    .chip {background:#f3f4f6;padding:4px 10px;border-radius:999px;font-size:13px;color:#374151;}
+    .muted-text {color:#6b7280;font-size:14px;margin:0 0 12px;}
+    .actions {display:flex;gap:10px;flex-wrap:wrap;}
+    .btn {padding:8px 14px;border-radius:10px;text-decoration:none;font-size:14px;font-weight:600;display:inline-flex;align-items:center;gap:6px;transition:.2s;}
+    .btn-primary {background:#2563eb;color:#fff;}
+    .btn-outline {background:#fff;border:1px solid #2563eb;color:#2563eb;}
+    .btn-outline.green {border-color:#10b981;color:#10b981;}
+    .btn-outline.blue {border-color:#0ea5e9;color:#0ea5e9;}
+    .btn:hover {filter:brightness(0.95);}
+    .empty {color:#999;margin:15px 0;}
+
+    hr {margin:30px 0;border:0;border-top:1px solid #e5e7eb;}
+    .logout {display:inline-block;padding:10px 18px;border-radius:10px;background:#ef4444;color:#fff;text-decoration:none;}
+    .logout:hover {background:#dc2626;}
   </style>
 </head>
 <body>
 
   {% include "header.html" %}
 
-  <main class="container">
+  <div class="container">
+    <h2>👨‍🏫 لوحة المعلّم — مرحبًا {{ teacher_name }}</h2>
+    {% if user.email %}
+      <p class="muted"><i class="fa-solid fa-envelope"></i> {{ user.email }}</p>
+    {% endif %}
 
-    {% if request.resolver_match and request.resolver_match.app_name == "teachers" %}
-      {# ====================== لوحة المعلّم ====================== #}
-      <h2>لوحة المعلّم — مرحبًا {{ user.get_full_name|default:user.username }}</h2>
-      {% if user.email %}<p class="muted"><strong>البريد:</strong> {{ user.email }}</p>{% endif %}
-
-      {% if courses %}
-        <h3 class="section-title">مقرراتي</h3>
-        <div class="grid">
-          {% for c in courses %}
-            <div class="card">
-              <h3>{{ c.title }}</h3>
-              <div class="chips">
-                {% if c.subject %}
-                  <span class="chip">{{ c.subject.name }}</span>
-                  <span class="chip">{{ c.subject.stage }}</span>
-                {% endif %}
-                {% if c.duration_days %}<span class="chip">{{ c.duration_days }} يومًا</span>{% endif %}
-                <span class="chip">{% if c.is_active %}نشط{% else %}متوقف{% endif %}</span>
-                <span class="chip">طلاب: {{ c.students_total|default:c.students_count|default:0 }}</span>
-              </div>
-
-              {% if c.description %}
-                <p class="muted" style="margin:6px 0 10px">{{ c.description|truncatechars:140 }}</p>
-              {% endif %}
-
-              <div style="display:flex; gap:8px; flex-wrap:wrap">
-                <a class="btn" href="{% url 'teachers:course_detail' c.id %}">تفاصيل المقرر</a>
-                {% if request.user.role == 'teacher' or request.user.is_staff %}
-                  <a class="btn btn-outline" style="border-color:#10b981;color:#10b981;background:#fff" href="{% url 'teachers:add_lesson' c.id %}">+ محاضرة</a>
-                  <a class="btn btn-outline" style="border-color:#0ea5e9;color:#0ea5e9;background:#fff" href="{% url 'teachers:add_resource' c.id %}">+ مرجع/كتاب</a>
-                {% endif %}
-              </div>
-            </div>
-          {% endfor %}
+    <!-- كروت الإحصائيات -->
+    <div class="stats">
+      <div class="stat-card">
+        <div class="stat-icon courses-icon"><i class="fa-solid fa-book"></i></div>
+        <div class="stat-info">
+          <h3>{{ total_courses }}</h3>
+          <p>عدد المقررات</p>
         </div>
-      {% else %}
-        <p class="empty">لا توجد مقررات لهذا الحساب حتى الآن.</p>
-        {% if request.user.is_staff %}
-          <p class="muted">يمكنك إضافة مادة/كورس من لوحة الإدارة أو من الروابط:
-            <a href="{% url 'teachers:create_subject' %}">إنشاء مادة</a> — <a href="{% url 'teachers:create_course' %}">إنشاء كورس</a>
-          </p>
-        {% endif %}
-      {% endif %}
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon lessons-icon"><i class="fa-solid fa-video"></i></div>
+        <div class="stat-info">
+          <h3>{{ total_lessons }}</h3>
+          <p>عدد المحاضرات</p>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon students-icon"><i class="fa-solid fa-user-graduate"></i></div>
+        <div class="stat-info">
+          <h3>{{ total_students }}</h3>
+          <p>عدد الطلاب</p>
+        </div>
+      </div>
+    </div>
 
+    <!-- مقرراتي -->
+    <h3 class="section-title">📚 مقرراتي</h3>
+    {% if courses %}
+      <div class="grid">
+        {% for c in courses %}
+          <div class="card">
+            <h3>{{ c.title }}</h3>
+            <div class="chips">
+              {% if c.subject %}<span class="chip">{{ c.subject.name }}</span>{% endif %}
+              {% if c.subject.stage %}<span class="chip">{{ c.subject.stage }}</span>{% endif %}
+              {% if c.duration_days %}<span class="chip">{{ c.duration_days }} يومًا</span>{% endif %}
+              <span class="chip">{% if c.is_active %}نشط{% else %}متوقف{% endif %}</span>
+              <span class="chip">👥 {{ c.students_total|default:0 }}</span>
+            </div>
+            {% if c.description %}
+              <p class="muted-text">{{ c.description|truncatechars:120 }}</p>
+            {% endif %}
+            <div class="actions">
+              <a href="{% url 'teachers:course_detail' c.id %}" class="btn btn-primary"><i class="fa-solid fa-eye"></i> تفاصيل</a>
+              <a href="{% url 'teachers:add_lesson' c.id %}" class="btn btn-outline green"><i class="fa-solid fa-plus"></i> محاضرة</a>
+              <a href="{% url 'teachers:add_resource' c.id %}" class="btn btn-outline blue"><i class="fa-solid fa-book-open"></i> مرجع/كتاب</a>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
     {% else %}
-      {# ====================== لوحة الطالب (كما كانت) ====================== #}
-      <h2>لوحة الطالب — مرحبًا {{ user.get_full_name|default:user.username }}</h2>
-      {% if user.email %}<p class="muted"><strong>البريد:</strong> {{ user.email }}</p>{% endif %}
-
-      {% if student %}
-        {% if student.stage %}
-          <p class="muted"><strong>المرحلة الدراسية:</strong> {{ student.stage }}</p>
-        {% endif %}
-
-        <hr>
-        <h3 class="section-title">الدورات المسجّل بها</h3>
-
-        {% with enrolls=student.enrollments.all %}
-          {% if enrolls %}
-            {% for en in enrolls %}
-              {% with c=en.course %}
-                <div class="card">
-                  <h3>{{ c.title }}</h3>
-                  <div class="chips">
-                    {% if c.subject %}
-                      <span class="chip">{{ c.subject.name }}</span>
-                      <span class="chip">{{ c.subject.stage }}</span>
-                    {% endif %}
-                    {% if c.duration_days %}<span class="chip">{{ c.duration_days }} يومًا</span>{% endif %}
-                    {% if c.is_active %}<span class="chip">نشط</span>{% else %}<span class="chip">مغلق</span>{% endif %}
-                  </div>
-
-                  {% if c.description %}
-                    <p class="muted">{{ c.description }}</p>
-                  {% endif %}
-
-                  <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center">
-                    {% if en.teams_link and en.teams_link|slice:":8" == "https://" %}
-                      <a class="btn" href="{{ en.teams_link }}" target="_blank" rel="noopener noreferrer">انضم الآن</a>
-                    {% elif c.teams_link and c.teams_link|slice:":8" == "https://" %}
-                      <a class="btn" href="{{ c.teams_link }}" target="_blank" rel="noopener noreferrer">انضم الآن</a>
-                    {% else %}
-                      <span class="empty">لا يوجد رابط Teams صالح (https).</span>
-                    {% endif %}
-                  </div>
-
-                  {% if c.lessons.all|length > 0 %}
-                    <h4 class="section-title" style="margin-top:14px">المحاضرات الأخيرة</h4>
-                    <ul class="list">
-                      {% for lec in c.lessons.all|slice:":3" %}
-                        <li>
-                          {{ lec.order }}. {{ lec.title }}
-                          {% if lec.recording_url and lec.recording_url|slice:":8" == "https://" %}
-                            — <a href="{{ lec.recording_url }}" target="_blank" rel="noopener noreferrer">مشاهدة</a>
-                          {% elif lec.video_file %}
-                            — <a href="{{ lec.video_file.url }}" target="_blank" rel="noopener noreferrer">تحميل الفيديو</a>
-                          {% endif %}
-                          {% if lec.slide_url and lec.slide_url|slice:":8" == "https://" %}
-                            — <a href="{{ lec.slide_url }}" target="_blank" rel="noopener noreferrer">عرض الشرائح</a>
-                          {% elif lec.slide_file %}
-                            — <a href="{{ lec.slide_file.url }}" target="_blank" rel="noopener noreferrer">تحميل الشرائح</a>
-                          {% endif %}
-                        </li>
-                      {% endfor %}
-                    </ul>
-                  {% endif %}
-
-                  {% if c.resources.all|length > 0 %}
-                    <h4 class="section-title">مراجع وكتب</h4>
-                    <ul class="list">
-                      {% for r in c.resources.all|slice:":3" %}
-                        <li>
-                          [{{ r.get_kind_display }}] {{ r.title }}
-                          {% if r.external_link and r.external_link|slice:":8" == "https://" %}
-                            — <a href="{{ r.external_link }}" target="_blank" rel="noopener noreferrer">فتح</a>
-                          {% endif %}
-                          {% if r.file %}
-                            — <a href="{{ r.file.url }}" target="_blank" rel="noopener noreferrer">تحميل</a>
-                          {% endif %}
-                          {% if r.note %} — <span class="muted">{{ r.note }}</span>{% endif %}
-                        </li>
-                      {% endfor %}
-                    </ul>
-                  {% endif %}
-                </div>
-              {% endwith %}
-            {% endfor %}
-          {% else %}
-            <p class="empty">لا توجد دورات مسجّل بها حاليًا.</p>
-          {% endif %}
-        {% endwith %}
-      {% else %}
-        <p class="empty">لم يتم ربط حسابك ببيانات طالب بعد.</p>
-      {% endif %}
+      <p class="empty">🚫 لا توجد مقررات حالياً.</p>
     {% endif %}
 
     <hr>
-    <a href="{% url 'logout' %}" class="btn btn-outline">تسجيل الخروج</a>
-  </main>
+    <a href="{% url 'logout' %}" class="logout"><i class="fa-solid fa-right-from-bracket"></i> تسجيل الخروج</a>
+  </div>
 
   {% include "footer.html" %}
-
 </body>
 </html>

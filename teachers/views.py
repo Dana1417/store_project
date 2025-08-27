@@ -6,20 +6,18 @@ from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.models import Count, OuterRef, Subquery, Prefetch
 
-# ✅ إصلاح استيراد الأنواع
 from django.http import HttpRequest, HttpResponse
 from django.http.response import HttpResponseForbidden
-
 from django.shortcuts import get_object_or_404, render, redirect
 from django.urls import reverse
 from django.views.decorators.http import require_http_methods
 
 from students.models import Enrollment
-from store.models import Booking   # ✅ لإظهار الحجوزات
+from store.models import Booking
 from .models import TeacherProfile, Course, Lesson, Resource, Subject
 from .forms import LessonForm, ResourceForm, SubjectForm, CourseForm
 
-# (اختياري) توضيح أخطاء Cloudinary
+# (اختياري) Cloudinary Errors
 try:
     from cloudinary.exceptions import Error as CloudinaryError
 except Exception:
@@ -86,6 +84,11 @@ def teacher_dashboard(request: HttpRequest) -> HttpResponse:
         .order_by("-id")
     )
 
+    # إحصائيات عامة
+    total_courses = courses_qs.count()
+    total_lessons = Lesson.objects.filter(course__teacher=tp).count()
+    total_students = sum(c.students_total or 0 for c in courses_qs)
+
     courses_data = [
         {
             "id": c.id,
@@ -101,9 +104,12 @@ def teacher_dashboard(request: HttpRequest) -> HttpResponse:
 
     ctx = {
         "tp": tp,
-        "courses": courses_qs,
         "teacher_name": request.user.get_full_name() or request.user.username,
+        "courses": courses_qs,
         "courses_data": courses_data,
+        "total_courses": total_courses,
+        "total_lessons": total_lessons,
+        "total_students": total_students,
     }
     return render(request, "teachers/dashboard.html", ctx)
 
