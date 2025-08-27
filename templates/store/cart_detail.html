@@ -6,110 +6,137 @@
   <title>سلة المشتريات</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
   <style>
-    body {font-family:'Tajawal',sans-serif;background:#fffaf0;margin:0;color:#333}
-    .wrap {padding:30px;max-width:980px;margin:auto}
-    h2 {text-align:center;margin:0 0 30px;color:#e67e22}
-    .card {background:#fff;border:1px solid #eee;border-radius:16px;box-shadow:0 6px 22px rgba(0,0,0,.06);padding:20px}
-    table {width:100%;border-collapse:collapse;background:#fff;border:1px solid #eee;border-radius:12px;overflow:hidden}
-    thead tr {background:#f8d49d}
-    th,td {padding:12px;border-bottom:1px solid #eee;text-align:center;vertical-align:middle}
-    img {height:60px;border-radius:8px}
-    .actions {margin-top:20px;text-align:center;display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
-    .btn {padding:10px 18px;border-radius:9999px;color:#fff;text-decoration:none;display:inline-block;font-weight:800;cursor:pointer;border:0}
-    .btn.gray {background:#999}
-    .btn.orange {background:#f39c12}
-    .btn.green {background:#27ae60}
-    .empty {color:#e67e22;text-align:center}
-    .total {margin-top:12px;text-align:left;font-weight:800}
-    .rm-btn {background:transparent;border:0;color:#c0392b;cursor:pointer;font-size:16px}
-    .qty {min-width:56px}
-    .messages {max-width:980px;margin:12px auto 0;padding:0 16px}
-    .msg {padding:10px 12px;border-radius:10px;margin-bottom:8px;border:1px solid transparent;line-height:1.5}
-    .msg.success {background:#e9f7ef;color:#1e7e34;border-color:#c7eed8}
-    .msg.error {background:#fdecea;color:#a71d2a;border-color:#f5c6cb}
-    .msg.warning {background:#fff8e1;color:#8a6d3b;border-color:#ffecb5}
-    .msg.info {background:#e8f4fd;color:#0b5ed7;border-color:#b6e0fe}
+    body {font-family:'Tajawal',sans-serif;margin:0;background:#f5f7fb;color:#333;}
+    .wrap {padding:30px;max-width:1100px;margin:auto;}
+    h2 {text-align:center;margin:0 0 25px;color:#ff9800;font-size:26px;}
+
+    .card {background:#fff;border-radius:16px;box-shadow:0 6px 20px rgba(0,0,0,.06);padding:25px;margin-bottom:20px;}
+
+    .table-wrapper {overflow-x:auto;}
+    .cart-table {width:100%;border-collapse:collapse;background:#fff;}
+    .cart-table thead {background:#ffecd2;}
+    .cart-table th, .cart-table td {padding:12px;text-align:center;border-bottom:1px solid #eee;}
+    .cart-table img {height:60px;border-radius:8px;}
+
+    /* أزرار التحكم بالكمية */
+    .qty-control {display:flex;align-items:center;justify-content:center;gap:6px;}
+    .qty-btn {
+      background:#ff9800;border:0;color:#fff;font-size:14px;
+      padding:6px 10px;border-radius:50%;cursor:pointer;font-weight:700;
+      width:32px;height:32px;display:flex;align-items:center;justify-content:center;
+      transition:.2s;
+    }
+    .qty-btn:hover {background:#e68900;}
+
+    /* Responsive */
+    @media(max-width:768px){
+      .cart-table, .cart-table thead, .cart-table tbody, .cart-table th, .cart-table td, .cart-table tr {display:block;width:100%;}
+      .cart-table thead {display:none;}
+      .cart-table tr {margin-bottom:16px;border:1px solid #ddd;border-radius:12px;padding:12px;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.05);}
+      .cart-table td {border:none;text-align:right;display:flex;justify-content:space-between;padding:8px 0;}
+      .cart-table td::before {content:attr(data-label);font-weight:600;color:#555;}
+    }
+
+    .summary {background:#fff;padding:20px;border-radius:16px;box-shadow:0 4px 12px rgba(0,0,0,.06);}
+    .summary h3 {margin:0 0 15px;font-size:20px;color:#2c3e50;}
+    .summary-row {display:flex;justify-content:space-between;margin:8px 0;}
+    .summary-row.total {font-weight:800;font-size:18px;color:#2c3e50;}
+
+    .actions {display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin-top:20px;}
+    .btn {padding:10px 18px;border-radius:10px;text-decoration:none;font-weight:600;border:0;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:.2s;}
+    .btn.gray {background:#607d8b;color:#fff;}
+    .btn.orange {background:#ff9800;color:#fff;}
+    .btn.green {background:#4caf50;color:#fff;}
+    .btn:hover {filter:brightness(0.9);}
+    .rm-btn {background:transparent;border:0;color:#e53935;font-size:18px;cursor:pointer;}
+    .rm-btn:hover {color:#b71c1c;}
+
+    .empty {text-align:center;font-size:16px;color:#888;margin:20px 0;}
   </style>
 </head>
 <body>
 
   {% include "header.html" %}
 
-  <!-- ✅ رسائل Django -->
-  <div class="messages">
-    {% if messages %}
-      {% for m in messages %}
-        <div class="msg
-             {% if 'success' in m.tags %}success
-             {% elif 'error' in m.tags %}error
-             {% elif 'warning' in m.tags %}warning
-             {% elif 'info' in m.tags %}info
-             {% endif %}">
-          {{ m }}
-        </div>
-      {% endfor %}
-    {% endif %}
-  </div>
-
   <div class="wrap">
-    <h2>🛒 سلة المشتريات</h2>
-    <div class="card">
+    <h2><i class="fa-solid fa-cart-shopping"></i> سلة المشتريات</h2>
 
+    <div class="card">
       {% if items %}
-        <table>
-          <thead>
-            <tr>
-              <th>الصورة</th>
-              <th>المنتج / الدورة</th>
-              <th>السعر</th>
-              <th>الكمية</th>
-              <th>الإجمالي</th>
-              <th>إزالة</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for it in items %}
+        <div class="table-wrapper">
+          <table class="cart-table">
+            <thead>
               <tr>
-                <td>
+                <th>الصورة</th>
+                <th>المنتج / الدورة</th>
+                <th>السعر</th>
+                <th>الكمية</th>
+                <th>الإجمالي</th>
+                <th>إزالة</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for it in items %}
+              <tr>
+                <td data-label="الصورة">
                   {% if it.product.image %}
                     <img src="{{ it.product.image.url }}" alt="{{ it.product.name }}">
                   {% else %}—{% endif %}
                 </td>
-                <td>{{ it.product.name }}</td>
-                <td>{{ it.product.price }} ريال</td>
-                <td class="qty">{{ it.quantity }}</td>
-                <td>{{ it.subtotal }} ريال</td>
-                <td>
-                  <form method="post" action="{% url 'store:remove_from_cart' it.product.id %}" style="display:inline;">
+                <td data-label="المنتج">{{ it.product.name }}</td>
+                <td data-label="السعر">{{ it.product.price }} ريال</td>
+                <td data-label="الكمية">
+                  <div class="qty-control">
+                    <form method="post" action="{% url 'store:update_cart' it.product.id %}">
+                      {% csrf_token %}
+                      <input type="hidden" name="action" value="decrease">
+                      <button class="qty-btn"><i class="fa-solid fa-minus"></i></button>
+                    </form>
+                    <span>{{ it.quantity }}</span>
+                    <form method="post" action="{% url 'store:update_cart' it.product.id %}">
+                      {% csrf_token %}
+                      <input type="hidden" name="action" value="increase">
+                      <button class="qty-btn"><i class="fa-solid fa-plus"></i></button>
+                    </form>
+                  </div>
+                </td>
+                <td data-label="الإجمالي">{{ it.subtotal }} ريال</td>
+                <td data-label="إزالة">
+                  <form method="post" action="{% url 'store:remove_from_cart' it.product.id %}">
                     {% csrf_token %}
-                    <button type="submit" class="rm-btn" title="إزالة">🗑️</button>
+                    <button type="submit" class="rm-btn" title="إزالة"><i class="fa-solid fa-trash"></i></button>
                   </form>
                 </td>
               </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
 
-        <div class="total">
-          الإجمالي: {{ total }} ريال
+        <div class="summary">
+          <h3>ملخص الطلب</h3>
+          <div class="summary-row"><span>المجموع الفرعي:</span><span>{{ total }} ريال</span></div>
+          <div class="summary-row"><span>الضريبة (15%):</span><span>{{ tax }} ريال</span></div>
+          <div class="summary-row total"><span>الإجمالي الكلي:</span><span>{{ grand_total }} ريال</span></div>
         </div>
 
         <div class="actions">
-          <a href="{% url 'store:product_list' %}" class="btn gray">⬅️ متابعة التصفح</a>
-          <form method="post" action="{% url 'store:checkout' %}" style="display:inline;">
+          <a href="{% url 'store:product_list' %}" class="btn gray"><i class="fa-solid fa-arrow-right"></i> متابعة التسوق</a>
+          <form method="post" action="{% url 'store:checkout' %}">
             {% csrf_token %}
-            <button type="submit" class="btn green">💳 إتمام الحجز / الدفع</button>
+            <button type="submit" class="btn green"><i class="fa-solid fa-credit-card"></i> إتمام الحجز / الدفع</button>
           </form>
         </div>
 
       {% else %}
         <p class="empty">🚫 لا توجد عناصر في السلة.</p>
         <div class="actions">
-          <a href="{% url 'store:product_list' %}" class="btn orange">⬅️ ابدأ التسوق</a>
+          <a href="{% url 'store:product_list' %}" class="btn orange"><i class="fa-solid fa-store"></i> ابدأ التسوق</a>
         </div>
       {% endif %}
-
     </div>
   </div>
 

@@ -4,33 +4,99 @@
 <head>
   <meta charset="UTF-8">
   <title>تواصل معنا</title>
-  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root{
+      --brand:#e67e22;
+      --brand-dark:#d35400;
+      --bg:#fafafa;
+      --card:#fff;
+      --text:#333;
+      --muted:#666;
+      --shadow:0 6px 20px rgba(0,0,0,.08);
+    }
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      font-family:'Tajawal',sans-serif;
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+      background:var(--bg);
+      color:var(--text);
+    }
+    main{
+      flex:1;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:30px 16px;
+    }
+    .card{
+      background:var(--card);
+      border-radius:16px;
+      box-shadow:var(--shadow);
+      padding:28px;
+      max-width:460px;
+      width:100%;
+      text-align:center;
+      border:1px solid #eee;
+    }
+    h2{color:var(--brand);margin-bottom:8px;font-size:24px}
+    p{color:var(--muted);margin-bottom:20px;font-size:15px}
+    .btn{
+      display:flex;align-items:center;justify-content:center;gap:10px;
+      width:100%;
+      padding:14px;
+      margin-top:12px;
+      border:none;border-radius:50px;
+      font-weight:700;font-size:15px;
+      cursor:pointer;transition:.2s;
+    }
+    .btn i{
+      font-size:18px;
+    }
+    .btn.whatsapp{background:#25d366;color:#fff}
+    .btn.whatsapp:hover{background:#20b858}
+    .btn.email{background:#3498db;color:#fff}
+    .btn.email:hover{background:#217dbb}
+    footer{
+      background:#111c2d;
+      color:#eee;
+      padding:24px 16px;
+      text-align:center;
+      margin-top:auto;
+    }
+    footer small{color:#bbb;font-size:13px}
+  </style>
 </head>
 <body>
 
-  <div id="header-container"></div>
+  {% include "header.html" %}
 
-  <main style="padding: 40px 20px; max-width: 600px; margin: auto; text-align: center;">
-    <h2 style="color: #ef6c00;">📞 تواصل معنا</h2>
-    <p>نرحب بجميع استفساراتك واقتراحاتك!</p>
+  <main>
+    <div class="card">
+      <h2><i class="fa-solid fa-headset"></i> تواصل معنا</h2>
+      <p>نرحب بجميع استفساراتك واقتراحاتك، اختر وسيلة التواصل المناسبة:</p>
 
-    <form action="https://wa.me/966534270785" method="get" target="_blank">
-      <button type="submit" style="padding: 10px 20px; background-color: #25d366; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer;">
-        التواصل عبر واتساب
-      </button>
-    </form>
+      <!-- زر واتساب -->
+      <form action="https://wa.me/966534270785" method="get" target="_blank">
+        <button type="submit" class="btn whatsapp">
+          <i class="fa-brands fa-whatsapp"></i> واتساب
+        </button>
+      </form>
+
+      <!-- زر البريد الإلكتروني -->
+      <form action="mailto:info@example.com" method="get">
+        <button type="submit" class="btn email">
+          <i class="fa-solid fa-envelope"></i> البريد الإلكتروني
+        </button>
+      </form>
+    </div>
   </main>
 
-  <div id="footer-container"></div>
-
-  <script>
-    fetch('/header/').then(res => res.text()).then(data => {
-      document.getElementById('header-container').innerHTML = data;
-    });
-    fetch('/footer/').then(res => res.text()).then(data => {
-      document.getElementById('footer-container').innerHTML = data;
-    });
-  </script>
+  {% include "footer.html" %}
 
 </body>
 </html>

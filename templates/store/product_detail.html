@@ -3,50 +3,191 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>{{ product.name }} - التفاصيل</title>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
   <style>
-    body { font-family:'Tajawal',sans-serif; margin:0; background:#fffaf0; color:#333; }
-    .wrap { max-width: 980px; margin: 28px auto; padding: 0 16px; }
-    .card { background:#fff; border:1px solid #eee; border-radius:16px; padding:24px; box-shadow:0 6px 20px rgba(0,0,0,0.06); }
-    h2 { margin-top:0; color:#2c3e50; }
-    .price { font-size:20px; font-weight:bold; color:#e67e22; margin:8px 0; }
-    .desc { margin:14px 0; line-height:1.6; color:#555; }
-    .actions { display:flex; gap:12px; justify-content:center; margin-top:20px; flex-wrap:wrap; }
-    .btn { background:#f39c12; color:#fff; padding:10px 18px; border-radius:9999px; text-decoration:none; font-weight:700; transition:0.2s; }
-    .btn:hover { background:#e67e22; }
-    .btn.disabled { background:#ddd; color:#777; pointer-events:none; }
-    img.product-img { max-width:100%; border-radius:12px; margin-bottom:16px; }
+    :root{
+      --bg:#f9fbfd;
+      --card:#ffffff;
+      --ink:#0f172a;      /* نص غامق */
+      --muted:#64748b;    /* نص ثانوي */
+      --ok:#10b981;       /* أخضر */
+      --danger:#b91c1c;   /* أحمر */
+      --accent:#f59e0b;   /* برتقالي */
+      --accent2:#ef4444;  /* أحمر */
+      --primary:#2563eb;  /* أزرق */
+      --shadow:0 16px 36px rgba(15,23,42,.08);
+      --radius:18px;
+      --radius-sm:12px;
+    }
+
+    html,body{margin:0;background:var(--bg);color:var(--ink);font-family:'Tajawal',sans-serif}
+    .container{max-width:1200px;margin:36px auto;padding:0 20px}
+
+    /* Breadcrumb */
+    .breadcrumb{font-size:14px;color:var(--muted);margin:4px 0 20px}
+    .breadcrumb a{color:var(--muted);text-decoration:none}
+    .breadcrumb a:hover{color:var(--primary)}
+
+    /* Layout */
+    .product-hero{
+      display:grid;grid-template-columns:1.05fr 1fr;gap:32px;align-items:start;
+    }
+
+    /* Media Card */
+    .media{
+      background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);
+      padding:16px;position:relative;
+    }
+    .media img{width:100%;height:440px;object-fit:cover;border-radius:var(--radius-sm);display:block}
+    .badge-new{
+      position:absolute;top:16px;left:16px;
+      background:linear-gradient(90deg,var(--accent),var(--accent2));
+      color:#fff;font-size:12px;font-weight:800;border-radius:999px;padding:6px 12px;
+      box-shadow:0 4px 10px rgba(0,0,0,.18)
+    }
+
+    /* Info Card */
+    .info{
+      background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);
+      padding:28px;
+    }
+    .title{font-size:32px;line-height:1.3;margin:0 0 12px}
+    .availability{
+      display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:800;
+      border-radius:999px;padding:6px 12px;margin-bottom:14px
+    }
+    .availability.ok{background:#ecfdf5;color:#065f46}
+    .availability.na{background:#fee2e2;color:#991b1b}
+
+    /* Price badge */
+    .price{
+      display:inline-flex;align-items:center;gap:8px;
+      margin:8px 0 18px;
+      background:#fff7ed;color:#c2410c;
+      padding:10px 14px;border-radius:12px;font-size:18px;font-weight:800
+    }
+    .price i{color:#f59e0b}
+
+    .desc{color:#334155;line-height:1.9;margin:10px 0}
+    .features{list-style:none;padding:0;margin:18px 0 26px;color:#334155}
+    .features li{display:flex;align-items:center;gap:10px;margin:10px 0}
+    .features i{color:var(--ok)}
+
+    /* Actions */
+    .actions{display:flex;gap:14px;flex-wrap:wrap}
+    .btn{
+      flex:1;text-align:center;display:inline-flex;justify-content:center;align-items:center;gap:8px;
+      padding:13px 16px;border-radius:999px;font-weight:800;font-size:15px;text-decoration:none;transition:.25s
+    }
+    .btn-primary{
+      background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff;
+      box-shadow:0 8px 18px rgba(239,68,68,.25)
+    }
+    .btn-primary:hover{transform:translateY(-2px)}
+    .btn-secondary{
+      background:#eef2ff;border:2px solid #dbeafe;color:#1d4ed8;
+      box-shadow:0 6px 14px rgba(37,99,235,.08)
+    }
+    .btn-secondary:hover{background:#dbeafe}
+    .btn-disabled{background:#e5e7eb;color:#6b7280;cursor:not-allowed}
+
+    /* Extra panel */
+    .panel{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px;margin-top:22px}
+    .panel h3{margin:0 0 12px}
+
+    /* Responsive */
+    @media(max-width:992px){
+      .product-hero{grid-template-columns:1fr;gap:20px}
+      .media img{height:300px}
+      .title{font-size:26px}
+      .btn{width:100%}
+    }
   </style>
 </head>
 <body>
+
   {% include 'header.html' %}
 
-  <div class="wrap">
-    <div class="card">
-      {% if product.image %}
-        <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-img">
-      {% endif %}
+  <div class="container">
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="/">الرئيسية</a> ›
+      <a href="{% url 'store:product_list' %}">المنتجات</a> ›
+      <span aria-current="page">{{ product.name }}</span>
+    </nav>
 
-      <h2>{{ product.name }}</h2>
-      <p class="price">{{ product.price }} ريال</p>
-      {% if product.description %}
-        <p class="desc">{{ product.description }}</p>
-      {% endif %}
-
-      <div class="actions">
-        {% if product.available %}
-          <a href="{% url 'store:booking' %}?product_id={{ product.id }}" class="btn">احجز الآن</a>
-          <form method="post" action="{% url 'store:add_to_cart' product.id %}" style="display:inline;">
-            {% csrf_token %}
-            <button type="submit" class="btn">أضف للسلة</button>
-          </form>
+    <section class="product-hero">
+      <!-- صورة المنتج -->
+      <div class="media">
+        {% if product.image %}
+          <img src="{{ product.image.url }}" alt="{{ product.name }}">
         {% else %}
-          <a class="btn disabled">غير متاح</a>
+          <div style="height:440px;display:flex;align-items:center;justify-content:center;background:#f3f4f6;color:#94a3b8;border-radius:12px">
+            لا توجد صورة
+          </div>
+        {% endif %}
+
+        {# شارة "جديد" اختيارية: تظهر إذا كان عندك product.is_new = True #}
+        {% if product.is_new %}
+          <span class="badge-new">جديد</span>
         {% endif %}
       </div>
-    </div>
+
+      <!-- معلومات المنتج -->
+      <div class="info">
+        <h1 class="title">{{ product.name }}</h1>
+
+        {% if product.available %}
+          <span class="availability ok"><i class="fa-solid fa-circle-check"></i> متاح حالياً</span>
+        {% else %}
+          <span class="availability na"><i class="fa-solid fa-triangle-exclamation"></i> غير متاح</span>
+        {% endif %}
+
+        <!-- سعر منسق: عدّلي floatformat حسب رغبتك (0 أو 2) -->
+        <div class="price"><i class="fa-solid fa-tags"></i> {{ product.price|floatformat:0 }} ريال</div>
+
+        {% if product.description %}
+          <p class="desc">{{ product.description }}</p>
+        {% endif %}
+
+        <ul class="features">
+          <li><i class="fa-solid fa-circle-dot"></i> محتوى مُراجع ومُحدّث بشكل دوري</li>
+          <li><i class="fa-solid fa-circle-dot"></i> دعم فني وتعليمي سريع</li>
+          <li><i class="fa-solid fa-circle-dot"></i> سياسة استرجاع مرنة وفق الشروط</li>
+        </ul>
+
+        <div class="actions">
+          {% if product.available %}
+            <a href="{% url 'store:booking' %}?product_id={{ product.id }}" class="btn btn-primary" aria-label="احجز الآن">
+              <i class="fa-solid fa-calendar-check"></i> احجز الآن
+            </a>
+
+            <form method="post" action="{% url 'store:add_to_cart' product.id %}" style="flex:1;display:flex" aria-label="أضف للسلة">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-secondary">
+                <i class="fa-solid fa-cart-plus"></i> أضف للسلة
+              </button>
+            </form>
+          {% else %}
+            <button class="btn btn-disabled" type="button">
+              <i class="fa-solid fa-ban"></i> حالياً غير متاح
+            </button>
+          {% endif %}
+        </div>
+      </div>
+    </section>
+
+    <!-- تفاصيل إضافية -->
+    <section class="panel">
+      <h3>تفاصيل إضافية</h3>
+      <p style="color:var(--muted)">
+        بعد إتمام الحجز ستصلك رسالة تحتوي على خطوات البدء وروابط الوصول. لأي استفسار لا تتردد بالتواصل معنا — فريقنا متواجد لمساعدتك.
+      </p>
+    </section>
   </div>
 
   {% include 'footer.html' %}

@@ -6,95 +6,149 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>الرئيسية - واعي</title>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
     body {
       font-family: 'Tajawal', sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: #fffaf0;
+      margin:0; padding:0;
+      background:#f9fbfd; color:#333;
     }
+
+    /* ===================== Hero Section ===================== */
     .hero-container {
-      display: flex; flex-wrap: wrap;
-      justify-content: center; align-items: center;
-      padding: 50px 20px;
+      display:flex; flex-wrap:wrap;
+      justify-content:center; align-items:center;
+      gap:40px;
+      padding:80px 20px;
+      background:linear-gradient(135deg,#6366f1,#3b82f6,#f59e0b);
+      color:white;
     }
-    .slider {
-      flex: 1; max-width: 420px; overflow: hidden;
-      border-radius: 20px; margin: 10px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+
+    .hero-card {
+      flex:1;
+      max-width:420px;
+      border-radius:20px;
+      overflow:hidden;
+      background:white;
+      box-shadow:0 8px 24px rgba(0,0,0,.15);
     }
-    .slides {
-      display: flex; width: 400%;
-      animation: slide 16s infinite linear;
+
+    .hero-card img {
+      width:100%;
+      height:300px;
+      object-fit:cover;
     }
-    .slides img {
-      width: 100%; height: 320px;
-      object-fit: cover; border-radius: 20px;
-    }
-    @keyframes slide {
-      0%, 20% { transform: translateX(0%); }
-      25%, 45% { transform: translateX(-100%); }
-      50%, 70% { transform: translateX(-200%); }
-      75%, 95% { transform: translateX(-300%); }
-      100% { transform: translateX(0%); }
-    }
+
     .hero-text {
-      flex: 1; max-width: 500px;
-      padding: 20px; text-align: right;
+      flex:1;
+      max-width:520px;
+      padding:10px;
+      text-align:right;
     }
+
     .hero-text h1 {
-      font-size: 28px; color: #e67e22; line-height: 1.6;
+      font-size:34px; line-height:1.6;
+      color:#fef9c3;
+      margin-bottom:20px;
+      text-shadow:0 2px 6px rgba(0,0,0,0.25);
     }
+
     .hero-text h1 mark {
-      background: none; color: #e67e22;
-      border-bottom: 4px solid #f1c40f;
+      background:none; color:#facc15;
+      border-bottom:3px solid #fde047;
     }
-    .hero-text ul { list-style: none; padding: 0; margin-top: 20px; }
+
+    .hero-text ul {
+      list-style:none; padding:0; margin:20px 0;
+    }
+
     .hero-text ul li {
-      margin: 10px 0; font-size: 18px; color: #333;
+      margin:12px 0; font-size:18px;
+      color:#f1f5f9;
     }
-    .hero-text ul li::before {
-      content: "\2714\FE0F "; color: green;
+
+    .hero-text ul li i {
+      color:#10b981; margin-left:8px;
     }
+
     .btn-primary {
-      display: inline-block; margin-top: 20px;
-      background-color: #f39c12; color: white; text-decoration: none;
-      padding: 12px 25px; border-radius: 30px;
-      font-size: 16px; transition: background-color 0.3s ease, transform 0.2s ease;
-      cursor: pointer;
+      display:inline-block;
+      margin-top:20px;
+      background:linear-gradient(90deg,#f59e0b,#ef4444);
+      color:white; text-decoration:none;
+      padding:14px 30px;
+      border-radius:30px;
+      font-size:16px; font-weight:bold;
+      box-shadow:0 4px 12px rgba(0,0,0,0.25);
+      transition:0.3s ease;
     }
+
     .btn-primary:hover {
-      background-color: #e67e22; transform: scale(1.05);
+      background:linear-gradient(90deg,#ef4444,#f59e0b);
+      transform:translateY(-2px);
     }
+
+    /* ===================== FAQ Section ===================== */
     .faq-section {
-      max-width: 800px; margin: 60px auto; padding: 40px 20px;
+      max-width:900px;
+      margin:90px auto;
+      padding:40px 20px;
     }
+
     .faq-section h2 {
-      text-align: center; color: #e67e22;
-      font-size: 24px; margin-bottom: 20px;
+      text-align:center;
+      color:#2563eb;
+      font-size:30px;
+      margin-bottom:35px;
     }
+
     .faq-item {
-      background-color: white; border-radius: 10px;
-      margin-bottom: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      background:white; border-radius:12px;
+      margin-bottom:15px;
+      box-shadow:0 2px 8px rgba(0,0,0,0.08);
+      transition:0.3s; overflow:hidden;
     }
+
+    .faq-item:hover {
+      transform:translateY(-3px);
+      box-shadow:0 4px 14px rgba(0,0,0,0.12);
+    }
+
     .faq-question {
-      padding: 15px 20px; cursor: pointer;
-      font-weight: bold; position: relative;
+      padding:18px 20px;
+      cursor:pointer; font-weight:bold;
+      position:relative; background:#f3f4f6;
     }
+
     .faq-question::after {
-      content: "\25BE"; position: absolute; left: 20px;
-      transition: transform 0.3s;
+      content:"\f078"; font-family:"Font Awesome 6 Free";
+      font-weight:900; position:absolute; left:20px;
+      transition:transform 0.3s;
     }
-    .faq-item.open .faq-question::after {
-      transform: rotate(180deg);
-    }
+
+    .faq-item.open .faq-question::after { transform:rotate(180deg); }
+
     .faq-answer {
-      padding: 0 20px 15px; display: none; color: #333;
+      padding:15px 20px;
+      display:none; color:#444; background:#fafafa;
     }
-    .faq-item.open .faq-answer { display: block; }
-    @media (max-width: 768px) {
-      .hero-container { flex-direction: column; text-align: center; }
-      .hero-text { max-width: 100%; }
+
+    .faq-item.open .faq-answer { display:block; }
+
+    /* ===================== Responsive ===================== */
+    @media (max-width:768px){
+      .hero-container {
+        flex-direction: column;
+        text-align: center;
+        padding:40px 15px;
+      }
+
+      .hero-card { max-width:100%; margin-bottom:20px; }
+      .hero-card img { height:220px; }
+
+      .hero-text h1 { font-size:24px; line-height:1.4; }
+      .hero-text ul li { font-size:15px; }
+      .btn-primary { width:100%; padding:14px 0; font-size:16px; }
     }
   </style>
 </head>
@@ -102,31 +156,28 @@
 
   {% include 'header.html' %}
 
+  <!-- ✅ Hero Section -->
   <section class="hero-container">
-    <div class="slider">
-      <div class="slides">
-        <img src="{% static 'images/student1.png' %}" alt="طالب">
-        <img src="{% static 'images/teacher.png' %}" alt="معلم">
-        <img src="{% static 'images/student1.png' %}" alt="طالب">
-        <img src="{% static 'images/teacher.png' %}" alt="معلم">
-      </div>
+    <div class="hero-card">
+      <img src="{% static 'images/teacher.png' %}" alt="مدرس">
     </div>
 
     <div class="hero-text">
       <h1>
-        درس أبنائك مع <mark>أفضل المدرسين</mark><br>الخصوصيين في السعودية
+        درس أبنائك مع <mark>أفضل المدرسين</mark><br>
+        الخصوصيين في السعودية
       </h1>
       <ul>
-        <li>خطة تعليمية مخصصة ومصممة على احتياج الطالب</li>
-        <li>دروس خصوصية عن بعد وفردية (1-1)</li>
-        <li>باقات شهرية مرنة وأسعار مناسبة</li>
-        <li>ندرس جميع المراحل من الروضة وحتى الجامعة</li>
+        <li><i class="fas fa-chalkboard-teacher"></i> خطة تعليمية مخصصة ومصممة على احتياج الطالب</li>
+        <li><i class="fas fa-laptop"></i> دروس خصوصية عن بعد وفردية (1-1)</li>
+        <li><i class="fas fa-coins"></i> باقات شهرية مرنة بأسعار مناسبة</li>
+        <li><i class="fas fa-graduation-cap"></i> ندرس جميع المراحل من الروضة وحتى الجامعة</li>
       </ul>
-      <!-- ✅ الرابط الصحيح مع namespace -->
       <a href="{% url 'store:booking' %}" class="btn-primary">احجز الآن</a>
     </div>
   </section>
 
+  <!-- ✅ FAQ Section -->
   <section class="faq-section">
     <h2>مازلت تتساءل حتى الآن؟!</h2>
     <div class="faq-item">
@@ -151,6 +202,7 @@
     </div>
   </section>
 
+  <!-- ✅ Script للـ FAQ -->
   <script>
     document.addEventListener("DOMContentLoaded", function () {
       document.querySelectorAll(".faq-question").forEach(el => {

@@ -3,49 +3,202 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>تسجيل الدخول</title>
-  <link rel="stylesheet" href="{% static 'css/header.css' %}">
-  <link rel="stylesheet" href="{% static 'css/footer.css' %}">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تسجيل الدخول - واعي</title>
+
+  <!-- ملف التنسيقات العام -->
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
   <style>
-    body { font-family: 'Arial', sans-serif; background: #fff6e5; margin: 0; padding: 0; }
-    .login-container {
-      max-width: 400px; margin: 100px auto; background: #fff;
-      border-radius: 12px; box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      padding: 30px 20px; direction: rtl;
+    body {
+      margin: 0;
+      font-family: 'Tajawal', sans-serif;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      background: #f5f7fb;
+      position: relative;
+      overflow: hidden;
     }
-    h2 { text-align: center; color: #ff6600; margin-bottom: 25px; }
-    label { display: block; margin-bottom: 8px; font-weight: bold; }
-    input[type="text"], input[type="password"] {
-      width: 100%; padding: 10px; margin-bottom: 20px;
-      border: 1px solid #ddd; border-radius: 8px;
+
+    /* زخرفة خلفية خفيفة */
+    body::before, body::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(106, 17, 203, 0.05);
+      z-index: 0;
     }
-    button {
-      width: 100%; background-color: #ff6600; color: white;
-      border: none; padding: 12px; border-radius: 8px;
-      font-size: 16px; cursor: pointer;
+    body::before {
+      width: 250px; height: 250px;
+      top: -80px; left: -80px;
     }
-    button:hover { background-color: #e65c00; }
+    body::after {
+      width: 200px; height: 200px;
+      bottom: -70px; right: -70px;
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 60px 15px;
+      z-index: 1;
+      position: relative;
+    }
+
+    .login-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 45px 35px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+      text-align: center;
+      animation: fadeIn 0.6s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from {opacity:0; transform: translateY(15px);}
+      to {opacity:1; transform: translateY(0);}
+    }
+
+    .welcome-text {
+      font-size: 18px;
+      margin-bottom: 8px;
+      color: #444;
+    }
+
+    .login-card h2 {
+      margin-bottom: 30px;
+      color: #ff6600;
+      font-weight: bold;
+    }
+
+    /* ===== الحقول ===== */
+    .input-group {
+      position: relative;
+      margin-bottom: 20px;
+      text-align: right;
+    }
+
+    .input-group i {
+      position: absolute;
+      top: 50%;
+      right: 12px;
+      transform: translateY(-50%);
+      color: #888;
+      transition: color .3s;
+    }
+
+    .custom-input {
+      width: 100%;
+      padding: 12px 40px 12px 14px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      font-size: 15px;
+      background: #fff;
+      outline: none;
+      transition: all .3s;
+    }
+
+    .custom-input:focus {
+      border-color: #ff6600;
+      box-shadow: 0 0 6px rgba(255, 102, 0, 0.25);
+    }
+    .custom-input:focus + i {
+      color: #ff6600;
+    }
+
+    /* ===== الزر ===== */
+    .login-card button {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, #ff6600, #ff8533);
+      border: none;
+      color: white;
+      font-size: 16px;
+      font-weight: bold;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background .3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .login-card button i {
+      font-size: 15px;
+    }
+
+    .login-card button:hover {
+      background: linear-gradient(135deg, #e65c00, #ff751a);
+    }
+
+    /* ===== الروابط ===== */
+    .extra-links {
+      margin-top: 18px;
+      font-size: 14px;
+    }
+
+    .extra-links a {
+      text-decoration: none;
+      margin: 0 5px;
+    }
+
+    .extra-links a:first-child {
+      color: #6a11cb; /* نسيت كلمة المرور */
+    }
+
+    .extra-links a:last-child {
+      color: #ff6600; /* إنشاء حساب جديد */
+      font-weight: bold;
+    }
+
+    .extra-links a:hover {
+      opacity: 0.85;
+    }
   </style>
 </head>
 <body>
+
   {% include "header.html" %}
 
-  <div class="login-container">
-    <h2>تسجيل الدخول</h2>
-    <form method="post" action="">
-      {% csrf_token %}
-      {{ form.non_field_errors }}
+  <main>
+    <div class="login-card">
+      <div class="welcome-text">مرحبًا بك في <span style="color:#ff6600;">واعي</span> 👋</div>
+      <h2>تسجيل الدخول</h2>
 
-      <label for="id_username">اسم المستخدم:</label>
-      {{ form.username }}
+      <form method="post">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
 
-      <label for="id_password">كلمة المرور:</label>
-      {{ form.password }}
+        <div class="input-group">
+          <input type="text" name="username" placeholder="اسم المستخدم" class="custom-input" required>
+          <i class="fa-solid fa-user"></i>
+        </div>
 
-      <button type="submit">دخول</button>
-    </form>
-  </div>
+        <div class="input-group">
+          <input type="password" name="password" placeholder="كلمة المرور" class="custom-input" required>
+          <i class="fa-solid fa-lock"></i>
+        </div>
+
+        <button type="submit">
+          <i class="fa-solid fa-right-to-bracket"></i> دخول
+        </button>
+      </form>
+
+      <div class="extra-links">
+        <a href="{% url 'password_reset' %}">نسيت كلمة المرور؟</a> |
+        <a href="{% url 'register' %}">إنشاء حساب جديد</a>
+      </div>
+    </div>
+  </main>
 
   {% include "footer.html" %}
+
 </body>
 </html>

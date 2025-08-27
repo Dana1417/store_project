@@ -5,54 +5,118 @@
   <meta charset="UTF-8" />
   <title>لوحة الطالب</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <style>
-    :root{
-      --bg:#f9f9f9; --fg:#333; --muted:#666; --card:#fff;
-      --border:#e0e0e0; --shadow:0 6px 16px rgba(0,0,0,.06);
-      --brand:#1976d2; --warn:#ff6f00; --kpi-bg:#fffaf2; --kpi-br:#ffe0b2;
+    :root {
+      --bg: #f5f7fb;
+      --fg: #333;
+      --muted: #666;
+      --card: #fff;
+      --border: #e0e0e0;
+      --shadow: 0 6px 16px rgba(0, 0, 0, .06);
+      --brand: #1976d2;
+      --warn: #ff6f00;
+      --success: #16a34a;
+      --danger: #dc2626;
+      --info: #2563eb;
     }
-    body { font-family: "Tajawal", system-ui, -apple-system, Arial, sans-serif; margin:0; padding:0; background:var(--bg); color:var(--fg); }
+
+    body {
+      font-family: "Tajawal", system-ui, Arial, sans-serif;
+      margin: 0; padding: 0;
+      background: var(--bg);
+      color: var(--fg);
+    }
+
     .page-padding { padding-top: 90px; }
-    .dashboard-container { max-width: 960px; margin: 0 auto 60px; padding: 24px; background:var(--card); border-radius:16px; box-shadow:var(--shadow); }
 
-    .headline { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:16px; }
-    h1 { color:#2c3e50; font-size:26px; margin:0; }
-    .actions a { text-decoration:none; padding:8px 14px; border-radius:10px; font-weight:600; }
-    .actions a.logout { background:#fbe9e7; color:#d32f2f; }
+    .dashboard-container {
+      max-width: 1100px;
+      margin: 0 auto 60px;
+      padding: 28px;
+      background: var(--card);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+    }
 
-    .messages { margin-bottom:14px; }
-    .msg { padding:10px 12px; border-radius:10px; margin:8px 0; border:1px solid; }
-    .msg.success { background:#ecfdf5; color:#065f46; border-color:#a7f3d0; }
-    .msg.warning { background:#fff7ed; color:#9a3412; border-color:#fed7aa; }
-    .msg.error { background:#fef2f2; color:#991b1b; border-color:#fecaca; }
-    .msg.info { background:#eff6ff; color:#1e40af; border-color:#bfdbfe; }
+    /* ===== العنوان ===== */
+    .headline {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    h1 {
+      font-size: 26px;
+      margin: 0;
+      color: #2c3e50;
+    }
 
-    .kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:12px; margin:18px 0 24px; }
-    .kpi { background:var(--kpi-bg); border:1px solid var(--kpi-br); border-radius:12px; padding:14px; text-align:center; }
-    .kpi b { color:var(--warn); font-size:14px; display:block; margin-bottom:6px; }
-    .kpi .num { font-size:22px; font-weight:800; color:#2c3e50; }
+    /* ===== KPIs ===== */
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(auto-fit,minmax(180px,1fr));
+      gap: 16px;
+      margin: 22px 0 32px;
+    }
+    .kpi {
+      background: #fafafa;
+      border-radius: 14px;
+      padding: 20px;
+      text-align: center;
+      font-weight: 600;
+      box-shadow: inset 0 0 0 1px #eee;
+    }
+    .kpi .icon-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      margin-bottom: 10px;
+    }
+    .kpi svg { width: 24px; height: 24px; color: #fff; }
+    .kpi .num { font-size: 26px; font-weight: 800; margin-top: 6px; }
 
-    .section-title { margin:18px 0 10px; font-size:20px; font-weight:700; color:#333; }
-    .muted { color:var(--muted); font-size:14px; }
-    .empty { padding:16px; border:1px dashed #ccc; border-radius:12px; background:#fff; color:#777; text-align:center; }
+    .kpi.enroll .icon-badge { background:#4338ca; }
+    .kpi.exam   .icon-badge { background:#0284c7; }
+    .kpi.cert   .icon-badge { background:#16a34a; }
+    .kpi.ref    .icon-badge { background:#ea580c; }
 
-    .course-card { border:1px solid var(--border); border-radius:12px; padding:16px; margin-bottom:12px; background:#fdfdfd; }
-    .course-card__head { display:flex; gap:12px; align-items:center; justify-content:space-between; }
-    .course-title { margin:0; font-size:18px; color:var(--brand); font-weight:700; }
-    .course-meta { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
-    .cover { width:56px; height:56px; border-radius:10px; object-fit:cover; border:1px solid var(--border); background:#fff; }
+    /* ===== البطاقات ===== */
+    .course-card, .list-card {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 14px;
+      background: #fff;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.02);
+      transition: transform .2s;
+    }
+    .course-card:hover, .list-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 14px rgba(0,0,0,0.08);
+    }
+    .course-card__head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .course-meta { display: flex; align-items: center; gap: 12px; }
+    .course-title { font-size: 18px; font-weight: 700; color: var(--brand); margin: 0; display:flex; align-items:center; gap:8px; }
+    .cover { width: 56px; height: 56px; border-radius: 10px; object-fit: cover; border: 1px solid var(--border); }
 
-    .btn { text-decoration:none; padding:8px 12px; border-radius:10px; font-weight:600; border:1px solid #cfd8dc; background:#fff; color:#37474f; }
-    .btn:hover { background:#f5f5f5; }
-    .btn-primary { background:var(--brand); color:#fff; border-color:var(--brand); }
-    .btn-primary:hover { filter:brightness(0.95); }
+    .list-cards { list-style: none; padding: 0; margin: 0; }
+    .list-card { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
 
-    .list-cards { list-style:none; padding:0; margin:0; }
-    .list-card { display:flex; align-items:center; justify-content:space-between; gap:12px; border:1px solid var(--border); border-radius:12px; padding:16px; margin-bottom:12px; background:#fff; }
+    .btn { text-decoration: none; padding: 8px 14px; border-radius: 10px; font-weight: 600; font-size: 14px; }
+    .btn-primary { background: var(--brand); color:#fff; border:1px solid var(--brand); }
+    .btn:hover { filter:brightness(0.95); }
+    .muted { color: var(--muted); font-size: 14px; }
 
-    @media (max-width: 768px) {
-      .dashboard-container{padding:18px;}
-      h1{font-size:22px;}
+    .section-title { margin:20px 0 12px; font-size:20px; font-weight:700; }
+    .empty { padding:18px; border:1px dashed #ccc; border-radius:12px; background:#fff; text-align:center; color:#777; font-size:15px; }
+
+    @media(max-width:768px) {
       .course-card__head{flex-direction:column; align-items:flex-start;}
       .list-card{flex-direction:column; align-items:flex-start;}
     }
@@ -63,32 +127,46 @@
   {% include "header.html" %}
 
   <main class="page-padding">
-    <section class="dashboard-container" aria-labelledby="student-dashboard-title">
+    <section class="dashboard-container">
 
       <div class="headline">
-        <h1 id="student-dashboard-title">مرحبًا، {{ student.user.get_full_name|default:student.user.username }}</h1>
-        <div class="actions">
-          <a class="logout" href="{% url 'logout' %}">تسجيل خروج</a>
-        </div>
+        <h1>مرحبًا، {{ student.user.get_full_name|default:student.user.username }}</h1>
+        <!-- 🔴 زر تسجيل الخروج من داخل لوحة الطالب تم حذفه -->
       </div>
-
-      {% if messages %}
-        <div class="messages" role="status" aria-live="polite">
-          {% for message in messages %}
-            <div class="msg {{ message.tags|default:'info' }}">{{ message }}</div>
-          {% endfor %}
-        </div>
-      {% endif %}
 
       <!-- KPIs -->
-      <div class="kpis" aria-label="إحصائيات سريعة">
-        <div class="kpi"><b>الدورات المسجّلة</b><div class="num">{{ enrollments|length }}</div></div>
-        <div class="kpi"><b>نتائج الاختبارات</b><div class="num">{{ exams|length }}</div></div>
-        <div class="kpi"><b>الشهادات</b><div class="num">{{ certs|length }}</div></div>
-        <div class="kpi"><b>المراجع المتاحة</b><div class="num">{{ resources|length }}</div></div>
+      <div class="kpis">
+        <div class="kpi enroll">
+          <div class="icon-badge">
+            <svg fill="currentColor" viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h7"/></svg>
+          </div>
+          الدورات المسجّلة
+          <div class="num">{{ enrollments|length }}</div>
+        </div>
+        <div class="kpi exam">
+          <div class="icon-badge">
+            <svg fill="currentColor" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6M5 8h14M5 4h14"/></svg>
+          </div>
+          نتائج الاختبارات
+          <div class="num">{{ exams|length }}</div>
+        </div>
+        <div class="kpi cert">
+          <div class="icon-badge">
+            <svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l4 4-4 4-4-4 4-4zm0 8a6 6 0 100 12 6 6 0 000-12z"/></svg>
+          </div>
+          الشهادات
+          <div class="num">{{ certs|length }}</div>
+        </div>
+        <div class="kpi ref">
+          <div class="icon-badge">
+            <svg fill="currentColor" viewBox="0 0 24 24"><path d="M6 4h12v16H6z"/></svg>
+          </div>
+          المراجع المتاحة
+          <div class="num">{{ resources|length }}</div>
+        </div>
       </div>
 
-      <!-- ===== الدورات ===== -->
+      <!-- الدورات -->
       <h3 class="section-title">الدورات المسجّلة</h3>
       {% if enrollments %}
         {% for e in enrollments %}
@@ -99,25 +177,22 @@
                   <img class="cover" src="{{ e.course.cover_image_url }}" alt="غلاف {{ e.course.title }}">
                 {% endif %}
                 <h4 class="course-title">
-                  📘
+                  <div class="icon-badge" style="background:#1976d2; width:32px; height:32px;">
+                    <svg fill="white" viewBox="0 0 24 24"><path d="M4 19h16V5H4z"/></svg>
+                  </div>
                   <a href="{% url 'students:course_detail_by_id' e.course.pk %}" style="text-decoration:none; color:var(--brand)">
                     {{ e.course }}
                   </a>
                 </h4>
               </div>
-
               {% if e.course.teams_link %}
-                <a class="btn btn-primary"
-                   href="{{ e.course.teams_link }}"
-                   target="_blank" rel="noopener noreferrer">
-                   دخول مباشر (Teams)
-                </a>
+                <a class="btn btn-primary" href="{{ e.course.teams_link }}" target="_blank">دخول مباشر (Teams)</a>
               {% else %}
-                <span class="muted">لا يوجد رابط تيمز متاح</span>
+                <span class="muted">لا يوجد رابط متاح</span>
               {% endif %}
             </div>
             <div class="muted" style="margin-top:8px;">
-              انضمام: {{ e.joined_at|date:"d-m-Y" }}
+              انضمام: {{ e.joined_at|date:"d-m-Y" }} 
               {% if e.course.start_date or e.course.end_date %}
                 — المدة: {{ e.course.start_date|date:"d-m-Y" }} إلى {{ e.course.end_date|date:"d-m-Y" }}
               {% endif %}
@@ -125,57 +200,57 @@
           </article>
         {% endfor %}
       {% else %}
-        <div class="empty">لا توجد دورات مسجّلة حتى الآن.</div>
+        <div class="empty">لا توجد دورات مسجّلة.</div>
       {% endif %}
 
-      <!-- ===== الشهادات ===== -->
+      <!-- الشهادات -->
       <h3 class="section-title">شهاداتي</h3>
       {% if certs %}
         <ul class="list-cards">
           {% for c in certs %}
             <li class="list-card">
-              <div>
-                🎓 <b>{{ c.course }}</b>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <div class="icon-badge" style="background:#16a34a; width:32px; height:32px;">
+                  <svg fill="white" viewBox="0 0 24 24"><path d="M12 2l4 4-4 4-4-4 4-4zM12 10a6 6 0 100 12 6 6 0 000-12z"/></svg>
+                </div>
+                <b>{{ c.course }}</b>
                 <small class="muted">— {{ c.issued_at|date:"d-m-Y" }}</small>
               </div>
               {% if c.file %}
-                <a class="btn" href="{{ c.file.url }}" target="_blank" rel="noopener noreferrer">عرض الشهادة</a>
-              {% elif c.file_url %}
-                <a class="btn" href="{{ c.file_url }}" target="_blank" rel="noopener noreferrer">عرض الشهادة</a>
+                <a class="btn" href="{{ c.file.url }}" target="_blank">عرض الشهادة</a>
               {% else %}
-                <span class="muted">لا يوجد ملف شهادة</span>
+                <span class="muted">لا يوجد ملف</span>
               {% endif %}
             </li>
           {% endfor %}
         </ul>
       {% else %}
-        <div class="empty">لا توجد شهادات حتى الآن.</div>
+        <div class="empty">لا توجد شهادات.</div>
       {% endif %}
 
-      <!-- ===== المراجع ===== -->
+      <!-- المراجع -->
       <h3 class="section-title">المراجع المتاحة</h3>
       {% if resources %}
         <ul class="list-cards">
           {% for r in resources %}
             <li class="list-card">
-              <div>
-                📄 <b>{{ r.title }}</b>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <div class="icon-badge" style="background:#ea580c; width:32px; height:32px;">
+                  <svg fill="white" viewBox="0 0 24 24"><path d="M6 4h12v16H6z"/></svg>
+                </div>
+                <b>{{ r.title }}</b>
                 <small class="muted">— {{ r.course|default:"عام" }}</small>
               </div>
               {% if r.file %}
-                <a class="btn" href="{{ r.file.url }}" target="_blank" rel="noopener noreferrer">فتح المرجع</a>
-              {% elif r.external_link %}
-                <a class="btn" href="{{ r.external_link }}" target="_blank" rel="noopener noreferrer">فتح المرجع</a>
-              {% elif r.file_url %}
-                <a class="btn" href="{{ r.file_url }}" target="_blank" rel="noopener noreferrer">فتح المرجع</a>
+                <a class="btn" href="{{ r.file.url }}" target="_blank">فتح المرجع</a>
               {% else %}
-                <span class="muted">لا يوجد رابط متاح</span>
+                <span class="muted">لا يوجد رابط</span>
               {% endif %}
             </li>
           {% endfor %}
         </ul>
       {% else %}
-        <div class="empty">لا توجد مراجع حتى الآن.</div>
+        <div class="empty">لا توجد مراجع.</div>
       {% endif %}
 
     </section>

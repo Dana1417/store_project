@@ -1,6 +1,6 @@
-# store/views.py
 from __future__ import annotations
 from typing import Dict
+from decimal import Decimal
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -8,7 +8,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_http_methods
 from django.db import transaction
 
-from .models import Product, Booking   # ✅ استدعاء Booking
+from .models import Product, Booking
 from orders.models import Order
 from students.models import Student, Enrollment
 
@@ -18,6 +18,7 @@ from students.models import Student, Enrollment
 # =========================
 def _cart_get(request) -> Dict[str, int]:
     return request.session.get("cart", {})
+
 
 def _cart_save(request, cart: Dict[str, int]) -> None:
     request.session["cart"] = cart
@@ -71,6 +72,27 @@ def remove_from_cart(request, pk: int):
 
 
 # =========================
+#   تحديث الكمية
+# =========================
+@login_required
+@require_http_methods(["POST"])
+def update_cart(request, pk: int):
+    action = request.POST.get("action")
+    cart = _cart_get(request)
+
+    if str(pk) in cart:
+        if action == "increase":
+            cart[str(pk)] += 1
+        elif action == "decrease":
+            cart[str(pk)] -= 1
+            if cart[str(pk)] <= 0:
+                del cart[str(pk)]
+
+    _cart_save(request, cart)
+    return redirect("store:cart_detail")
+
+
+# =========================
 #   تفاصيل السلة
 # =========================
 @login_required
@@ -79,7 +101,7 @@ def cart_detail(request):
     cart = _cart_get(request)
     products = Product.objects.filter(id__in=cart.keys())
 
-    items, total = [], 0
+    items, total = [], Decimal("0.00")
     for product in products:
         qty = cart.get(str(product.id), 0)
         subtotal = product.price * qty
@@ -90,7 +112,17 @@ def cart_detail(request):
         })
         total += subtotal
 
-    return render(request, "store/cart_detail.html", {"items": items, "total": total})
+    # ✅ حساب الضريبة والإجمالي بالـ Decimal
+    tax_rate = Decimal("0.15")
+    tax = (total * tax_rate).quantize(Decimal("0.01"))
+    grand_total = total + tax
+
+    return render(request, "store/cart_detail.html", {
+        "items": items,
+        "total": total,
+        "tax": tax,
+        "grand_total": grand_total,
+    })
 
 
 # =========================
@@ -119,7 +151,15 @@ def checkout(request):
         return redirect("store:product_list")
 
     products = Product.objects.filter(id__in=cart.keys())
-    total = sum(product.price * cart[str(product.id)] for product in products)
+    total = Decimal("0.00")
+
+    for product in products:
+        qty = cart[str(product.id)]
+        total += product.price * qty
+
+    tax_rate = Decimal("0.15")
+    tax = (total * tax_rate).quantize(Decimal("0.01"))
+    grand_total = total + tax
 
     if request.method == "POST":
         student, _ = Student.objects.get_or_create(user=request.user)
@@ -131,9 +171,8 @@ def checkout(request):
                 product=product,
                 quantity=qty,
                 status=Order.STATUS_CONFIRMED,
+                total_price=product.price * qty,
             )
-            order.total_price = product.price * qty
-            order.save()
 
             if product.course:
                 Enrollment.objects.get_or_create(
@@ -147,7 +186,12 @@ def checkout(request):
         messages.success(request, "🎉 تم تنفيذ الطلب وتفعيل الدورات بنجاح")
         return redirect("students:dashboard")
 
-    return render(request, "store/checkout.html", {"products": products, "total": total})
+    return render(request, "store/checkout.html", {
+        "products": products,
+        "total": total,
+        "tax": tax,
+        "grand_total": grand_total,
+    })
 
 
 # =========================
@@ -155,10 +199,6 @@ def checkout(request):
 # =========================
 @require_http_methods(["GET", "POST"])
 def booking_page(request):
-    """
-    نموذج الحجز العام:
-    - يحفظ البيانات في جدول Booking.
-    """
     products = Product.objects.filter(available=True)
 
     product_id = request.GET.get("product_id")
@@ -187,7 +227,6 @@ def booking_page(request):
             if product and product.course:
                 course = product.course
 
-        # ✅ إنشاء سجل جديد في Booking
         Booking.objects.create(
             full_name=name,
             phone=phone,

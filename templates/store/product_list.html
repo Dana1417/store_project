@@ -6,19 +6,93 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>قائمة المنتجات - متجرنا</title>
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
   <style>
-    body { font-family:'Tajawal',sans-serif; margin:0; background:#fffaf0; }
-    .wrap { max-width:1100px; margin:30px auto; padding:0 16px; }
-    .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(260px,1fr)); gap:20px; }
-    .card { background:#fff; border:1px solid #eee; border-radius:16px; box-shadow:0 4px 15px rgba(0,0,0,.06); padding:16px; display:flex; flex-direction:column; }
-    .card img { max-width:100%; border-radius:12px; margin-bottom:12px; }
-    h2 { font-size:20px; margin:0 0 8px; color:#333; }
-    .price { font-size:18px; font-weight:700; color:#e67e22; margin-bottom:10px; }
-    .desc { flex:1; color:#666; font-size:14px; margin-bottom:12px; }
-    .actions { display:flex; gap:8px; flex-wrap:wrap; }
-    .btn { flex:1; text-align:center; background:#f39c12; color:#fff; padding:8px 12px; border-radius:30px; text-decoration:none; font-weight:700; font-size:14px; }
-    .btn:hover { background:#e67e22; }
+    body { font-family:'Tajawal',sans-serif; margin:0; background:#f9fbfd; color:#333; }
+    .wrap { max-width:1200px; margin:30px auto; padding:0 16px; }
+    h1 { text-align:center; margin-bottom:30px; color:#1f2937; }
+
+    /* Grid */
+    .grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(280px,1fr)); gap:24px; }
+
+    /* Card */
+    .card {
+      background:#fff;
+      border-radius:16px;
+      box-shadow:0 6px 18px rgba(0,0,0,.08);
+      overflow:hidden;
+      position:relative;
+      display:flex;
+      flex-direction:column;
+      animation:fadeUp 0.8s ease forwards;
+      opacity:0;
+    }
+
+    /* Label */
+    .label {
+      position:absolute;
+      top:12px; left:12px;
+      background:linear-gradient(90deg,#f59e0b,#ef4444);
+      color:#fff; font-size:13px;
+      font-weight:bold; padding:4px 10px;
+      border-radius:20px; box-shadow:0 2px 6px rgba(0,0,0,.2);
+    }
+
+    /* Image */
+    .card img {
+      width:100%; height:200px;
+      object-fit:cover;
+      display:block;
+    }
+
+    /* Content */
+    .card-body { padding:16px; flex:1; display:flex; flex-direction:column; }
+    .card h2 { font-size:20px; margin:0 0 10px; color:#111; }
+    .price {
+      font-size:18px; font-weight:700; color:#ef4444;
+      background:#fff4f2; padding:6px 12px;
+      border-radius:8px; display:inline-block;
+      margin-bottom:12px;
+    }
+    .desc { flex:1; font-size:14px; color:#555; margin-bottom:14px; }
+
+    /* Actions */
+    .actions { display:flex; gap:10px; flex-wrap:wrap; }
+    .btn {
+      flex:1;
+      text-align:center;
+      border-radius:30px;
+      padding:10px 14px;
+      font-weight:700;
+      font-size:14px;
+      text-decoration:none;
+      transition:0.3s;
+      display:flex; justify-content:center; align-items:center;
+      gap:6px;
+    }
+    .btn i { font-size:14px; }
+
+    .btn-outline {
+      border:2px solid #f59e0b;
+      color:#f59e0b; background:transparent;
+    }
+    .btn-outline:hover { background:#f59e0b; color:#fff; }
+
+    .btn-main {
+      background:linear-gradient(90deg,#f59e0b,#ef4444);
+      color:#fff; border:none;
+      box-shadow:0 4px 10px rgba(239,68,68,.3);
+    }
+    .btn-main:hover { transform:translateY(-2px); }
+
     .btn.disabled { background:#ddd; color:#777; pointer-events:none; }
+
+    /* Animation */
+    @keyframes fadeUp {
+      from { transform:translateY(25px); opacity:0; }
+      to { transform:translateY(0); opacity:1; }
+    }
   </style>
 </head>
 <body>
@@ -29,24 +103,34 @@
     <div class="grid">
       {% for product in products %}
         <div class="card">
+          <span class="label">جديد</span>
+
           {% if product.image %}
             <img src="{{ product.image.url }}" alt="{{ product.name }}">
           {% else %}
-            <div style="padding:60px;background:#f9f9f9;color:#aaa;text-align:center;border-radius:12px;">لا توجد صورة</div>
+            <div style="height:200px;display:flex;align-items:center;justify-content:center;background:#f3f4f6;color:#888;">
+              لا توجد صورة
+            </div>
           {% endif %}
 
-          <h2>{{ product.name }}</h2>
-          <div class="price">{{ product.price }} ريال</div>
-          <div class="desc">{{ product.description|truncatewords:15 }}</div>
+          <div class="card-body">
+            <h2>{{ product.name }}</h2>
+            <div class="price">{{ product.price }} ريال</div>
+            <div class="desc">{{ product.description|truncatewords:15 }}</div>
 
-          <div class="actions">
-            <a href="{% url 'store:product_detail' product.id %}" class="btn">التفاصيل</a>
+            <div class="actions">
+              <a href="{% url 'store:product_detail' product.id %}" class="btn btn-outline">
+                <i class="fa fa-info-circle"></i> التفاصيل
+              </a>
 
-            {% if product.available %}
-              <a href="{% url 'store:booking' %}?product_id={{ product.id }}" class="btn">احجز الآن</a>
-            {% else %}
-              <a class="btn disabled">غير متاح</a>
-            {% endif %}
+              {% if product.available %}
+                <a href="{% url 'store:booking' %}?product_id={{ product.id }}" class="btn btn-main">
+                  <i class="fa fa-shopping-cart"></i> احجز الآن
+                </a>
+              {% else %}
+                <a class="btn disabled">غير متاح</a>
+              {% endif %}
+            </div>
           </div>
         </div>
       {% empty %}

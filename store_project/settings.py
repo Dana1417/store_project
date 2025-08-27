@@ -3,7 +3,7 @@ import os
 from dotenv import load_dotenv
 
 # =========================
-#     تحميل المتغيرات
+#     تحميل متغيرات البيئة
 # =========================
 load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -62,7 +62,7 @@ INSTALLED_APPS = [
     "cart",
     "students.apps.StudentsConfig",
     "teachers.apps.TeachersConfig",
-    "adminpanel",   # ✅ إضافة لوحة المشرف الجديدة
+    "adminpanel",   # لوحة المشرف المخصصة
 
     # Django الأساسي
     "django.contrib.admin",
@@ -87,7 +87,7 @@ MIDDLEWARE = [
     "whitenoise.middleware.WhiteNoiseMiddleware",
 
     "django.contrib.sessions.middleware.SessionMiddleware",
-    "django.middleware.locale.LocaleMiddleware",  # ✅ دعم تعدد اللغات
+    "django.middleware.locale.LocaleMiddleware",  # دعم تعدد اللغات
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -227,7 +227,7 @@ LOGIN_REDIRECT_URL = env_str("LOGIN_REDIRECT_URL", "/")
 LOGOUT_REDIRECT_URL = env_str("LOGOUT_REDIRECT_URL", "/")
 
 # =========================
-#     الحقول/الإعدادات
+#     إعدادات عامة
 # =========================
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
@@ -247,6 +247,7 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = env_int("DATA_UPLOAD_MAX_MEMORY_SIZE", 50 * 1024 *
 if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
     SECURE_SSL_REDIRECT = env_bool("SECURE_SSL_REDIRECT", True)
+
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
 

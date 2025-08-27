@@ -1,20 +1,22 @@
 {% load static %}
 <header class="site-header" dir="rtl">
   <div class="container">
-    <!-- ✅ الشعار فقط -->
+    <!-- ✅ الشعار -->
     <a class="logo" href="/">
       <img src="https://res.cloudinary.com/dlql12ycp/image/upload/v1754102032/logo_dexumq.png" alt="شعار الموقع">
     </a>
 
     <!-- ✅ زر القائمة للجوال -->
-    <button id="menu-toggle" class="menu-toggle" aria-label="القائمة">☰</button>
+    <button id="menu-toggle" class="menu-toggle" aria-label="القائمة">
+      <i class="fas fa-bars"></i>
+    </button>
 
     <!-- ✅ الروابط -->
     <nav id="main-nav" class="nav">
       <a href="/">الرئيسية</a>
       <a href="/products/">المنتجات</a>
       <a href="/contact/">تواصل معنا</a>
-      <a href="/cart/" class="btn-cart">🛒 السلة</a>
+      <a href="/cart/" class="btn-cart"><i class="fas fa-shopping-cart"></i> السلة</a>
 
       {% if user.is_authenticated %}
         {% if user.is_student %}
@@ -23,130 +25,148 @@
           <a href="/teacher/dashboard/" class="role teacher">لوحة المعلم</a>
         {% endif %}
         <span class="hello">👋 {{ user.get_full_name|default:user.username }}</span>
-        <a href="/logout/" class="logout">تسجيل خروج</a>
+        <a href="/logout/" class="logout"><i class="fas fa-sign-out-alt"></i> خروج</a>
       {% else %}
-        <a href="/login/">تسجيل دخول</a>
-        <a href="/register/">إنشاء حساب</a>
+        <a href="/login/" class="btn-outline login">تسجيل دخول</a>
+        <a href="/register/" class="btn-outline register">إنشاء حساب</a>
       {% endif %}
     </nav>
   </div>
+</header>
 
-  <!-- ✅ CSS -->
-  <style>
-    :root{
-      --apricot-light:#fff3e0;  /* مشمشي فاتح جدًا */
-      --apricot:#ffe0b2;        /* مشمشي متوسط */
-      --ink:#1f2937;
-      --muted:#6b7280;
-      --ok:#16a34a;
-      --teacher:#2563eb;
-      --danger:#dc2626;
-      --shadow:0 6px 20px rgba(0,0,0,.06);
-      --radius:14px;
-      --container:1180px;
-    }
+<!-- 🎨 CSS -->
+<style>
+  :root{
+    --primary:#4f46e5;   /* أزرق بنفسجي */
+    --accent:#f97316;    /* برتقالي */
+    --light:#f9fafb;     /* أبيض فاتح */
+    --ink:#1f2937;       /* رمادي غامق */
+    --ok:#16a34a;
+    --danger:#dc2626;
+    --shadow:0 6px 20px rgba(0,0,0,.08);
+    --radius:14px;
+    --container:1180px;
+  }
 
-    .site-header{
-      background: linear-gradient(90deg, var(--apricot-light), var(--apricot));
-      border-bottom:1px solid #f3f4f6;
-      position:sticky; top:0; z-index:100;
-      box-shadow: var(--shadow);
-    }
+  .site-header{
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    position:sticky; top:0; z-index:100;
+    box-shadow: var(--shadow);
+  }
 
-    .site-header .container{
-      max-width:var(--container);
-      margin:auto;
-      padding:14px 18px;
-      display:flex; align-items:center; justify-content:space-between; gap:12px;
-    }
+  .site-header .container{
+    max-width:var(--container);
+    margin:auto;
+    padding:14px 18px;
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+  }
 
-    /* الشعار */
-    .logo img{
-      height:42px; width:auto; border-radius:10px; box-shadow:var(--shadow);
-    }
+  /* شعار */
+  .logo img{
+    height:48px; width:auto;
+    border-radius:10px;
+    background:#fff;
+    padding:4px;
+    box-shadow:0 3px 12px rgba(0,0,0,.15);
+  }
 
-    /* القائمة */
-    .nav{display:flex; align-items:center; gap:20px; flex-wrap:wrap}
-    .nav a{
-      text-decoration:none; color:var(--ink); font-weight:600;
-      padding:8px 10px; border-radius:8px; position:relative; transition:.25s;
-      font-size:16px;
-    }
-    .nav a:hover{color:#d35400;}
+  /* روابط */
+  .nav{display:flex; align-items:center; gap:20px; flex-wrap:wrap}
+  .nav a{
+    text-decoration:none; color:white; font-weight:600;
+    padding:8px 12px; border-radius:8px; transition:.25s;
+    font-size:15px;
+  }
+  .nav a:hover{background:rgba(255,255,255,.15);}
 
-    /* زر السلة */
-    .btn-cart{
-      background:#ef6c00;
-      color:#fff !important;
-      padding:8px 14px;
-      border-radius:10px;
-      font-weight:700;
-      box-shadow:0 6px 18px rgba(239,108,0,.25);
-      transition:0.3s;
-    }
-    .btn-cart:hover{background:#f57c00;}
+  /* زر السلة */
+  .btn-cart{
+    background:var(--accent);
+    color:#fff !important;
+    padding:8px 14px;
+    border-radius:10px;
+    font-weight:700;
+    box-shadow:0 6px 18px rgba(249,115,22,.35);
+    transition:0.3s;
+  }
+  .btn-cart:hover{background:#ea580c;}
 
-    .role.student{color:var(--ok)}
-    .role.teacher{color:var(--teacher)}
-    .logout{color:var(--danger); font-weight:700}
-    .hello{color:var(--muted); font-weight:600}
+  /* أزرار تسجيل الدخول / إنشاء حساب */
+  .btn-outline{
+    border:1px solid #fff;
+    padding:6px 12px;
+    border-radius:6px;
+    font-weight:600;
+    transition:0.3s;
+  }
+  .btn-outline:hover{
+    background:#fff;
+    color:var(--primary) !important;
+  }
 
-    /* زر القائمة للجوال */
-    .menu-toggle{
+  /* أدوار + تسجيل خروج */
+  .role.student{color:var(--ok)}
+  .role.teacher{color:#fff; background:#2563eb; padding:6px 10px; border-radius:6px;}
+  .hello{color:#f1f5f9; font-weight:600}
+  .logout{background:var(--danger); color:#fff; padding:6px 12px; border-radius:6px; font-weight:700}
+  .logout:hover{background:#b91c1c;}
+
+  /* زر القائمة للجوال */
+  .menu-toggle{
+    display:none;
+    border:0;
+    background:#fff;
+    border-radius:10px;
+    padding:8px 12px;
+    font-size:18px;
+    cursor:pointer;
+    box-shadow:var(--shadow);
+  }
+
+  /* للموبايل */
+  @media (max-width: 768px){
+    .menu-toggle{display:block}
+    .nav{
       display:none;
-      border:0;
+      flex-direction:column;
+      gap:10px;
       background:#fff;
       border:1px solid #f1f5f9;
-      border-radius:10px;
-      padding:8px 12px;
-      font-size:20px;
-      cursor:pointer;
+      border-radius:var(--radius);
+      padding:12px;
+      margin-top:10px;
+      width:100%;
       box-shadow:var(--shadow);
+      text-align:right;
     }
+    .nav a, .nav span{margin:4px 0; color:var(--ink);}
+    .nav.active{display:flex}
+  }
+</style>
 
-    /* للموبايل */
-    @media (max-width: 768px){
-      .menu-toggle{display:block}
-      .nav{
-        display:none;
-        flex-direction:column;
-        gap:10px;
-        background:#fff;
-        border:1px solid #f1f5f9;
-        border-radius:var(--radius);
-        padding:12px;
-        margin-top:10px;
-        width:100%;
-        box-shadow:var(--shadow);
-        text-align:right;
-      }
-      .nav.active{display:flex}
-      .nav a, .nav span{margin:4px 0}
-    }
-  </style>
+<!-- ⚡ JS -->
+<script>
+  document.addEventListener('DOMContentLoaded', function(){
+    const toggle = document.getElementById('menu-toggle');
+    const nav = document.getElementById('main-nav');
+    if (!toggle || !nav) return;
 
-  <!-- ✅ JS -->
-  <script>
-    document.addEventListener('DOMContentLoaded', function(){
-      const toggle = document.getElementById('menu-toggle');
-      const nav = document.getElementById('main-nav');
-      if (!toggle || !nav) return;
-
-      toggle.addEventListener('click', function(){
-        const open = nav.classList.toggle('active');
-        toggle.textContent = open ? '✖' : '☰';
-        toggle.setAttribute('aria-expanded', String(open));
-      });
-
-      // إغلاق القائمة عند اختيار رابط على الموبايل
-      nav.addEventListener('click', function(e){
-        if (getComputedStyle(toggle).display === 'none') return;
-        if (e.target.tagName.toLowerCase() === 'a'){
-          nav.classList.remove('active');
-          toggle.textContent = '☰';
-          toggle.setAttribute('aria-expanded', 'false');
-        }
-      });
+    toggle.addEventListener('click', function(){
+      const open = nav.classList.toggle('active');
+      toggle.innerHTML = open ? '<i class="fas fa-times"></i>' : '<i class="fas fa-bars"></i>';
+      toggle.setAttribute('aria-expanded', String(open));
     });
-  </script>
-</header>
+
+    nav.addEventListener('click', function(e){
+      if (getComputedStyle(toggle).display === 'none') return;
+      if (e.target.tagName.toLowerCase() === 'a'){
+        nav.classList.remove('active');
+        toggle.innerHTML = '<i class="fas fa-bars"></i>';
+        toggle.setAttribute('aria-expanded', 'false');
+      }
+    });
+  });
+</script>
+
+<!-- 📦 مكتبة الأيقونات -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
