@@ -3,10 +3,13 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <title>إنشاء حساب</title>
+  <title>إنشاء حساب - واعي</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- خطوط وأيقونات -->
   <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
 
   <style>
     body {
@@ -14,36 +17,46 @@
       background: #f5f7fb;
       margin: 0;
       padding: 0;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
     }
 
-    .register-container {
-      max-width: 400px;
-      margin: 80px auto;
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 40px 15px;
+    }
+
+    .register-card {
       background: #fff;
       border-radius: 16px;
-      box-shadow: 0 6px 20px rgba(0,0,0,.08);
-      padding: 30px 25px;
-    }
-
-    h2 {
+      padding: 35px 25px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.08);
       text-align: center;
-      color: #ff6600;
-      margin-bottom: 25px;
-      font-size: 22px;
     }
 
-    h2 i { margin-left: 6px; color: #ff9800; }
+    .register-card h2 {
+      margin-bottom: 25px;
+      color: #ff6600;
+      font-weight: bold;
+      font-size: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
 
-    /* مجموعة الحقول */
     .form-group {
       margin-bottom: 18px;
-    }
-
-    .input-box {
       position: relative;
     }
 
-    .input-box i {
+    .form-group i {
       position: absolute;
       top: 50%;
       right: 12px;
@@ -51,18 +64,19 @@
       color: #888;
     }
 
-    .input-box input {
+    .form-group input {
       width: 100%;
       padding: 12px 40px 12px 12px;
       border: 1px solid #ddd;
-      border-radius: 8px;
-      font-size: 14px;
+      border-radius: 10px;
+      font-size: 15px;
       box-sizing: border-box;
     }
 
-    .input-box input:focus {
+    .form-group input:focus {
       border-color: #ff9800;
       outline: none;
+      box-shadow: 0 0 6px rgba(255, 102, 0, 0.25);
     }
 
     /* نوع الحساب */
@@ -87,76 +101,87 @@
     }
 
     .account-type input:checked + label {
-      background: #ff9800;
+      background: #ff6600;
       color: #fff;
     }
 
-    button {
+    .register-card button {
       width: 100%;
-      background: linear-gradient(90deg, #ff9800, #ff6600);
-      color: #fff;
-      border: none;
       padding: 12px;
-      border-radius: 8px;
+      background: linear-gradient(135deg, #ff6600, #ff8533);
+      border: none;
+      color: white;
       font-size: 16px;
-      font-weight: 600;
+      font-weight: bold;
+      border-radius: 12px;
       cursor: pointer;
-      transition: .2s;
+      transition: background .3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
     }
 
-    button:hover { filter: brightness(0.95); }
+    .register-card button:hover {
+      background: linear-gradient(135deg, #e65c00, #ff751a);
+    }
 
     @media(max-width:600px){
-      .register-container { margin: 40px 15px; padding: 20px; }
+      .register-card { padding: 28px 20px; }
+      .register-card h2 { font-size: 20px; }
     }
   </style>
 </head>
-<body>
+<body class="auth-page">
+
   {% include "header.html" %}
 
-  <div class="register-container">
-    <h2><i class="fa-solid fa-user-plus"></i>إنشاء حساب</h2>
-    <form method="post" action="">
-      {% csrf_token %}
+  <main>
+    <div class="register-card">
+      <h2><i class="fa-solid fa-user-plus"></i> إنشاء حساب</h2>
+      <form method="post" action="">
+        {% csrf_token %}
 
-      <!-- اسم المستخدم -->
-      <div class="form-group input-box">
-        <i class="fa-solid fa-user"></i>
-        {{ form.username }}
-      </div>
+        <!-- اسم المستخدم -->
+        <div class="form-group">
+          <i class="fa-solid fa-user"></i>
+          {{ form.username }}
+        </div>
 
-      <!-- البريد -->
-      <div class="form-group input-box">
-        <i class="fa-solid fa-envelope"></i>
-        {{ form.email }}
-      </div>
+        <!-- البريد -->
+        <div class="form-group">
+          <i class="fa-solid fa-envelope"></i>
+          {{ form.email }}
+        </div>
 
-      <!-- نوع الحساب -->
-      <label style="font-weight:bold;">نوع الحساب</label>
-      <div class="account-type">
-        <input type="radio" id="student" name="account_type" value="student">
-        <label for="student"><i class="fa-solid fa-graduation-cap"></i> طالب</label>
+        <!-- نوع الحساب -->
+        <label style="font-weight:bold; margin-bottom:8px;">نوع الحساب</label>
+        <div class="account-type">
+          <input type="radio" id="student" name="account_type" value="student">
+          <label for="student"><i class="fa-solid fa-graduation-cap"></i> طالب</label>
 
-        <input type="radio" id="teacher" name="account_type" value="teacher">
-        <label for="teacher"><i class="fa-solid fa-chalkboard-teacher"></i> معلم</label>
-      </div>
+          <input type="radio" id="teacher" name="account_type" value="teacher">
+          <label for="teacher"><i class="fa-solid fa-chalkboard-teacher"></i> معلم</label>
+        </div>
 
-      <!-- كلمة المرور -->
-      <div class="form-group input-box">
-        <i class="fa-solid fa-lock"></i>
-        {{ form.password1 }}
-      </div>
+        <!-- كلمة المرور -->
+        <div class="form-group">
+          <i class="fa-solid fa-lock"></i>
+          {{ form.password1 }}
+        </div>
 
-      <!-- تأكيد كلمة المرور -->
-      <div class="form-group input-box">
-        <i class="fa-solid fa-lock"></i>
-        {{ form.password2 }}
-      </div>
+        <!-- تأكيد كلمة المرور -->
+        <div class="form-group">
+          <i class="fa-solid fa-lock"></i>
+          {{ form.password2 }}
+        </div>
 
-      <button type="submit"><i class="fa-solid fa-check"></i> تسجيل</button>
-    </form>
-  </div>
+        <button type="submit"><i class="fa-solid fa-check"></i> تسجيل</button>
+      </form>
+    </div>
+  </main>
 
   {% include "footer.html" %}
+
 </body>
 </html>
