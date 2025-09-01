@@ -13,38 +13,41 @@
 
     <!-- ✅ الروابط -->
     <nav id="main-nav" class="nav">
-      <a href="/">الرئيسية</a>
-      <a href="/products/">المنتجات</a>
-      <a href="/contact/">تواصل معنا</a>
+      <a href="/"><i class="fas fa-home"></i> الرئيسية</a>
+      <a href="/products/"><i class="fas fa-box"></i> المنتجات</a>
+      <a href="/contact/"><i class="fas fa-phone"></i> تواصل معنا</a>
       <a href="/cart/" class="btn-cart"><i class="fas fa-shopping-cart"></i> السلة</a>
 
       {% if user.is_authenticated %}
         {% if user.is_student %}
-          <a href="/student/dashboard/" class="role student">لوحة الطالب</a>
+          <a href="/student/dashboard/" class="role student"><i class="fas fa-user-graduate"></i> لوحة الطالب</a>
         {% elif user.is_teacher %}
-          <a href="/teacher/dashboard/" class="role teacher">لوحة المعلم</a>
+          <a href="/teacher/dashboard/" class="role teacher"><i class="fas fa-chalkboard-teacher"></i> لوحة المعلم</a>
         {% endif %}
         <span class="hello">👋 {{ user.get_full_name|default:user.username }}</span>
         <a href="/logout/" class="logout"><i class="fas fa-sign-out-alt"></i> خروج</a>
       {% else %}
-        <a href="/login/" class="btn-outline login">تسجيل دخول</a>
-        <a href="/register/" class="btn-outline register">إنشاء حساب</a>
+        <a href="/login/" class="btn-outline login"><i class="fas fa-sign-in-alt"></i> تسجيل دخول</a>
+        <a href="/register/" class="btn-outline register"><i class="fas fa-user-plus"></i> إنشاء حساب</a>
       {% endif %}
     </nav>
   </div>
 </header>
 
+<!-- ✅ الخلفية الضبابية -->
+<div id="overlay" class="overlay"></div>
+
 <!-- 🎨 CSS -->
 <style>
   :root{
-    --primary:#4f46e5;   /* أزرق بنفسجي */
-    --accent:#f97316;    /* برتقالي */
-    --light:#f9fafb;     /* أبيض فاتح */
-    --ink:#1f2937;       /* رمادي غامق */
+    --primary:#4f46e5;
+    --accent:#f97316;
+    --light:#f9fafb;
+    --ink:#1f2937;
     --ok:#16a34a;
     --danger:#dc2626;
     --shadow:0 6px 20px rgba(0,0,0,.08);
-    --radius:14px;
+    --radius:16px;
     --container:1180px;
   }
 
@@ -75,7 +78,7 @@
   .nav a{
     text-decoration:none; color:white; font-weight:600;
     padding:8px 12px; border-radius:8px; transition:.25s;
-    font-size:15px;
+    font-size:15px; display:flex; align-items:center; gap:8px;
   }
   .nav a:hover{background:rgba(255,255,255,.15);}
 
@@ -123,24 +126,66 @@
     box-shadow:var(--shadow);
   }
 
+  /* الخلفية الضبابية */
+  .overlay{
+    position:fixed;
+    top:0; left:0;
+    width:100%; height:100%;
+    background:rgba(255,255,255,0.25);
+    backdrop-filter:blur(8px);
+    opacity:0;
+    visibility:hidden;
+    transition:opacity 0.3s ease;
+    z-index:90;
+  }
+  .overlay.active{
+    opacity:1;
+    visibility:visible;
+  }
+
   /* للموبايل */
   @media (max-width: 768px){
     .menu-toggle{display:block}
     .nav{
-      display:none;
+      position:absolute;
+      top:70px; right:10px;
       flex-direction:column;
-      gap:10px;
-      background:#fff;
-      border:1px solid #f1f5f9;
+      background:rgba(255,255,255,0.7);
+      backdrop-filter: blur(12px);
       border-radius:var(--radius);
-      padding:12px;
-      margin-top:10px;
-      width:100%;
-      box-shadow:var(--shadow);
+      padding:16px;
+      width:240px;
+      box-shadow:0 8px 30px rgba(0,0,0,.15);
       text-align:right;
+      z-index:120;
+
+      opacity:0;
+      pointer-events:none;
+      transform:translateY(-20px) translateX(20px);
     }
-    .nav a, .nav span{margin:4px 0; color:var(--ink);}
-    .nav.active{display:flex}
+    .nav a, .nav span{margin:6px 0; color:var(--ink);}
+    .nav.active{
+      opacity:1;
+      pointer-events:auto;
+      animation: bounceIn 0.6s ease forwards;
+    }
+    .nav.closing{
+      animation: slideOut 0.4s ease forwards;
+    }
+  }
+
+  /* ✨ حركة الفتح */
+  @keyframes bounceIn {
+    0%   { transform:translateY(-30px) translateX(20px); opacity:0 }
+    60%  { transform:translateY(5px) translateX(0); opacity:1 }
+    80%  { transform:translateY(-3px); }
+    100% { transform:translateY(0); }
+  }
+
+  /* ✨ حركة الإغلاق */
+  @keyframes slideOut {
+    0%   { opacity:1; transform:translateY(0); }
+    100% { opacity:0; transform:translateY(-20px) translateX(20px); }
   }
 </style>
 
@@ -149,20 +194,39 @@
   document.addEventListener('DOMContentLoaded', function(){
     const toggle = document.getElementById('menu-toggle');
     const nav = document.getElementById('main-nav');
-    if (!toggle || !nav) return;
+    const overlay = document.getElementById('overlay');
+    if (!toggle || !nav || !overlay) return;
+
+    function closeMenu(){
+      nav.classList.remove('active');
+      nav.classList.add('closing');
+      overlay.classList.remove('active');
+      toggle.innerHTML = '<i class="fas fa-bars"></i>';
+      toggle.setAttribute('aria-expanded', 'false');
+
+      nav.addEventListener('animationend', function handler(){
+        nav.classList.remove('closing');
+        nav.removeEventListener('animationend', handler);
+      });
+    }
 
     toggle.addEventListener('click', function(){
-      const open = nav.classList.toggle('active');
-      toggle.innerHTML = open ? '<i class="fas fa-times"></i>' : '<i class="fas fa-bars"></i>';
-      toggle.setAttribute('aria-expanded', String(open));
+      if(nav.classList.contains('active')){
+        closeMenu();
+      } else {
+        nav.classList.add('active');
+        overlay.classList.add('active');
+        toggle.innerHTML = '<i class="fas fa-times"></i>';
+        toggle.setAttribute('aria-expanded', 'true');
+      }
     });
+
+    overlay.addEventListener('click', closeMenu);
 
     nav.addEventListener('click', function(e){
       if (getComputedStyle(toggle).display === 'none') return;
       if (e.target.tagName.toLowerCase() === 'a'){
-        nav.classList.remove('active');
-        toggle.innerHTML = '<i class="fas fa-bars"></i>';
-        toggle.setAttribute('aria-expanded', 'false');
+        closeMenu();
       }
     });
   });
